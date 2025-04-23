@@ -1,13 +1,11 @@
 
-const dateFields = ['createdAt', 'updatedAt', 'paidDate', 'spentDate']
+const dateFields = ['paidDate', 'spentDate']
 const enumFields = ['itemType', 'paymentType', 'spentType']
-const lockedFields = ['id','createdAt', 'updatedAt']
+const lockedFields = ['id']
 const validationBudgetFields = ['paidDate', 'spentDate', 'itemType', 'paymentType', 'spentType', 'amount', 'paidAmount', 'description', 'owner']
 
 const budgetHeaders = [
     { label: "ID", key: "id" },
-    { label: "Created At", key: "createdAt" },
-    { label: "Updated At", key: "updatedAt" },
     { label: "Spent Type", key: "spentType" },
     { label: "Paid Date", key: "paidDate" },
     { label: "Spent Date", key: "spentDate" },
@@ -23,8 +21,6 @@ const itemDetailHeaders = [
     { label: "ID", key: "id" },
     { label: "Item Name", key: "itemName" },
     { label: "Item price", key: "itemPrice" },
-    { label: "Created At", key: "createdAt" },
-    { label: "Updated At", key: "updatedAt" },
   ];
 
 const spentTypeEnum = Object.freeze({

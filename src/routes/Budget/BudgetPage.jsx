@@ -83,7 +83,7 @@ export default function BudgetPage() {
   const [globalParam, setGlobalParam] = useState({});
   const [expandedRow, setExpandedRow] = useState(null);
   const [page, setPage] = useState(searchParams.get("page") || 0);
-  const [shouldNavigate, setShouldNavigate] = useState(false);
+  const [shouldNavigate, setShouldNavigate] = useState(true);
   // const [page, setPage] = useState(1);
   // const [totalPages, setTotalPages] = useState(1);
   const visibleCount = 5;
@@ -161,11 +161,12 @@ export default function BudgetPage() {
   useEffect(() => {
     // handleSearch(globalParam)
     setSearchParams(p => {Object.entries(globalParam).map(([key, value]) => p.set(key, value))})
+    // setShouldNavigate(false)
     console.log("useEffect calling navigate", searchParams.toString())
     if (!isAddPage)
     navigate(`/budget?${searchParams.toString()}`);
     // return () => clearTimeout(globalParam, searchParams)
-  }, [isAddPage, searchParams]);
+  }, [isAddPage, searchParams, globalParam]);
   
 
   const handleSearch = (newParams) => {
@@ -360,7 +361,7 @@ export default function BudgetPage() {
             <tr className={`border-t border-gray-200 transition-all duration-150 whitespace-nowrap`}>
             
                 {budgetHeaders.map((header, idx) => (
-                  <td key={header.key} className="px-6 py-4">     
+                  <td key={header.key} className="px-2 py-4">     
                     {errors && errors[header.key] && <p className="text-red-500">{errors[header.key]}</p>}
                     <Outlet context={header}/>
                   </td>

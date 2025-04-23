@@ -4,10 +4,6 @@ import { budgetHeaders, dateFields, enumFields, itemCategoryEnum, lockedFields, 
 
 
 export async function loader({ request }) {
-//   const url = new URL(request.url);
-//   const q = url.searchParams;
-//   const filteredBudgetData = await get("/budget", q.toString()) || [];
-//   return { filteredBudgetData };
 }
 
 
@@ -36,14 +32,14 @@ export default function AddItemPage() {
                 name={header.key}
                 value={lockedFields.includes(header.key) ? getLocalDateTimeString() : searchAddValue}
                 onChange={(e) => {lockedFields.includes(header.key) ? setSearchAddValue(getLocalDateTimeString()) : setSearchAddValue(e.target.value)}}
-                className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             : enumFields.includes(header.key) 
                 ? <select
                     value={searchAddValue}
                     name={header.key}
                     onChange={(e) => setSearchAddValue(e.target.value)}
-                    className="border border-gray-300 bg-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full border border-gray-300 bg-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                     <option value="">{header.label}</option>
                     {Object.entries(header.key == 'spentType' ? spentTypeEnum : header.key == 'itemType' ? itemCategoryEnum : paymentTypeEnum).map(([ddKey, ddLabel]) => (
@@ -59,7 +55,7 @@ export default function AddItemPage() {
                 name={header.key}
                 value={searchAddValue}
                 onChange={(e) => setSearchAddValue(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
         }
     </>
