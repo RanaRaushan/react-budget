@@ -30,8 +30,12 @@ const Header = () => {
                   onMouseEnter={() => setDropdownVisible(true)} // Show dropdown on hover
                   onMouseLeave={() => setDropdownVisible(false)} // Hide dropdown when not hovering
                   >
-            <button className="hover:text-indigo-200" disabled>
+            <button className="hover:text-indigo-200">
+              <Link to="/budget" 
+                style={{color: 'inherit'}}
+                >
                   Budget
+              </Link>
             </button>
             {/* Dropdown Menu */}
             {dropdownVisible && (
@@ -69,17 +73,5 @@ const Header = () => {
   );
 };
 
-const Layout = () => {
-  return (
-    <>
-      <header className="bg-indigo-600 text-white p-4 shadow-md">
-        <h1 className="text-xl font-bold">My App Header</h1>
-      </header>
-      <main className="p-4">
-        <Outlet />
-      </main>
-    </>
-  );
-};
 
 export default Header;

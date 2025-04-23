@@ -5,20 +5,19 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import './App.css'
-import HomePage, {loader as budgetLoader} from "./routes/homePage";
-import Header from "./routes/HeaderLayout";
+import BudgetPage, {loader as budgetLoader} from "./routes/BudgetPage";
+import HomePage from "./routes/Home"
+import Header from "./routes/Header";
+import ErrorPage from "./error-page";
 
-function App() {
-  console.log("Inside App")
-  
+function App() { 
 
   const router = createBrowserRouter(
       createRoutesFromElements(
-        // <Route path="/" element={<HomePage />} loader={budgetLoader}>
-        // </Route>
-        <Route path="/" element={<Header />}>
-        <Route index element={<HomePage />} loader={budgetLoader} />
-        
+        <Route path="/" element={<Header />}  errorElement={<ErrorPage />} >
+          <Route index path="/" element={<HomePage /> } errorElement={<ErrorPage />} />
+          <Route path="budget" element={<BudgetPage />} loader={budgetLoader} errorElement={<ErrorPage />}>
+          </Route>          
       </Route>
       )
   );

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import "./homePage.css";
+import "./BudgetPage.css";
 import { HiChevronUp } from "react-icons/hi";
 import { FaSkullCrossbones } from "react-icons/fa";
 import { IoMdArrowDropright, IoMdArrowDropdown } from "react-icons/io";
@@ -19,8 +19,7 @@ export async function loader({ request }) {
   return { filteredBudgetData };
 }
 
-
-export default function HomePage() {
+export default function BudgetPage() {
   const navigate = useNavigate();
   const { filteredBudgetData } = useLoaderData();
   // console.log("filteredBudgetData", filteredBudgetData)
@@ -116,7 +115,7 @@ export default function HomePage() {
       ...newParams
     });
     console.log("calling search", params.toString())
-    navigate(`/?${params.toString()}`);
+    navigate(`/budget?${params.toString()}`);
   };
   
   return (
