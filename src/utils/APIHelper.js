@@ -23,7 +23,7 @@ export async function get(url, params = {}, requireAuth=false) {
 }
 
 export async function post(url, data = {}, requireAuth=false) {
-    console.log("data", data, JSON.stringify(data))
+    console.log("data", url, data, JSON.stringify(data))
     try {
         const response = await fetch(PREFIX + url, {
             method: 'POST',

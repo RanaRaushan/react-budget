@@ -1,6 +1,8 @@
 
 const dateFields = ['createdAt', 'updatedAt', 'paidDate', 'spentDate']
 const enumFields = ['itemType', 'paymentType', 'spentType']
+const lockedFields = ['id','createdAt', 'updatedAt']
+const validationBudgetFields = ['paidDate', 'spentDate', 'itemType', 'paymentType', 'spentType', 'amount', 'paidAmount', 'description', 'owner']
 
 const budgetHeaders = [
     { label: "ID", key: "id" },
@@ -13,7 +15,7 @@ const budgetHeaders = [
     { label: "Item Category", key: "itemType" },
     { label: "Description", key: "description" },
     { label: "Paid Via", key: "paymentType" },
-    { label: "Amount(My Share)", key: "amount" },
+    { label: "Amount (My Share)", key: "amount" },
     { label: "Paid Amount (Total Share)", key: "paidAmount" },
   ];
   
@@ -81,5 +83,7 @@ export {
     paymentTypeEnum,
     itemCategoryEnum,
     enumFields,
-    dateFields
+    dateFields,
+    lockedFields,
+    validationBudgetFields,
 };
