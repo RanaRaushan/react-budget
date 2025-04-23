@@ -4,7 +4,6 @@ const PREFIX = SERVER_HOST + import.meta.env.VITE_API_PREFIX;
 export async function get(url, params = {}, requireAuth=false) {
     try {
         
-  console.log("params", params)
   const urlWithParams = `${url}?${params.toString()}`
         const response = await fetch(PREFIX + urlWithParams, {
             method: 'GET',

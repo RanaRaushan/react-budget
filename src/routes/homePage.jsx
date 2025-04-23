@@ -6,7 +6,8 @@ import { FaSkullCrossbones } from "react-icons/fa";
 import { IoMdArrowDropright, IoMdArrowDropdown } from "react-icons/io";
 import { useNavigate, useLoaderData } from "react-router-dom";
 import {get} from '../utils/APIHelper.js';
-import {budgetHeaders, itemDetailHeaders, spentTypeEnum, paymentTypeEnum, itemCategoryEnum, enumFields, dateFields} from '../utils/Helper.js';
+import {budgetHeaders, itemDetailHeaders, spentTypeEnum, paymentTypeEnum, itemCategoryEnum, enumFields, dateFields} from '../utils/constantHelper.js';
+import { filterMapObject, isEffectivelyEmpty } from "../utils/functionHelper.js";
 
 
 
@@ -71,26 +72,26 @@ export default function HomePage() {
     }));
   };
 
-  const handleSearch = (newParams) => {
-    // const sortingValue = `${sortColumn}-${sortDirection}`;
-    const selectedYearParmVal = `${selectedYear}`;
-    const params = new URLSearchParams({
-      selectedYear: selectedYearParmVal,
-      // sortingValue: sortingValue,
-      ...newParams
-    });
-    console.log("calling search", params.toString())
-    navigate(`/?${params.toString()}`);
-  };
-
-  const handleAddParam = (e) => {
+  const handleAddParam = (e, paramToAdd) => {
     e.preventDefault();
     const searchParmValue = `${searchValue}`;
     const searchKeyParm = `${searchKey}`;
-    if (searchParmValue){
+
+    if (searchParmValue && isEffectivelyEmpty(paramToAdd)) {
       setGlobalParam((prev) => ({
         ...prev,
         [searchKeyParm]: searchParmValue,
+        ...paramToAdd,
+      }));
+    } else if(searchParmValue) {
+      setGlobalParam((prev) => ({
+        ...prev,
+        [searchKeyParm]: searchParmValue,
+      }));
+    } else if (isEffectivelyEmpty(paramToAdd)) {
+      setGlobalParam((prev) => ({
+        ...prev,
+        ...paramToAdd,
       }));
     }
   };
@@ -99,6 +100,9 @@ export default function HomePage() {
     e.preventDefault();
     const newParams = { ...globalParam };
     delete newParams[keyToRemove];
+    if (Object.keys(filterMapObject(newParams, "selectedYear")).length === 0){
+      setSearchValue('')
+    }
     setGlobalParam(newParams);
   };
 
@@ -107,6 +111,13 @@ export default function HomePage() {
     return () => clearTimeout(globalParam)
   }, [globalParam]);
 
+  const handleSearch = (newParams) => {
+    const params = new URLSearchParams({
+      ...newParams
+    });
+    console.log("calling search", params.toString())
+    navigate(`/?${params.toString()}`);
+  };
   
   return (
       <div className="space-y-6">
@@ -115,7 +126,7 @@ export default function HomePage() {
           {/* Search Key Dropdown */}
           <select
             value={searchKey}
-            onChange={(e) => setSearchKey(e.target.value)}
+            onChange={(e) => {setSearchKey(e.target.value), setSearchValue('')}}
             className="border border-gray-300 bg-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             {searchOptions.map(({key, label}) => (
@@ -167,7 +178,7 @@ export default function HomePage() {
         {/* Year Dropdown */}
         <select
           value={selectedYear}
-          onChange={(e) => setSelectedYear(e.target.value)}
+          onChange={(e) => {setSelectedYear(e.target.value), handleAddParam(e, {selectedYear:e.target.value})}}
           className="border border-gray-300 bg-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           <option value="">All Year</option>
@@ -186,13 +197,13 @@ export default function HomePage() {
       </div>
 
 
-      {Object.keys(globalParam).length !== 0 && 
+      {Object.keys(filterMapObject(globalParam, "selectedYear")).length !== 0 && 
         <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl shadow border border-gray-200">
 
           {/* Dynamic Labels for Global Params */}
           <div className="flex flex-wrap gap-2">
             <div className="text-lg font-semibold mb-2">Filters:</div>
-            {Object.entries(globalParam).map(([key, value]) => (
+            {Object.entries(filterMapObject(globalParam, "selectedYear")).map(([key, value]) => (
               <span
                 key={key}
                 className="flex items-center bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-medium"
