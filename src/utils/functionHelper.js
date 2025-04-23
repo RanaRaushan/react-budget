@@ -8,12 +8,15 @@ function isEffectivelyEmpty(arr) {
   }
 
 
-function filterMapObject(originalMapObj, extraKey) {
+function filterMapObject(originalMapObj, ...extraKeys) {
     const cleaned = Object.fromEntries(
         Object.entries(originalMapObj).filter(([key, value]) => {
-            if (extraKey) {
+            if (extraKeys) {
+                const anyKeyFound = extraKeys.some(extraKey => extraKey === key)
                 // console.log("fitlering extra key", extraKey, key)
-                return (extraKey !== key);
+                if (anyKeyFound) {
+                    return false;
+                }
             }
             return (value !== null && value !== undefined && String(value).trim() !== '') && (key !== null && key !== undefined && String(key).trim() !== '');
             })

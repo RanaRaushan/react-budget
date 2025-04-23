@@ -4,10 +4,10 @@ import "./BudgetPage.css";
 import { HiChevronUp } from "react-icons/hi";
 import { FaSkullCrossbones } from "react-icons/fa";
 import { IoMdArrowDropright, IoMdArrowDropdown } from "react-icons/io";
-import { useNavigate, useLoaderData } from "react-router-dom";
-import {get} from '../utils/APIHelper.js';
-import {budgetHeaders, itemDetailHeaders, spentTypeEnum, paymentTypeEnum, itemCategoryEnum, enumFields, dateFields} from '../utils/constantHelper.js';
-import { filterMapObject, isEffectivelyEmpty } from "../utils/functionHelper.js";
+import { useNavigate, useLoaderData, Outlet, useParams, useSearchParams } from "react-router-dom";
+import {get} from '../../utils/APIHelper.js';
+import {budgetHeaders, itemDetailHeaders, spentTypeEnum, paymentTypeEnum, itemCategoryEnum, enumFields, dateFields} from '../../utils/constantHelper.js';
+import { filterMapObject, isEffectivelyEmpty } from "../../utils/functionHelper.js";
 
 
 
@@ -15,13 +15,25 @@ import { filterMapObject, isEffectivelyEmpty } from "../utils/functionHelper.js"
 export async function loader({ request }) {
   const url = new URL(request.url);
   const q = url.searchParams;
-  const filteredBudgetData = await get("/budget", q.toString()) || [];
-  return { filteredBudgetData };
+  const response = await get("/budget", q.toString()) || [];
+  console.log("res", response)
+  let filteredBudgetData = []
+  // const pageSize = response.size
+  // const numberOfElements = response.numberOfElements
+  const totalPages = response.totalPages
+  const currentPage = Math.min(response.number, totalPages)
+  if (response.empty !== true) {
+    filteredBudgetData = response.content
+    return { filteredBudgetData, currentPage, totalPages };
+  }
+  return { filteredBudgetData, currentPage, totalPages }
 }
 
 export default function BudgetPage() {
   const navigate = useNavigate();
-  const { filteredBudgetData } = useLoaderData();
+  const { filteredBudgetData, currentPage, totalPages } = useLoaderData();
+  let [searchParams, setSearchParams] = useSearchParams();
+  // console.log("useParams", searchParams.get("selectedYear"), searchParams.get("page"), searchParams.get("page1") || 0)
   // console.log("filteredBudgetData", filteredBudgetData)
 
   // Get current year dynamically
@@ -29,11 +41,15 @@ export default function BudgetPage() {
 
   const [searchKey, setSearchKey] = useState("id");
   const [searchValue, setSearchValue] = useState("");
-  const [selectedYear, setSelectedYear] = useState(currentYear);
-  const [sortColumn, setSortColumn] = useState("spentDate");
-  const [sortDirection, setSortDirection] = useState("asc");
+  const [selectedYear, setSelectedYear] = useState(searchParams.get("selectedYear") || currentYear);
+  const [sortColumn, setSortColumn] = useState(searchParams.get("sort")?.split("-")[0] || "spentDate");
+  const [sortDirection, setSortDirection] = useState(searchParams.get("sort")?.split("-")[1] || "asc");
   const [globalParam, setGlobalParam] = useState({});
   const [expandedRow, setExpandedRow] = useState(null);
+  const [page, setPage] = useState(searchParams.get("page") || 0);
+  // const [page, setPage] = useState(1);
+  // const [totalPages, setTotalPages] = useState(1);
+  const visibleCount = 5;
 
   const toggleExpand = (id) => {
     setExpandedRow(prev => (prev === id ? null : id));
@@ -99,16 +115,19 @@ export default function BudgetPage() {
     e.preventDefault();
     const newParams = { ...globalParam };
     delete newParams[keyToRemove];
-    if (Object.keys(filterMapObject(newParams, "selectedYear")).length === 0){
+    if (Object.keys(filterMapObject(newParams, "selectedYear", "page")).length === 0){
       setSearchValue('')
     }
     setGlobalParam(newParams);
   };
 
   useEffect(() => {
-    handleSearch(globalParam)
-    return () => clearTimeout(globalParam)
-  }, [globalParam]);
+    // handleSearch(globalParam)
+    setSearchParams(p => {Object.entries(globalParam).map(([key, value]) => p.set(key, value))})
+    console.log("useEffect calling search", searchParams.toString())
+    navigate(`/budget?${searchParams.toString()}`);
+    return () => clearTimeout(searchParams, searchParams)
+  }, [globalParam, searchParams]);
 
   const handleSearch = (newParams) => {
     const params = new URLSearchParams({
@@ -116,6 +135,23 @@ export default function BudgetPage() {
     });
     console.log("calling search", params.toString())
     navigate(`/budget?${params.toString()}`);
+  };
+
+  const getPageNumbers = () => {
+    // const visibleCount = 5;
+    let start = Math.max(1, page - Math.floor(visibleCount / 2));
+    let end = Math.min(totalPages, start + visibleCount - 1);
+
+    // console.log("start, end", start, end)
+    // Adjust start again if not enough pages at the end
+    start = Math.max(1, end - visibleCount + 1);
+
+    const pages = [];
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    // console.log(pages)
+    return pages;
   };
   
   return (
@@ -196,13 +232,13 @@ export default function BudgetPage() {
       </div>
 
 
-      {Object.keys(filterMapObject(globalParam, "selectedYear")).length !== 0 && 
+      {Object.keys(filterMapObject(globalParam, "selectedYear", "page")).length !== 0 && 
         <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl shadow border border-gray-200">
 
           {/* Dynamic Labels for Global Params */}
           <div className="flex flex-wrap gap-2">
             <div className="text-lg font-semibold mb-2">Filters:</div>
-            {Object.entries(filterMapObject(globalParam, "selectedYear")).map(([key, value]) => (
+            {Object.entries(filterMapObject(globalParam, "selectedYear", "page")).map(([key, value]) => (
               <span
                 key={key}
                 className="flex items-center bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-medium"
@@ -241,6 +277,7 @@ export default function BudgetPage() {
         </thead>
         <tbody>
           {filteredBudgetData.map((item, index) => (
+
             <React.Fragment key={item.id}>
               <tr
                 key={index}
@@ -280,7 +317,44 @@ export default function BudgetPage() {
           ))}
         </tbody>
       </table>
+
+      {/* Pagination Controls */}
+      <div className="flex justify-center items-center space-x-2">
+        <button
+          onClick={() => setPage((p) => Math.max(p - visibleCount, 1))}
+          disabled={currentPage === 1}
+          className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+        >
+          Previous
+        </button>
+
+        {getPageNumbers().map((pg) => (
+          <button
+            key={pg}
+            onClick={(e) => {setPage(pg), handleAddParam(e, {page:pg-1})}}
+            className={`px-3 py-1 rounded ${
+              page === pg
+                ? 'bg-indigo-500 text-white'
+                : 'bg-gray-100 hover:bg-gray-200'
+            }`}
+          >
+            {pg}
+          </button>
+        ))}
+
+        <button
+          onClick={() => setPage((p) => Math.min(p + visibleCount, totalPages))}
+          disabled={currentPage === totalPages}
+          className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
     </div>
+    <main className="p-4 pt-20 ranaoutlet">
+      <Outlet />
+    </main>
     </div>
+    
     );
   }
