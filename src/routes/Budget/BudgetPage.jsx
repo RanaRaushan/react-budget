@@ -23,7 +23,7 @@ export async function action({ request }) {
     errors = {...errors, ...validateInputs(header, fieldValue, intent+"-")}
   ))
   console.log("action",errors)
-  if (Object.keys(errors).length){
+  if (Object.keys(errors).length > 0){
     return errors;
   }
   if (intent === "edit" && payload) {
@@ -74,7 +74,7 @@ export default function BudgetPage() {
   const visibleCount = 5;
   const navigate = useNavigate();
   const location = useLocation();
-  const errors = useActionData();
+  const errorsAction = useActionData();
   const { filteredBudgetData, currentPage, totalPages } = useLoaderData();
 
   const isAddPage = location.pathname.includes("add");
@@ -94,6 +94,7 @@ export default function BudgetPage() {
   const [page, setPage] = useState(searchParams.get("page") || 0);
   const [shouldNavigate, setShouldNavigate] = useState(true);
   const [editRowId, setEditRowId] = useState(null);
+  const [errors, setErrors] = useState({});
   // const [page, setPage] = useState(1);
   // const [totalPages, setTotalPages] = useState(1);
 
@@ -158,16 +159,22 @@ export default function BudgetPage() {
     }
     setGlobalParam(newParams);
   };
+  
+  useEffect(() => {
+    if (errorsAction) {
+        setErrors(errorsAction);
+    }
+  }, [errorsAction]);
 
   useEffect(() => {
     // handleSearch(globalParam)
     setSearchParams(p => {Object.entries(globalParam).map(([key, value]) => p.set(key, value))})
     // setShouldNavigate(false)
     console.log("useEffect calling navigate", searchParams.toString())
-    if (!isAddPage) {
+    if (!errors) {
       navigate(`/budget?${searchParams.toString()}`)
     }
-  }, [isAddPage, searchParams, globalParam]);
+  }, [errors, searchParams, globalParam]);
   
 
   const getPageNumbers = () => {
@@ -375,7 +382,7 @@ export default function BudgetPage() {
             
                 {budgetHeaders.map((header, idx) => (
                   <td key={header.key} className={`${tdCSS}`}>
-                    {errors && errors[addIntent+header.key] && <p className="text-red-500">{errors[addIntent+header.key]}</p>}
+                    {errors && errors[addIntent+header.key] && <p className="text-red-500 text-xs">{errors[addIntent+header.key]}</p>}
                     <Outlet name="add" context={header}/>
                   </td>
                 ))}
