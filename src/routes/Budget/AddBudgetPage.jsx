@@ -21,6 +21,7 @@ export default function AddItemPage() {
     const [searchAddValue, setSearchAddValue] = useState("");
 
   const header = useOutletContext();
+  const add = "add-"
   return (
     <>
         {
@@ -29,7 +30,7 @@ export default function AddItemPage() {
                 disabled={lockedFields.includes(header.key)}
                 type={lockedFields.includes(header.key) ? "datetime-local" : "date"}
                 placeholder={header.key}
-                name={header.key}
+                name={`${add}${header.key}`}
                 value={lockedFields.includes(header.key) ? getLocalDateTimeString() : searchAddValue}
                 onChange={(e) => {lockedFields.includes(header.key) ? setSearchAddValue(getLocalDateTimeString()) : setSearchAddValue(e.target.value)}}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -37,7 +38,7 @@ export default function AddItemPage() {
             : enumFields.includes(header.key) 
                 ? <select
                     value={searchAddValue}
-                    name={header.key}
+                    name={`${add}${header.key}`}
                     onChange={(e) => setSearchAddValue(e.target.value)}
                     className="w-full border border-gray-300 bg-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
@@ -52,7 +53,7 @@ export default function AddItemPage() {
                 type="text"
                 disabled={lockedFields.includes(header.key)}
                 placeholder={header.label}
-                name={header.key}
+                name={`${add}${header.key}`}
                 value={searchAddValue}
                 onChange={(e) => setSearchAddValue(e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"

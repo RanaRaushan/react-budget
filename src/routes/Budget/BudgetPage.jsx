@@ -17,7 +17,7 @@ export async function action({ request }) {
   let errors = {};
   budgetHeaders.map((header, idx) => (
     payload[header.key] = formData.get(header.key),
-    errors = {...errors, ...validateInputs(header, formData.get(header.key))}
+    errors = {...errors, ...validateInputs(header, formData.get(header.key), intent+"-")}
   ))
   if (Object.keys(errors).length){
     return errors;
@@ -38,13 +38,14 @@ export async function action({ request }) {
   );
 }
 
-function validateInputs(input, inputValue) {
+function validateInputs(input, inputValue, prefix) {
   let inputError = {}
   if (validationBudgetFields.includes(input.key)) {
     if (!inputValue || !inputValue.trim()) {
-      inputError[input.key] = `${input.label} is required`;
+      inputError[prefix + input.key] = `${input.label} is required`;
     }
   }
+  console.log('inputError', inputError)
   return inputError
 }
 
@@ -335,7 +336,7 @@ export default function BudgetPage() {
                   ))}
                   
                   <td className="px-6 py-4">
-                    <button className="text-blue-600 hover:underline">Edit</button>
+                    <button type="submit" name="intent" value="edit" className="text-blue-600 hover:underline">Edit</button>
                   </td>
                 </tr>
                 {expandedRow === item.id && item['itemDetail'] && (
