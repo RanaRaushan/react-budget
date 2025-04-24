@@ -4,9 +4,6 @@ import { budgetHeaders, dateFields, enumFields, itemCategoryEnum, lockedFields, 
 import { ddOptionCSS, inputCSS, inputddCSS } from '../../utils/cssConstantHelper';
 
 
-export async function loader({ request }) {
-}
-
 
 function getLocalDateTimeString() {
     const now = new Date();
@@ -14,35 +11,36 @@ function getLocalDateTimeString() {
   
     // Adjust time to local timezone
     const localDateTime = new Date(now.getTime() - offset * 60 * 1000);
-  
-    return localDateTime.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:MM"
+    console.log("now.toISOString()", now.toISOString().split("T")[0])
+    return now.toISOString().split("T")[0]; // "YYYY-MM-DDTHH:MM"
   }
 
-export default function AddItemPage() {
+export default function UpdateItemPage({header, item}) {
     const [searchAddValue, setSearchAddValue] = useState("");
+    const [formData, setFormData] = useState(budgetHeaders.reduce((acc, col) => {
+        acc[col.key] = item[col.key];
+        return acc;
+      }, {}));
 
-  const header = useOutletContext();
-  const intent = "add-"
-  
-  console.log("calling AddItemPage")
+  const intent = "edit-"
+//   console.log("calling UpdateItemPage", header, item)
   return (
     <>
         {
         dateFields.includes(header.key) 
             ? <input 
-                disabled={lockedFields.includes(header.key)}
-                type={lockedFields.includes(header.key) ? "datetime-local" : "date"}
+                type="date"
                 placeholder={header.key}
                 name={`${intent}${header.key}`}
-                value={lockedFields.includes(header.key) ? getLocalDateTimeString() : searchAddValue}
-                onChange={(e) => {lockedFields.includes(header.key) ? setSearchAddValue(getLocalDateTimeString()) : setSearchAddValue(e.target.value)}}
+                value={formData[header.key]}
+                onChange={(e) => setFormData((prev) => ({ ...prev, [`${header.key}`]: e.target.value }))}
                 className={`${inputCSS}`}
             />
             : enumFields.includes(header.key) 
                 ? <select
-                    value={searchAddValue}
+                    value={formData[header.key]}
                     name={`${intent}${header.key}`}
-                    onChange={(e) => setSearchAddValue(e.target.value)}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, [`${header.key}`]: e.target.value }))}
                     className={`${inputddCSS}`}
                 >
                     <option className={`${ddOptionCSS}`} value="">{header.label}</option>
@@ -57,8 +55,8 @@ export default function AddItemPage() {
                 disabled={lockedFields.includes(header.key)}
                 placeholder={header.label}
                 name={`${intent}${header.key}`}
-                value={searchAddValue}
-                onChange={(e) => setSearchAddValue(e.target.value)}
+                value={formData[header.key]}
+                onChange={(e) => setFormData((prev) => ({ ...prev, [`${header.key}`]: e.target.value }))}
                 className={`${inputCSS}`}
             />
         }

@@ -66,7 +66,7 @@ const Header = () => {
         </nav>
       </div>
     </header>
-    <main className="p-4 pt-20">
+    <main className="">
       <Outlet />
     </main>
     </>

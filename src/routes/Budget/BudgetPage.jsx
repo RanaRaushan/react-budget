@@ -2,32 +2,36 @@
 import React, { useState, useEffect } from "react";
 import "./BudgetPage.css";
 import { HiChevronUp } from "react-icons/hi";
-import { FaSkullCrossbones } from "react-icons/fa";
+import { FaSkullCrossbones, FaPlus } from "react-icons/fa";
 import { IoMdArrowDropright, IoMdArrowDropdown } from "react-icons/io";
-import { useNavigate, useLoaderData, Outlet, useParams, useSearchParams, useLocation, Form, useFormAction, useActionData, redirect } from "react-router-dom";
+import { useNavigate, useLoaderData, Outlet, useParams, useSearchParams, useLocation, Form, useFormAction, useActionData, redirect, Link } from "react-router-dom";
 import {get, post} from '../../utils/APIHelper.js';
 import {budgetHeaders, itemDetailHeaders, spentTypeEnum, paymentTypeEnum, itemCategoryEnum, enumFields, dateFields, validationBudgetFields} from '../../utils/constantHelper.js';
 import { filterMapObject, isEffectivelyEmpty } from "../../utils/functionHelper.js";
-
+import UpdateItemPage from "./UpdateBudgetPage.jsx";
+import { buttonCSS, ddOptionCSS, inputddCSS, spentTypeColorMap, tableCSS, tableRowCSS, tdCSS, theadCSS } from "../../utils/cssConstantHelper.js";
 
 export async function action({ request }) {
   let formData = await request.formData();
   let intent = formData.get("intent");
   const payload = {};
   let errors = {};
+  let fieldValue
   budgetHeaders.map((header, idx) => (
-    payload[header.key] = formData.get(header.key),
-    errors = {...errors, ...validateInputs(header, formData.get(header.key), intent+"-")}
+    fieldValue = formData.get(intent+"-"+header.key),
+    payload[header.key] = fieldValue,
+    errors = {...errors, ...validateInputs(header, fieldValue, intent+"-")}
   ))
+  console.log("action",errors)
   if (Object.keys(errors).length){
     return errors;
   }
-  if (intent === "edit") {
+  if (intent === "edit" && payload) {
     await post("/budget/update-transaction", payload);
     return redirect("/budget");
   }
 
-  if (intent === "add") {
+  if (intent === "add" && payload) {
     await post("/budget/add-transaction", payload);
     return redirect("/budget");
   }
@@ -65,13 +69,17 @@ export async function loader({ request }) {
 }
 
 export default function BudgetPage() {
+  const updateIntent = "edit-"
+  const addIntent = "add-"
+  const visibleCount = 5;
   const navigate = useNavigate();
   const location = useLocation();
   const errors = useActionData();
   const { filteredBudgetData, currentPage, totalPages } = useLoaderData();
 
   const isAddPage = location.pathname.includes("add");
-  console.log("location", location.pathname)
+  const isUpdatePage = location.pathname.includes("update");
+  console.log("location", location.pathname, location.search)
   // Get current year dynamically
   const currentYear = new Date().getFullYear();
 
@@ -85,9 +93,9 @@ export default function BudgetPage() {
   const [expandedRow, setExpandedRow] = useState(null);
   const [page, setPage] = useState(searchParams.get("page") || 0);
   const [shouldNavigate, setShouldNavigate] = useState(true);
+  const [editRowId, setEditRowId] = useState(null);
   // const [page, setPage] = useState(1);
   // const [totalPages, setTotalPages] = useState(1);
-  const visibleCount = 5;
 
   const toggleExpand = (id) => {
     setExpandedRow(prev => (prev === id ? null : id));
@@ -101,14 +109,6 @@ export default function BudgetPage() {
   const extra_headers = [
     { label: "Actions", key: "actions" }
   ];
-
-  const spentTypeColorMap = {
-    EXPENSE: "bg-red-100 text-red-600 hover:bg-inherit hover:text-inherit",
-    OTHER: "bg-yellow-100 text-yellow-600 hover:bg-inherit hover:text-inherit",
-    INCOME: "bg-blue-100 text-blue-600 hover:bg-inherit hover:text-inherit",
-    SELF_TRANSFER_OUT: "bg-green-100 text-green-600 hover:bg-inherit hover:text-inherit",
-    SELF_TRANSFER_IN: "bg-green-100 text-green-600 hover:bg-inherit hover:text-inherit",
-  };
 
   const searchOptions = [...budgetHeaders];
 
@@ -164,27 +164,16 @@ export default function BudgetPage() {
     setSearchParams(p => {Object.entries(globalParam).map(([key, value]) => p.set(key, value))})
     // setShouldNavigate(false)
     console.log("useEffect calling navigate", searchParams.toString())
-    if (!isAddPage)
-    navigate(`/budget?${searchParams.toString()}`);
-    // return () => clearTimeout(globalParam, searchParams)
+    if (!isAddPage) {
+      navigate(`/budget?${searchParams.toString()}`)
+    }
   }, [isAddPage, searchParams, globalParam]);
   
 
-  const handleSearch = (newParams) => {
-    const params = new URLSearchParams({
-      ...newParams
-    });
-    console.log("calling search", params.toString())
-    navigate(`/budget?${params.toString()}`);
-  };
-
   const getPageNumbers = () => {
-    // const visibleCount = 5;
     let start = Math.max(1, page - Math.floor(visibleCount / 2));
     let end = Math.min(totalPages, start + visibleCount - 1);
 
-    // console.log("start, end", start, end)
-    // Adjust start again if not enough pages at the end
     start = Math.max(1, end - visibleCount + 1);
 
     const pages = [];
@@ -194,19 +183,19 @@ export default function BudgetPage() {
     // console.log(pages)
     return pages;
   };
-  
+  console.log("errors", errors)
   return (
       <div className="space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl shadow border border-gray-200">
-          <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-row items-center justify-between gap-4 p-4 rounded-xl shadow border border-gray-200">
+          <div className="flex flex-row items-center gap-4">
             {/* Search Key Dropdown */}
             <select
               value={searchKey}
               onChange={(e) => {setSearchKey(e.target.value), setSearchValue('')}}
-              className="border border-gray-300 bg-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className={`${inputddCSS}`}
             >
               {searchOptions.map(({key, label}) => (
-                <option key={key} value={key}>
+                <option className={`${ddOptionCSS}`} key={key} value={key}>
                   {label.charAt(0).toUpperCase() + label.slice(1)}
                 </option>
               ))}
@@ -219,13 +208,13 @@ export default function BudgetPage() {
                       placeholder="Search value"
                       value={searchValue}
                       onChange={(e) => setSearchValue(e.target.value)}
-                      className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className={`${inputddCSS}`}
                     />
                     : enumFields.includes(searchKey) 
                       ? <select
                           value={searchValue}
                           onChange={(e) => setSearchValue(e.target.value)}
-                          className="border border-gray-300 bg-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          className={`${inputddCSS}`}
                         >
                           <option value="">Select</option>
                           {Object.entries(searchKey == 'spentType' ? spentTypeEnum : searchKey == 'itemType' ? itemCategoryEnum : paymentTypeEnum).map(([ddKey, ddLabel]) => (
@@ -239,13 +228,13 @@ export default function BudgetPage() {
                       placeholder="Search value"
                       value={searchValue}
                       onChange={(e) => setSearchValue(e.target.value)}
-                      className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className={`${inputddCSS}`}
                   />
             }
             {/* Add button to add multiple condition */}
             <button
                 type="submit"
-                className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded"
+                className={`${buttonCSS}`}
                 onClick={(e) => {handleAddParam(e)}}
               >Add Search
             </button>
@@ -255,7 +244,7 @@ export default function BudgetPage() {
           <select
             value={selectedYear}
             onChange={(e) => {setSelectedYear(e.target.value), handleAddParam(e, {selectedYear:e.target.value})}}
-            className="border border-gray-300 bg-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className={`${inputddCSS}`}
           >
             <option value="">All Year</option>
             {yearOptions.map((year) => (
@@ -298,8 +287,8 @@ export default function BudgetPage() {
         {/* Table */}
         <Form method="post" >
         <div className="overflow-x-auto rounded-2xl shadow-lg border border-gray-200">
-        <table className="min-w-full text-sm text-left text-gray-100">
-          <thead className="bg-indigo-600 text-white uppercase tracking-wide">
+        <table className={`${tableCSS}`}>
+          <thead className={`${theadCSS}`}>
             <tr>
               {budgetHeaders.concat(extra_headers).map((header, idx) => (
                 <th key={idx} className="px-4 py-4 whitespace-nowrap font-medium cursor-pointer"
@@ -323,20 +312,29 @@ export default function BudgetPage() {
               <React.Fragment key={item.id}>
                 <tr
                   key={index}
-                  className={`${spentTypeColorMap[item.spentType] || 'hover:bg-indigo-50 hover:text-indigo-700'} border-t border-gray-200 transition-all duration-150 whitespace-nowrap`}
+                  className={`${editRowId === item['id'] ? '': spentTypeColorMap[item.spentType] || tableRowCSS}`}
                 >
                   {budgetHeaders.map((header, idx) => (
-                    header.key == 'id' && item['itemDetail'] && item['itemDetail'].length > 0
-                    ? <td key={header.key} className="px-4 py-4">
-                      <label onClick={() => toggleExpand(item.id)} className="focus:outline-none cursor-pointer">
-                        <span>{item[header.key]}{expandedRow === item.id ? <IoMdArrowDropdown /> : <IoMdArrowDropright />}</span>
-                      </label>
+                    editRowId === item['id']
+                    ? <td key={header.key} className={`${tdCSS}`}>
+                          {errors && errors[updateIntent+header.key] && <p className="text-red-500">{errors[updateIntent+header.key]}</p>}
+                          <UpdateItemPage header={header} item={item}/>
                       </td>
-                    : <td key={header.key} className="px-4 py-4">{item[header.key]}</td>
+                    : header.key == 'id' && item['itemDetail'] && item['itemDetail'].length > 0
+                        ? <td key={header.key} className={`${tdCSS}`}>
+                          <label onClick={() => toggleExpand(item.id)} className="focus:outline-none cursor-pointer">
+                            <span>{item[header.key]}{expandedRow === item.id ? <IoMdArrowDropdown /> : <IoMdArrowDropright />}</span>
+                          </label>
+                          </td>
+                        : <td key={header.key} className={`${tdCSS}`}>{item[header.key]}</td>
                   ))}
                   
-                  <td className="px-6 py-4">
-                    <button type="submit" name="intent" value="edit" className="text-blue-600 hover:underline">Edit</button>
+                  <td className={`${tdCSS}`}>
+                    {editRowId !== item['id'] 
+                      ? <button onClick={(e) => {setEditRowId(item.id), e.preventDefault()}} className="text-blue-600 hover:underline">Update</button>
+                      : <><button type="submit" name="intent" value="edit" className="text-blue-600 hover:underline">Y</button>
+                        <button onClick={(e) => {setEditRowId(null), e.preventDefault()}} className="text-blue-600 hover:underline">X</button></>
+                    }
                   </td>
                 </tr>
                 {expandedRow === item.id && item['itemDetail'] && (
@@ -358,19 +356,36 @@ export default function BudgetPage() {
               </React.Fragment>
             )
             )}
-            
-            <tr className={`border-t border-gray-200 transition-all duration-150 whitespace-nowrap`}>
+            {!isAddPage && <tr className={`${tableRowCSS}`}>
+                {[...Array(budgetHeaders.length + 1)].map((_, idx) => {
+                  return idx === budgetHeaders.length
+                    ? <td className={`${tdCSS}`}>
+                        <button className="hover:text-indigo-200" >
+                          <Link to="/budget/add" 
+                            style={{color: 'inherit'}}
+                            >
+                              <FaPlus />
+                          </Link>
+                        </button>
+                      </td>
+                    : <td></td>
+                })}
+            </tr>}
+            {isAddPage && <tr className={`${tableRowCSS}`}>
             
                 {budgetHeaders.map((header, idx) => (
-                  <td key={header.key} className="px-2 py-4">     
-                    {errors && errors[header.key] && <p className="text-red-500">{errors[header.key]}</p>}
-                    <Outlet context={header}/>
+                  <td key={header.key} className={`${tdCSS}`}>
+                    {errors && errors[addIntent+header.key] && <p className="text-red-500">{errors[addIntent+header.key]}</p>}
+                    <Outlet name="add" context={header}/>
                   </td>
                 ))}
-                <td className="px-6 py-4">
-                  {isAddPage && <button type="submit" name="intent" value="add" className="text-blue-600 hover:underline">Add</button>}
+                <td className={`${tdCSS} space-x-2`}>
+                  <>
+                      <button type="submit" name="intent" value="add" className="text-blue-600 hover:underline">Add</button>
+                      <button onClick={(e) => {navigate("/budget"), e.preventDefault()}} className="text-blue-600 hover:underline">X</button>
+                      </>
                 </td>
-            </tr>
+            </tr>}
           </tbody>
         </table>
 
