@@ -6,7 +6,7 @@ const inputCSS = "w-full border border-gray-300 rounded-lg px-3 py-2 focus:outli
 const inputddCSS = "w-auto border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
 const inputddCSS1 = "border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
 const ddOptionCSS = "bg-neutral-800"
-const buttonCSS = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded"
+const buttonCSS = "w-max bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded"
 
 const spentTypeColorMap = {
   EXPENSE: "bg-red-100 text-red-600 hover:bg-inherit hover:text-inherit",

@@ -5,7 +5,7 @@ import { HiChevronUp } from "react-icons/hi";
 import { FaSkullCrossbones, FaPlus } from "react-icons/fa";
 import { IoMdArrowDropright, IoMdArrowDropdown } from "react-icons/io";
 import { useNavigate, useLoaderData, Outlet, useParams, useSearchParams, useLocation, Form, useFormAction, useActionData, redirect, Link } from "react-router-dom";
-import {get, post} from '../../utils/APIHelper.js';
+import {BUDGET_ADD_API_URL, BUDGET_ADD_FE_URL, BUDGET_FE_URL, BUDGET_UPDATE_API_URL, get_all_budget, post} from '../../utils/APIHelper.js';
 import {budgetHeaders, itemDetailHeaders, spentTypeEnum, paymentTypeEnum, itemCategoryEnum, enumFields, dateFields, validationBudgetFields} from '../../utils/constantHelper.js';
 import { filterMapObject, isEffectivelyEmpty } from "../../utils/functionHelper.js";
 import UpdateItemPage from "./UpdateBudgetPage.jsx";
@@ -27,13 +27,13 @@ export async function action({ request }) {
     return errors;
   }
   if (intent === "edit" && payload) {
-    await post("/budget/update-transaction", payload);
-    return redirect("/budget");
+    await post(BUDGET_UPDATE_API_URL, payload);
+    return redirect(BUDGET_FE_URL);
   }
 
   if (intent === "add" && payload) {
-    await post("/budget/add-transaction", payload);
-    return redirect("/budget");
+    await post(BUDGET_ADD_API_URL, payload);
+    return redirect(BUDGET_FE_URL);
   }
 
   throw json(
@@ -56,7 +56,7 @@ function validateInputs(input, inputValue, prefix) {
 export async function loader({ request }) {
   const url = new URL(request.url);
   const q = url.searchParams;
-  const response = await get("/budget", q.toString()) || [];
+  const response = await get_all_budget(q.toString()) || [];
   // console.log("res", response)
   let filteredBudgetData = []
   const totalPages = response.totalPages
@@ -78,7 +78,6 @@ export default function BudgetPage() {
   const { filteredBudgetData, currentPage, totalPages } = useLoaderData();
 
   const isAddPage = location.pathname.includes("add");
-  const isUpdatePage = location.pathname.includes("update");
   console.log("location", location.pathname, location.search)
   // Get current year dynamically
   const currentYear = new Date().getFullYear();
@@ -116,14 +115,23 @@ export default function BudgetPage() {
   const handleSort = (columnKey) => {
     const isSameColumn = sortColumn === columnKey;
     const newDirection = isSameColumn && sortDirection === "asc" ? "desc" : "asc";
-    setSortColumn(columnKey);
-    setSortDirection(newDirection);
+    const toUpdateSort = false;
+    if (columnKey != sortColumn) {
+      setSortColumn(columnKey);
+      toUpdateSort = true;
+    }
+    if (newDirection != sortDirection) {
+      setSortDirection(newDirection);
+      toUpdateSort = true;
+    }
     
-    const sortingValue = `${sortColumn}-${sortDirection}`;
-    setGlobalParam((prev) => ({
-      ...prev,
-      sort: sortingValue,
-    }));
+    if (toUpdateSort) {
+      const sortingValue = `${sortColumn}-${sortDirection}`;
+      setGlobalParam((prev) => ({
+        ...prev,
+        sort: sortingValue,
+      }));
+    }
   };
 
   const handleAddParam = (e, paramToAdd) => {
@@ -157,9 +165,12 @@ export default function BudgetPage() {
     if (Object.keys(filterMapObject(newParams, "selectedYear", "page")).length === 0){
       setSearchValue('')
     }
-    setGlobalParam(newParams);
+    
+    if (JSON.stringify(newParams) !== JSON.stringify(globalParam)) {
+      setGlobalParam(newParams);
+    }
   };
-  
+
   useEffect(() => {
     if (errorsAction) {
         setErrors(errorsAction);
@@ -168,11 +179,13 @@ export default function BudgetPage() {
 
   useEffect(() => {
     // handleSearch(globalParam)
-    setSearchParams(p => {Object.entries(globalParam).map(([key, value]) => p.set(key, value))})
+    if (JSON.stringify(searchParams) !== JSON.stringify(globalParam)) {
+      setSearchParams(p => {Object.entries(globalParam).map(([key, value]) => p.set(key, value))})
+    }
     // setShouldNavigate(false)
     console.log("useEffect calling navigate", searchParams.toString())
     if (!errors) {
-      navigate(`/budget?${searchParams.toString()}`)
+      navigate(`${BUDGET_FE_URL}?${searchParams.toString()}`)
     }
   }, [errors, searchParams, globalParam]);
   
@@ -193,8 +206,8 @@ export default function BudgetPage() {
   console.log("errors", errors)
   return (
       <div className="space-y-6">
-        <div className="flex flex-row items-center justify-between gap-4 p-4 rounded-xl shadow border border-gray-200">
-          <div className="flex flex-row items-center gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl shadow border border-gray-200">
+          <div className="flex flex-wrap items-center gap-4">
             {/* Search Key Dropdown */}
             <select
               value={searchKey}
@@ -323,17 +336,17 @@ export default function BudgetPage() {
                 >
                   {budgetHeaders.map((header, idx) => (
                     editRowId === item['id']
-                    ? <td key={header.key} className={`${tdCSS}`}>
+                    ? <td key={`${item.id}${header.key}`} className={`${tdCSS}`}>
                           {errors && errors[updateIntent+header.key] && <p className="text-red-500">{errors[updateIntent+header.key]}</p>}
                           <UpdateItemPage header={header} item={item}/>
                       </td>
                     : header.key == 'id' && item['itemDetail'] && item['itemDetail'].length > 0
-                        ? <td key={header.key} className={`${tdCSS}`}>
+                        ? <td key={`${item.id}${header.key}`} className={`${tdCSS}`}>
                           <label onClick={() => toggleExpand(item.id)} className="focus:outline-none cursor-pointer">
                             <span>{item[header.key]}{expandedRow === item.id ? <IoMdArrowDropdown /> : <IoMdArrowDropright />}</span>
                           </label>
                           </td>
-                        : <td key={header.key} className={`${tdCSS}`}>{item[header.key]}</td>
+                        : <td key={`${item.id}${header.key}`} className={`${tdCSS}`}>{item[header.key]}</td>
                   ))}
                   
                   <td className={`${tdCSS}`}>
@@ -366,16 +379,16 @@ export default function BudgetPage() {
             {!isAddPage && <tr className={`${tableRowCSS}`}>
                 {[...Array(budgetHeaders.length + 1)].map((_, idx) => {
                   return idx === budgetHeaders.length
-                    ? <td className={`${tdCSS}`}>
+                    ? <td key={`${idx}${budgetHeaders.key}`} className={`${tdCSS}`}>
                         <button className="hover:text-indigo-200" >
-                          <Link to="/budget/add" 
+                          <Link to={BUDGET_ADD_FE_URL} 
                             style={{color: 'inherit'}}
                             >
                               <FaPlus />
                           </Link>
                         </button>
                       </td>
-                    : <td></td>
+                    : <td key={`${idx}${budgetHeaders.key}`}></td>
                 })}
             </tr>}
             {isAddPage && <tr className={`${tableRowCSS}`}>
@@ -389,7 +402,7 @@ export default function BudgetPage() {
                 <td className={`${tdCSS} space-x-2`}>
                   <>
                       <button type="submit" name="intent" value="add" className="text-blue-600 hover:underline">Add</button>
-                      <button onClick={(e) => {navigate("/budget"), e.preventDefault()}} className="text-blue-600 hover:underline">X</button>
+                      <button onClick={(e) => {navigate(BUDGET_FE_URL), e.preventDefault()}} className="text-blue-600 hover:underline">X</button>
                       </>
                 </td>
             </tr>}
