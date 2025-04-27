@@ -9,7 +9,7 @@ import {BUDGET_ADD_API_URL, BUDGET_ADD_FE_URL, BUDGET_FE_URL, BUDGET_UPDATE_API_
 import {budgetHeaders, itemDetailHeaders, spentTypeEnum, paymentTypeEnum, itemCategoryEnum, enumFields, dateFields, validationBudgetFields} from '../../utils/constantHelper.js';
 import { filterMapObject, isEffectivelyEmpty } from "../../utils/functionHelper.js";
 import UpdateItemPage from "./UpdateBudgetPage.jsx";
-import { buttonCSS, ddOptionCSS, inputddCSS, spentTypeColorMap, tableCSS, tableRowCSS, tdCSS, theadCSS } from "../../utils/cssConstantHelper.js";
+import { buttonCSS, ddOptionCSS, inputddCSS, linkButtonCSS, spentTypeColorMap, tableCSS, tableRowCSS, tdCSS, theadCSS } from "../../utils/cssConstantHelper.js";
 
 export async function action({ request }) {
   let formData = await request.formData();
@@ -22,7 +22,7 @@ export async function action({ request }) {
     payload[header.key] = fieldValue,
     errors = {...errors, ...validateInputs(header, fieldValue, intent+"-")}
   ))
-  console.log("action",errors)
+  console.log("calling action: errors",errors)
   if (Object.keys(errors).length > 0){
     return errors;
   }
@@ -35,16 +35,12 @@ export async function action({ request }) {
     await post(BUDGET_ADD_API_URL, payload);
     return redirect(BUDGET_FE_URL);
   }
-
-  throw json(
-    { message: "Invalid intent" },
-    { status: 400 }
-  );
+  return {}
 }
 
 function validateInputs(input, inputValue, prefix) {
   let inputError = {}
-  if (validationBudgetFields.includes(input.key)) {
+  if (prefix && prefix !== 'null-' && validationBudgetFields.includes(input.key)) {
     if (!inputValue || !inputValue.trim()) {
       inputError[prefix + input.key] = `${input.label} is required`;
     }
@@ -57,7 +53,7 @@ export async function loader({ request }) {
   const url = new URL(request.url);
   const q = url.searchParams;
   const response = await get_all_budget(q.toString()) || [];
-  // console.log("res", response)
+  console.log("calling loader", q.toString(), response)
   let filteredBudgetData = []
   const totalPages = response.totalPages
   const currentPage = Math.min(response.number, totalPages)
@@ -178,15 +174,16 @@ export default function BudgetPage() {
   }, [errorsAction]);
 
   useEffect(() => {
+    console.log("useEffect start calling", globalParam, searchParams.toString(), JSON.stringify(searchParams), JSON.stringify(globalParam))
     // handleSearch(globalParam)
-    if (JSON.stringify(searchParams) !== JSON.stringify(globalParam)) {
-      setSearchParams(p => {Object.entries(globalParam).map(([key, value]) => p.set(key, value))})
-    }
+    // if (JSON.stringify(searchParams) !== JSON.stringify(globalParam)) {
+      setSearchParams(p => {Object.entries(globalParam).map(([key, value]) => p.set(key, value)); return searchParams})
+    // }
     // setShouldNavigate(false)
-    console.log("useEffect calling navigate", searchParams.toString())
-    if (!errors) {
-      navigate(`${BUDGET_FE_URL}?${searchParams.toString()}`)
-    }
+    console.log("useEffect calling end navigate", searchParams.toString())
+    // if (!isAddPage) {
+    //   navigate(`${BUDGET_FE_URL}?${searchParams.toString()}`)
+    // }
   }, [errors, searchParams, globalParam]);
   
 
@@ -266,9 +263,9 @@ export default function BudgetPage() {
             onChange={(e) => {setSelectedYear(e.target.value), handleAddParam(e, {selectedYear:e.target.value})}}
             className={`${inputddCSS}`}
           >
-            <option value="">All Year</option>
+            <option className={`${ddOptionCSS}`} value="">All Year</option>
             {yearOptions.map((year) => (
-              <option key={year} value={year}>
+              <option className={`${ddOptionCSS}`} key={year} value={year}>
                 {year}
               </option>
             ))}
@@ -380,25 +377,26 @@ export default function BudgetPage() {
                 {[...Array(budgetHeaders.length + 1)].map((_, idx) => {
                   return idx === budgetHeaders.length
                     ? <td key={`${idx}${budgetHeaders.key}`} className={`${tdCSS}`}>
-                        <button className="hover:text-indigo-200" >
-                          <Link to={BUDGET_ADD_FE_URL} 
+                        {/* <button onClick={(e) => e.preventDefault()} className="hover:text-indigo-200" > */}
+                          <Link className={`${linkButtonCSS}`} to={BUDGET_ADD_FE_URL} 
                             style={{color: 'inherit'}}
                             >
                               <FaPlus />
                           </Link>
-                        </button>
+                        {/* </button> */}
                       </td>
                     : <td key={`${idx}${budgetHeaders.key}`}></td>
                 })}
             </tr>}
             {isAddPage && <tr className={`${tableRowCSS}`}>
             
-                {budgetHeaders.map((header, idx) => (
+                <Outlet name="add" context={errors}/>
+                {/* {budgetHeaders.map((header, idx) => (
                   <td key={header.key} className={`${tdCSS}`}>
                     {errors && errors[addIntent+header.key] && <p className="text-red-500 text-xs">{errors[addIntent+header.key]}</p>}
                     <Outlet name="add" context={header}/>
                   </td>
-                ))}
+                ))} */}
                 <td className={`${tdCSS} space-x-2`}>
                   <>
                       <button type="submit" name="intent" value="add" className="text-blue-600 hover:underline">Add</button>

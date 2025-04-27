@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { budgetHeaders, dateFields, enumFields, itemCategoryEnum, lockedFields, paymentTypeEnum, spentTypeEnum } from '../../utils/constantHelper';
-import { ddOptionCSS, inputCSS, inputddCSS } from '../../utils/cssConstantHelper';
+import { ddOptionCSS, inputCSS, inputddCSS, tdCSS } from '../../utils/cssConstantHelper';
 
 
 export async function loader({ request }) {
@@ -21,47 +21,57 @@ function getLocalDateTimeString() {
 export default function AddItemPage() {
     const [searchAddValue, setSearchAddValue] = useState("");
 
-  const header = useOutletContext();
+  const errors = useOutletContext();
   const intent = "add-"
   
+  
+
   console.log("calling AddItemPage")
   return (
-    <>
-        {
-        dateFields.includes(header.key) 
-            ? <input 
-                disabled={lockedFields.includes(header.key)}
-                type={lockedFields.includes(header.key) ? "datetime-local" : "date"}
-                placeholder={header.key}
-                name={`${intent}${header.key}`}
-                value={lockedFields.includes(header.key) ? getLocalDateTimeString() : searchAddValue}
-                onChange={(e) => {lockedFields.includes(header.key) ? setSearchAddValue(getLocalDateTimeString()) : setSearchAddValue(e.target.value)}}
-                className={`${inputCSS}`}
-            />
-            : enumFields.includes(header.key) 
-                ? <select
-                    value={searchAddValue}
-                    name={`${intent}${header.key}`}
-                    onChange={(e) => setSearchAddValue(e.target.value)}
-                    className={`${inputddCSS}`}
-                >
-                    <option className={`${ddOptionCSS}`} value="">{header.label}</option>
-                    {Object.entries(header.key == 'spentType' ? spentTypeEnum : header.key == 'itemType' ? itemCategoryEnum : paymentTypeEnum).map(([ddKey, ddLabel]) => (
-                    <option className={`${ddOptionCSS}`} key={ddKey} value={ddKey}>
-                        {ddLabel}
-                    </option>
-                    ))}
-                </select>
-                : <input
-                type="text"
-                disabled={lockedFields.includes(header.key)}
-                placeholder={header.label}
-                name={`${intent}${header.key}`}
-                value={searchAddValue}
-                onChange={(e) => setSearchAddValue(e.target.value)}
-                className={`${inputCSS}`}
-            />
-        }
-    </>
+    
+        budgetHeaders.map((header, idx) => (
+            <td key={header.key} className={`${tdCSS}`}>
+            {errors && errors[intent+header.key] && <p className="text-red-500 text-xs">{errors[intent+header.key]}</p>}
+            
+            <>
+                {
+                dateFields.includes(header.key) 
+                    ? <input 
+                        disabled={lockedFields.includes(header.key)}
+                        type={lockedFields.includes(header.key) ? "datetime-local" : "date"}
+                        placeholder={header.key}
+                        name={`${intent}${header.key}`}
+                        value={lockedFields.includes(header.key) ? getLocalDateTimeString() : searchAddValue}
+                        onChange={(e) => {lockedFields.includes(header.key) ? setSearchAddValue(getLocalDateTimeString()) : setSearchAddValue(e.target.value)}}
+                        className={`${inputCSS}`}
+                    />
+                    : enumFields.includes(header.key) 
+                        ? <select
+                            value={searchAddValue}
+                            name={`${intent}${header.key}`}
+                            onChange={(e) => setSearchAddValue(e.target.value)}
+                            className={`${inputddCSS}`}
+                        >
+                            <option className={`${ddOptionCSS}`} value="">{header.label}</option>
+                            {Object.entries(header.key == 'spentType' ? spentTypeEnum : header.key == 'itemType' ? itemCategoryEnum : paymentTypeEnum).map(([ddKey, ddLabel]) => (
+                            <option className={`${ddOptionCSS}`} key={ddKey} value={ddKey}>
+                                {ddLabel}
+                            </option>
+                            ))}
+                        </select>
+                        : <input
+                        type="text"
+                        disabled={lockedFields.includes(header.key)}
+                        placeholder={header.label}
+                        name={`${intent}${header.key}`}
+                        value={searchAddValue}
+                        onChange={(e) => setSearchAddValue(e.target.value)}
+                        className={`${inputCSS}`}
+                    />
+                }
+            </>
+            </td>
+        ))
+    
   );
 };
