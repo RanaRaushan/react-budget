@@ -7,12 +7,13 @@ const LOG_PREFIX = "UpdateBudgetPage::"
 
 export default function UpdateItemPage({header, item}) {
     const [formData, setFormData] = useState(budgetHeaders.reduce((acc, col) => {
+        console.log(LOG_PREFIX+"inside", col, col.key, item[col.key])
         acc[col.key] = item[col.key];
         return acc;
       }, {}));
 
   const intent = "edit-"
-//   console.log("calling UpdateItemPage", header, item)
+//   console.log(LOG_PREFIX+"calling UpdateItemPage", header, item)
   return (
     <>
         {
@@ -41,7 +42,7 @@ export default function UpdateItemPage({header, item}) {
                 </select>
                 : <input
                 type="text"
-                disabled={lockedFields.includes(header.key)}
+                readOnly={lockedFields.includes(header.key)}
                 placeholder={header.label}
                 name={`${intent}${header.key}`}
                 value={formData[header.key]}

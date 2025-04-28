@@ -2,7 +2,7 @@
 const dateFields = ['paidDate', 'spentDate']
 const enumFields = ['itemType', 'paymentType', 'spentType']
 const lockedFields = ['id']
-const validationBudgetFields = ['paidDate', 'spentDate', 'itemType', 'paymentType', 'spentType', 'amount', 'paidAmount', 'description', 'owner']
+const validationBudgetFields = ['id', 'paidDate', 'spentDate', 'itemType', 'paymentType', 'spentType', 'amount', 'paidAmount', 'description', 'owner']
 
 const budgetHeaders = [
     { label: "ID", key: "id" },

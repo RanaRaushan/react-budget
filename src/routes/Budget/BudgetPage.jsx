@@ -48,9 +48,12 @@ export async function action({ request }) {
 function validateInputs(input, inputValue, prefix) {
   let inputError = {}
   if (prefix && prefix !== 'null-' && validationBudgetFields.includes(input.key)) {
-    if (!inputValue || !inputValue.trim()) {
+    if (prefix !== 'add-' && !inputValue || !inputValue.trim()) {
       inputError[prefix + input.key] = `${input.label} is required`;
     }
+    if (prefix === 'edit-' && inputValue?.trim() && input.key === 'id' && (isNaN(Number(inputValue)))) {
+      inputError[prefix + input.key] = `Not a valid ${input.label}`;
+    } 
   }
   console.log(LOG_PREFIX+'inputError', inputError)
   return inputError
