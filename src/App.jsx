@@ -1,6 +1,7 @@
 import {
   createBrowserRouter,
   createRoutesFromElements,
+  Navigate,
   Route,
   RouterProvider,
 } from "react-router-dom";
@@ -19,7 +20,8 @@ function App() {
           <Route index path="/" element={<HomePage /> } errorElement={<ErrorPage />} />
           <Route path="budget" element={<BudgetPage />} loader={budgetLoader} errorElement={<ErrorPage />} action={BudgetAction}>
             <Route path="add" element={<AddBudgetItem />} errorElement={<ErrorPage />} />
-          </Route>          
+          </Route>     
+          <Route index path="*" element={<Navigate to="/" replace={true} />} />     
       </Route>
       )
   );
