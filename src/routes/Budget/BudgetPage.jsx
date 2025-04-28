@@ -16,6 +16,7 @@ const LOG_PREFIX = "BudgetPage::"
 export async function action({ request }) {
   let formData = await request.formData();
   let intent = formData.get("intent");
+  let redirectUrl = formData.get("redirectTo");
   const payload = {};
   let errors = {};
   let fieldValue
@@ -33,12 +34,12 @@ export async function action({ request }) {
   }
   if (intent === "edit" && payload) {
     await post(BUDGET_UPDATE_API_URL, payload);
-    return redirect(BUDGET_FE_URL);
+    return redirect(redirectUrl || BUDGET_FE_URL);
   }
 
   if (intent === "add" && payload) {
     await post(BUDGET_ADD_API_URL, payload);
-    return redirect(BUDGET_FE_URL);
+    return redirect(redirectUrl || BUDGET_FE_URL);
   }
   return {}
 }
@@ -46,12 +47,15 @@ export async function action({ request }) {
 function validateInputs(input, inputValue, prefix) {
   let inputError = {}
   if (prefix && prefix !== 'null-' && validationBudgetFields.includes(input.key)) {
-    if (prefix !== 'add-' && !inputValue || !inputValue.trim()) {
+    if (!inputValue || !inputValue.trim()) {
       inputError[prefix + input.key] = `${input.label} is required`;
     }
     if (prefix === 'edit-' && inputValue?.trim() && input.key === 'id' && (isNaN(Number(inputValue)))) {
       inputError[prefix + input.key] = `Not a valid ${input.label}`;
     } 
+    if (prefix === 'add-') {
+      delete inputError[prefix + 'id'];
+    }
   }
   return inputError
 }
@@ -167,6 +171,32 @@ export default function BudgetPage() {
       setGlobalParam(newParams);
     // }
   };
+
+  const handleUpdateSubmit = (e) => {
+    e.preventDefault();
+    if (!errors || Object.keys(errors).length == 0) {
+      setEditRowId(null)
+    }
+    let formData = new FormData(e.currentTarget.form);
+    formData.append("redirectTo", `${BUDGET_FE_URL}?${searchParams.toString()}`)
+    formData.append("intent", 'edit')
+    fetcher.submit(formData, {
+      method: "POST",
+    });
+  }
+
+  const handleAddSubmit = (e) => {
+    e.preventDefault();
+    // if (!errors || Object.keys(errors).length == 0) {
+    //   setEditRowId(null)
+    // }
+    let formData = new FormData(e.currentTarget.form);
+    formData.append("redirectTo", `${BUDGET_FE_URL}?${searchParams.toString()}`)
+    formData.append("intent", 'add')
+    fetcher.submit(formData, {
+      method: "POST",
+    });
+  }
 
   useEffect(() => {
     if (fetcher.data) {
@@ -353,7 +383,7 @@ export default function BudgetPage() {
                   <td className={`${tdCSS}`}>
                     {editRowId !== item['id'] 
                       ? <button onClick={(e) => {setEditRowId(item.id), e.preventDefault()}} className="text-blue-600 hover:underline">Update</button>
-                      : <><button type="submit" name="intent" value="edit" className="text-blue-600 hover:underline">Y</button>
+                      : <><button onClick={(e) => {handleUpdateSubmit(e)}} type="submit" name="intent" value="edit" className="text-blue-600 hover:underline">Y</button>
                         <button onClick={(e) => {setEditRowId(null), e.preventDefault()}} className="text-blue-600 hover:underline">X</button></>
                     }
                   </td>
@@ -403,7 +433,7 @@ export default function BudgetPage() {
                 ))} */}
                 <td className={`${tdCSS} space-x-2`}>
                   <>
-                      <button type="submit" name="intent" value="add" className="text-blue-600 hover:underline">Add</button>
+                      <button onClick={(e) => {handleAddSubmit(e)}} type="submit" name="intent" value="add" className="text-blue-600 hover:underline">Add</button>
                       <button onClick={(e) => {navigate(BUDGET_FE_URL+"?"+searchParams.toString()), resetErrorState(), e.preventDefault()}} className="text-blue-600 hover:underline">X</button>
                       </>
                 </td>
