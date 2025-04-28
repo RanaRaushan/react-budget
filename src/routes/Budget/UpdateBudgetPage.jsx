@@ -7,13 +7,11 @@ const LOG_PREFIX = "UpdateBudgetPage::"
 
 export default function UpdateItemPage({header, item}) {
     const [formData, setFormData] = useState(budgetHeaders.reduce((acc, col) => {
-        console.log(LOG_PREFIX+"inside", col, col.key, item[col.key])
         acc[col.key] = item[col.key];
         return acc;
       }, {}));
 
   const intent = "edit-"
-//   console.log(LOG_PREFIX+"calling UpdateItemPage", header, item)
   return (
     <>
         {

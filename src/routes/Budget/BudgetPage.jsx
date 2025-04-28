@@ -4,7 +4,7 @@ import "./BudgetPage.css";
 import { HiChevronUp } from "react-icons/hi";
 import { FaSkullCrossbones, FaPlus } from "react-icons/fa";
 import { IoMdArrowDropright, IoMdArrowDropdown } from "react-icons/io";
-import { useNavigate, useLoaderData, Outlet, useParams, useSearchParams, useLocation, Form, useActionData, redirect, Link, useFetcher } from "react-router-dom";
+import { useNavigate, useLoaderData, Outlet, useParams, useSearchParams, useLocation, Form, useActionData, redirect, Link, useFetcher, PrefetchPageLinks } from "react-router-dom";
 import {BUDGET_ADD_API_URL, BUDGET_ADD_FE_URL, BUDGET_FE_URL, BUDGET_UPDATE_API_URL, get_all_budget, post} from '../../utils/APIHelper.js';
 import {budgetHeaders, itemDetailHeaders, spentTypeEnum, paymentTypeEnum, itemCategoryEnum, enumFields, dateFields, validationBudgetFields} from '../../utils/constantHelper.js';
 import { filterMapObject, isEffectivelyEmpty } from "../../utils/functionHelper.js";
@@ -24,7 +24,6 @@ export async function action({ request }) {
     payload[header.key] = fieldValue,
     errors = {...errors, ...validateInputs(header, fieldValue, intent+"-")}
   ))
-  console.log(LOG_PREFIX+"calling action: errors",errors)
   if (Object.keys(errors).length > 0){
     return errors;
   }
@@ -32,7 +31,6 @@ export async function action({ request }) {
   for (const pair of formData.entries()) {
     temp += " key="+pair[0] + " , val=" + pair[1] ;
   }
-  console.log(LOG_PREFIX+"calling action: payload", temp, payload)
   if (intent === "edit" && payload) {
     await post(BUDGET_UPDATE_API_URL, payload);
     return redirect(BUDGET_FE_URL);
@@ -55,7 +53,6 @@ function validateInputs(input, inputValue, prefix) {
       inputError[prefix + input.key] = `Not a valid ${input.label}`;
     } 
   }
-  console.log(LOG_PREFIX+'inputError', inputError)
   return inputError
 }
 
@@ -63,7 +60,6 @@ export async function loader({ request }) {
   const url = new URL(request.url);
   const q = url.searchParams;
   const response = await get_all_budget(q.toString()) || [];
-  console.log(LOG_PREFIX+"calling loader", q.toString(), response)
   let filteredBudgetData = []
   const totalPages = response.totalPages
   const currentPage = Math.min(response.number, totalPages)
@@ -84,7 +80,6 @@ export default function BudgetPage() {
   const { filteredBudgetData, currentPage, totalPages } = useLoaderData();
 
   const isAddPage = location.pathname.includes("add");
-  console.log(LOG_PREFIX+"location", location.pathname, location.search)
   // Get current year dynamically
   const currentYear = new Date().getFullYear();
 
@@ -118,7 +113,7 @@ export default function BudgetPage() {
   const handleSort = (columnKey) => {
     const isSameColumn = sortColumn === columnKey;
     const newDirection = isSameColumn && sortDirection === "asc" ? "desc" : "asc";
-    const toUpdateSort = false;
+    let toUpdateSort = false;
     if (columnKey != sortColumn) {
       setSortColumn(columnKey);
       toUpdateSort = true;
@@ -129,7 +124,7 @@ export default function BudgetPage() {
     }
     
     if (toUpdateSort) {
-      const sortingValue = `${sortColumn}-${sortDirection}`;
+      const sortingValue = `${columnKey}-${newDirection}`;
       setGlobalParam((prev) => ({
         ...prev,
         sort: sortingValue,
@@ -142,7 +137,7 @@ export default function BudgetPage() {
     const searchParmValue = `${searchValue}`;
     const searchKeyParm = `${searchKey}`;
 
-    if (searchParmValue && isEffectivelyEmpty(paramToAdd)) {
+    if (searchParmValue && !isEffectivelyEmpty(paramToAdd)) {
       setGlobalParam((prev) => ({
         ...prev,
         [searchKeyParm]: searchParmValue,
@@ -153,7 +148,7 @@ export default function BudgetPage() {
         ...prev,
         [searchKeyParm]: searchParmValue,
       }));
-    } else if (isEffectivelyEmpty(paramToAdd)) {
+    } else if (!isEffectivelyEmpty(paramToAdd)) {
       setGlobalParam((prev) => ({
         ...prev,
         ...paramToAdd,
@@ -168,10 +163,9 @@ export default function BudgetPage() {
     if (Object.keys(filterMapObject(newParams, "selectedYear", "page")).length === 0){
       setSearchValue('')
     }
-    
-    if (JSON.stringify(newParams) !== JSON.stringify(globalParam)) {
+    // if (JSON.stringify(newParams) !== JSON.stringify(globalParam)) {
       setGlobalParam(newParams);
-    }
+    // }
   };
 
   useEffect(() => {
@@ -185,9 +179,17 @@ export default function BudgetPage() {
   };
 
   useEffect(() => {
-    console.log("useEffect start calling", globalParam, searchParams.toString(), JSON.stringify(searchParams), JSON.stringify(globalParam))
-      setSearchParams(p => {Object.entries(globalParam).map(([key, value]) => p.set(key, value)); return searchParams})
-    console.log(LOG_PREFIX+"useEffect calling end navigate", searchParams.toString())
+    setSearchParams(() => {
+      const newSearchParams = new URLSearchParams();
+      Object.entries(globalParam).forEach(([key, value]) => {
+        newSearchParams.set(key, value);
+      });
+      if (Object.keys(globalParam).length > 0)
+        return newSearchParams
+      else {
+        return new URLSearchParams({})
+      }
+    })
   }, [globalParam]);
   
 
@@ -203,7 +205,6 @@ export default function BudgetPage() {
     }
     return pages;
   };
-  console.log(LOG_PREFIX+"errors", errors)
   return (
       <div className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl shadow border border-gray-200">
@@ -253,7 +254,7 @@ export default function BudgetPage() {
             }
             {/* Add button to add multiple condition */}
             <button
-                type="submit"
+                // type="submit"
                 className={`${buttonCSS}`}
                 onClick={(e) => {handleAddParam(e)}}
               >Add Search
@@ -403,7 +404,7 @@ export default function BudgetPage() {
                 <td className={`${tdCSS} space-x-2`}>
                   <>
                       <button type="submit" name="intent" value="add" className="text-blue-600 hover:underline">Add</button>
-                      <button onClick={(e) => {navigate(BUDGET_FE_URL), resetErrorState(), e.preventDefault()}} className="text-blue-600 hover:underline">X</button>
+                      <button onClick={(e) => {navigate(BUDGET_FE_URL+"?"+searchParams.toString()), resetErrorState(), e.preventDefault()}} className="text-blue-600 hover:underline">X</button>
                       </>
                 </td>
             </tr>}
