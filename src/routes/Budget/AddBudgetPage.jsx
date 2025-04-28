@@ -6,33 +6,6 @@ import { BUDGET_ADD_API_URL, BUDGET_UPDATE_API_URL } from '../../utils/APIHelper
 
 const LOG_PREFIX = "AddBudgetPage::"
 
-// export async function action({ request }) {
-//   let formData = await request.formData();
-//   let intent = formData.get("intent");
-//   const payload = {};
-//   let errors = {};
-//   let fieldValue
-//   budgetHeaders.map((header, idx) => (
-//     fieldValue = formData.get(intent+"-"+header.key),
-//     payload[header.key] = fieldValue,
-//     errors = {...errors, ...validateInputs(header, fieldValue, intent+"-")}
-//   ))
-//   console.log(LOG_PREFIX+"calling action: errors",errors)
-//   if (Object.keys(errors).length > 0){
-//     return errors;
-//   }
-// //   if (intent === "edit" && payload) {
-// //     await post(BUDGET_UPDATE_API_URL, payload);
-// //     // return redirect(BUDGET_FE_URL);
-// //   }
-
-//   if (intent === "add" && payload) {
-//     await post(BUDGET_ADD_API_URL, payload);
-//     // return redirect(BUDGET_ADD_FE_URL);
-//   }
-//   return {}
-// }
-
 function getLocalDateTimeString() {
     const now = new Date();
     const offset = now.getTimezoneOffset(); // in minutes

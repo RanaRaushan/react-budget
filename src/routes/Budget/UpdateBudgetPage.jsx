@@ -3,20 +3,9 @@ import { useOutletContext } from 'react-router-dom';
 import { budgetHeaders, dateFields, enumFields, itemCategoryEnum, lockedFields, paymentTypeEnum, spentTypeEnum } from '../../utils/constantHelper';
 import { ddOptionCSS, inputCSS, inputddCSS } from '../../utils/cssConstantHelper';
 
-
-
-function getLocalDateTimeString() {
-    const now = new Date();
-    const offset = now.getTimezoneOffset(); // in minutes
-  
-    // Adjust time to local timezone
-    const localDateTime = new Date(now.getTime() - offset * 60 * 1000);
-    console.log("now.toISOString()", now.toISOString().split("T")[0])
-    return now.toISOString().split("T")[0]; // "YYYY-MM-DDTHH:MM"
-  }
+const LOG_PREFIX = "UpdateBudgetPage::"
 
 export default function UpdateItemPage({header, item}) {
-    const [searchAddValue, setSearchAddValue] = useState("");
     const [formData, setFormData] = useState(budgetHeaders.reduce((acc, col) => {
         acc[col.key] = item[col.key];
         return acc;

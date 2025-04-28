@@ -200,7 +200,7 @@ export default function BudgetPage() {
     }
     return pages;
   };
-  console.log(LOG_PREFIX+"errors", errors, fetcher)
+  console.log(LOG_PREFIX+"errors", errors)
   return (
       <div className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl shadow border border-gray-200">
