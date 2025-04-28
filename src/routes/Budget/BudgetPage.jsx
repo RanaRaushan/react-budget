@@ -77,9 +77,7 @@ export default function BudgetPage() {
   const visibleCount = 5;
   const navigate = useNavigate();
   const location = useLocation();
-  // const errors = useActionData();
   const fetcher = useFetcher();
-  const errors = fetcher.data;
   const { filteredBudgetData, currentPage, totalPages } = useLoaderData();
 
   const isAddPage = location.pathname.includes("add");
@@ -96,11 +94,8 @@ export default function BudgetPage() {
   const [globalParam, setGlobalParam] = useState({});
   const [expandedRow, setExpandedRow] = useState(null);
   const [page, setPage] = useState(searchParams.get("page") || 0);
-  // const [shouldNavigate, setShouldNavigate] = useState(true);
   const [editRowId, setEditRowId] = useState(null);
-  // const [errors, setErrors] = useState({});
-  // const [page, setPage] = useState(1);
-  // const [totalPages, setTotalPages] = useState(1);
+  const [errors, setErrors] = useState(fetcher.data || {});
 
   const toggleExpand = (id) => {
     setExpandedRow(prev => (prev === id ? null : id));
@@ -176,24 +171,20 @@ export default function BudgetPage() {
     }
   };
 
-  // useEffect(() => {
-  //   console.log(LOG_PREFIX+"useEffect start calling for errors", errorsAction)
-  //   if (errorsAction) {
-  //       setErrors(errorsAction);
-  //   }
-  // }, [errorsAction]);
+  useEffect(() => {
+    if (fetcher.data) {
+      setErrors(fetcher.data);
+    }
+  }, [fetcher.data]);
+
+  const resetErrorState = () => {
+    setErrors(null);
+  };
 
   useEffect(() => {
     console.log("useEffect start calling", globalParam, searchParams.toString(), JSON.stringify(searchParams), JSON.stringify(globalParam))
-    // handleSearch(globalParam)
-    // if (JSON.stringify(searchParams) !== JSON.stringify(globalParam)) {
       setSearchParams(p => {Object.entries(globalParam).map(([key, value]) => p.set(key, value)); return searchParams})
-    // }
-    // setShouldNavigate(false)
     console.log(LOG_PREFIX+"useEffect calling end navigate", searchParams.toString())
-    // if (!isAddPage) {
-    //   navigate(`${BUDGET_FE_URL}?${searchParams.toString()}`)
-    // }
   }, [globalParam]);
   
 
@@ -207,7 +198,6 @@ export default function BudgetPage() {
     for (let i = start; i <= end; i++) {
       pages.push(i);
     }
-    // console.log(pages)
     return pages;
   };
   console.log(LOG_PREFIX+"errors", errors, fetcher)
@@ -410,7 +400,7 @@ export default function BudgetPage() {
                 <td className={`${tdCSS} space-x-2`}>
                   <>
                       <button type="submit" name="intent" value="add" className="text-blue-600 hover:underline">Add</button>
-                      <button onClick={(e) => {navigate(BUDGET_FE_URL), e.preventDefault()}} className="text-blue-600 hover:underline">X</button>
+                      <button onClick={(e) => {navigate(BUDGET_FE_URL), resetErrorState(), e.preventDefault()}} className="text-blue-600 hover:underline">X</button>
                       </>
                 </td>
             </tr>}
