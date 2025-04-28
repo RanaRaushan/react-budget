@@ -4,12 +4,14 @@ import "./BudgetPage.css";
 import { HiChevronUp } from "react-icons/hi";
 import { FaSkullCrossbones, FaPlus } from "react-icons/fa";
 import { IoMdArrowDropright, IoMdArrowDropdown } from "react-icons/io";
-import { useNavigate, useLoaderData, Outlet, useParams, useSearchParams, useLocation, Form, useFormAction, useActionData, redirect, Link } from "react-router-dom";
+import { useNavigate, useLoaderData, Outlet, useParams, useSearchParams, useLocation, Form, useActionData, redirect, Link, useFetcher } from "react-router-dom";
 import {BUDGET_ADD_API_URL, BUDGET_ADD_FE_URL, BUDGET_FE_URL, BUDGET_UPDATE_API_URL, get_all_budget, post} from '../../utils/APIHelper.js';
 import {budgetHeaders, itemDetailHeaders, spentTypeEnum, paymentTypeEnum, itemCategoryEnum, enumFields, dateFields, validationBudgetFields} from '../../utils/constantHelper.js';
 import { filterMapObject, isEffectivelyEmpty } from "../../utils/functionHelper.js";
 import UpdateItemPage from "./UpdateBudgetPage.jsx";
 import { buttonCSS, ddOptionCSS, inputddCSS, linkButtonCSS, spentTypeColorMap, tableCSS, tableRowCSS, tdCSS, theadCSS } from "../../utils/cssConstantHelper.js";
+
+const LOG_PREFIX = "BudgetPage::"
 
 export async function action({ request }) {
   let formData = await request.formData();
@@ -22,10 +24,15 @@ export async function action({ request }) {
     payload[header.key] = fieldValue,
     errors = {...errors, ...validateInputs(header, fieldValue, intent+"-")}
   ))
-  console.log("calling action: errors",errors)
+  console.log(LOG_PREFIX+"calling action: errors",errors)
   if (Object.keys(errors).length > 0){
     return errors;
   }
+  let temp;
+  for (const pair of formData.entries()) {
+    temp += " key="+pair[0] + " , val=" + pair[1] ;
+  }
+  console.log(LOG_PREFIX+"calling action: payload", temp, payload)
   if (intent === "edit" && payload) {
     await post(BUDGET_UPDATE_API_URL, payload);
     return redirect(BUDGET_FE_URL);
@@ -45,7 +52,7 @@ function validateInputs(input, inputValue, prefix) {
       inputError[prefix + input.key] = `${input.label} is required`;
     }
   }
-  console.log('inputError', inputError)
+  console.log(LOG_PREFIX+'inputError', inputError)
   return inputError
 }
 
@@ -53,7 +60,7 @@ export async function loader({ request }) {
   const url = new URL(request.url);
   const q = url.searchParams;
   const response = await get_all_budget(q.toString()) || [];
-  console.log("calling loader", q.toString(), response)
+  console.log(LOG_PREFIX+"calling loader", q.toString(), response)
   let filteredBudgetData = []
   const totalPages = response.totalPages
   const currentPage = Math.min(response.number, totalPages)
@@ -70,11 +77,13 @@ export default function BudgetPage() {
   const visibleCount = 5;
   const navigate = useNavigate();
   const location = useLocation();
-  const errorsAction = useActionData();
+  // const errors = useActionData();
+  const fetcher = useFetcher();
+  const errors = fetcher.data;
   const { filteredBudgetData, currentPage, totalPages } = useLoaderData();
 
   const isAddPage = location.pathname.includes("add");
-  console.log("location", location.pathname, location.search)
+  console.log(LOG_PREFIX+"location", location.pathname, location.search)
   // Get current year dynamically
   const currentYear = new Date().getFullYear();
 
@@ -87,9 +96,9 @@ export default function BudgetPage() {
   const [globalParam, setGlobalParam] = useState({});
   const [expandedRow, setExpandedRow] = useState(null);
   const [page, setPage] = useState(searchParams.get("page") || 0);
-  const [shouldNavigate, setShouldNavigate] = useState(true);
+  // const [shouldNavigate, setShouldNavigate] = useState(true);
   const [editRowId, setEditRowId] = useState(null);
-  const [errors, setErrors] = useState({});
+  // const [errors, setErrors] = useState({});
   // const [page, setPage] = useState(1);
   // const [totalPages, setTotalPages] = useState(1);
 
@@ -167,11 +176,12 @@ export default function BudgetPage() {
     }
   };
 
-  useEffect(() => {
-    if (errorsAction) {
-        setErrors(errorsAction);
-    }
-  }, [errorsAction]);
+  // useEffect(() => {
+  //   console.log(LOG_PREFIX+"useEffect start calling for errors", errorsAction)
+  //   if (errorsAction) {
+  //       setErrors(errorsAction);
+  //   }
+  // }, [errorsAction]);
 
   useEffect(() => {
     console.log("useEffect start calling", globalParam, searchParams.toString(), JSON.stringify(searchParams), JSON.stringify(globalParam))
@@ -180,11 +190,11 @@ export default function BudgetPage() {
       setSearchParams(p => {Object.entries(globalParam).map(([key, value]) => p.set(key, value)); return searchParams})
     // }
     // setShouldNavigate(false)
-    console.log("useEffect calling end navigate", searchParams.toString())
+    console.log(LOG_PREFIX+"useEffect calling end navigate", searchParams.toString())
     // if (!isAddPage) {
     //   navigate(`${BUDGET_FE_URL}?${searchParams.toString()}`)
     // }
-  }, [errors, searchParams, globalParam]);
+  }, [globalParam]);
   
 
   const getPageNumbers = () => {
@@ -200,7 +210,7 @@ export default function BudgetPage() {
     // console.log(pages)
     return pages;
   };
-  console.log("errors", errors)
+  console.log(LOG_PREFIX+"errors", errors, fetcher)
   return (
       <div className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl shadow border border-gray-200">
@@ -302,7 +312,7 @@ export default function BudgetPage() {
         }
 
         {/* Table */}
-        <Form method="post" >
+        <fetcher.Form method="post" >
         <div className="overflow-x-auto rounded-2xl shadow-lg border border-gray-200">
         <table className={`${tableCSS}`}>
           <thead className={`${theadCSS}`}>
@@ -378,7 +388,7 @@ export default function BudgetPage() {
                   return idx === budgetHeaders.length
                     ? <td key={`${idx}${budgetHeaders.key}`} className={`${tdCSS}`}>
                         {/* <button onClick={(e) => e.preventDefault()} className="hover:text-indigo-200" > */}
-                          <Link className={`${linkButtonCSS}`} to={BUDGET_ADD_FE_URL} 
+                          <Link className={`${linkButtonCSS}`} to={BUDGET_ADD_FE_URL+"?"+searchParams.toString()} 
                             style={{color: 'inherit'}}
                             >
                               <FaPlus />
@@ -440,7 +450,7 @@ export default function BudgetPage() {
           </button>
         </div>
       </div>
-      </Form>
+      </fetcher.Form>
     </div>
     
     );

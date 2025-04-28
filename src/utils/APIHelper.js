@@ -1,4 +1,3 @@
-import {dummyData} from "../dummy"
 const SERVER_HOST = import.meta.env.VITE_SERVER_HOST;
 const PREFIX = SERVER_HOST + import.meta.env.VITE_API_PREFIX;
 
@@ -8,10 +7,7 @@ export const BUDGET_UPDATE_API_URL = "/budget/update-transaction";
 export const BUDGET_FE_URL = "/budget";
 export const BUDGET_ADD_FE_URL = "/budget/add";
 
-export async function get(url, params = {}, isDummy=false, requireAuth=false) {
-    // console.log("isdummy,", isDummy, dummyData())
-    if (isDummy) return dummyData();
-    console.log("is getting past?", isDummy)
+export async function get(url, params = {}, requireAuth=false) {
     try {
         
   const urlWithParams = `${url}?${params.toString()}`
@@ -73,15 +69,15 @@ export async function delete_call(url, params = {}) {
 }
 
 export async function get_all_budget(params = {}) {
-    return await get(BUDGET_API_URL, params, true)
+    return await get(BUDGET_API_URL, params)
     }
 
 export async function get_add_budget(params = {}) {
-    return await get(BUDGET_ADD_API_URL, params, true)
+    return await get(BUDGET_ADD_API_URL, params)
     }
 
 export async function get_update_budget(params = {}) {
-    return await get(BUDGET_UPDATE_API_URL, params, true)
+    return await get(BUDGET_UPDATE_API_URL, params)
     }
 
 
