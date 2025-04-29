@@ -5,7 +5,7 @@ import { HiChevronUp } from "react-icons/hi";
 import { FaSkullCrossbones, FaPlus } from "react-icons/fa";
 import { IoMdArrowDropright, IoMdArrowDropdown } from "react-icons/io";
 import { useNavigate, useLoaderData, Outlet, useParams, useSearchParams, useLocation, Form, useActionData, redirect, Link, useFetcher, PrefetchPageLinks } from "react-router-dom";
-import {BUDGET_ADD_API_URL, BUDGET_ADD_FE_URL, BUDGET_FE_URL, BUDGET_UPDATE_API_URL, get_all_budget, post} from '../../utils/APIHelper.js';
+import {BUDGET_ADD_API_URL, BUDGET_ADD_FE_URL, BUDGET_FE_URL, BUDGET_UPDATE_API_URL, get_add_budget, get_all_budget, get_update_budget, post} from '../../utils/APIHelper.js';
 import {budgetHeaders, itemDetailHeaders, spentTypeEnum, paymentTypeEnum, itemCategoryEnum, enumFields, dateFields, validationBudgetFields} from '../../utils/constantHelper.js';
 import { filterMapObject, isEffectivelyEmpty } from "../../utils/functionHelper.js";
 import UpdateItemPage from "./UpdateBudgetPage.jsx";
@@ -33,12 +33,12 @@ export async function action({ request }) {
     temp += " key="+pair[0] + " , val=" + pair[1] ;
   }
   if (intent === "edit" && payload) {
-    await post(BUDGET_UPDATE_API_URL, payload);
+    await get_update_budget(payload);
     return redirect(redirectUrl || BUDGET_FE_URL);
   }
 
   if (intent === "add" && payload) {
-    await post(BUDGET_ADD_API_URL, payload);
+    await get_add_budget(payload);
     return redirect(redirectUrl || BUDGET_FE_URL);
   }
   return {}
