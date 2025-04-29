@@ -1,20 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useActionData, useOutletContext } from 'react-router-dom';
 import { budgetHeaders, dateFields, enumFields, itemCategoryEnum, lockedFields, paymentTypeEnum, spentTypeEnum } from '../../utils/constantHelper';
-import { ddOptionCSS, inputCSS, inputddCSS, tdCSS } from '../../utils/cssConstantHelper';
+import { ddOptionCSS, errorTextCSS, inputCSS, inputddCSS, tdCSS } from '../../utils/cssConstantHelper';
 import { BUDGET_ADD_API_URL, BUDGET_UPDATE_API_URL } from '../../utils/APIHelper';
 
 const LOG_PREFIX = "AddBudgetPage::"
-
-function getLocalDateTimeString() {
-    const now = new Date();
-    const offset = now.getTimezoneOffset(); // in minutes
-  
-    // Adjust time to local timezone
-    const localDateTime = new Date(now.getTime() - offset * 60 * 1000);
-  
-    return localDateTime.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:MM"
-  }
 
 export default function AddItemPage() {
     const [formData, setFormData] = useState(budgetHeaders.reduce((acc, col) => {
@@ -26,13 +16,11 @@ export default function AddItemPage() {
   const intent = "add-"
   
   
-
-  console.log(LOG_PREFIX+"calling AddItemPage")
   return (
     
         budgetHeaders.map((header, idx) => (
             <td key={header.key} className={`${tdCSS} --${dateFields} ${header.key} ${dateFields.includes(header.key)}--`}>
-            {errors && errors[intent+header.key] && <p className="text-red-500 text-xs">{errors[intent+header.key]}</p>}
+            {errors && errors[intent+header.key] && <p className={`${errorTextCSS}`}>{errors[intent+header.key]}</p>}
             
             <>
                 {

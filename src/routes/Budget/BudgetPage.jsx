@@ -9,7 +9,7 @@ import {BUDGET_ADD_API_URL, BUDGET_ADD_FE_URL, BUDGET_FE_URL, BUDGET_UPDATE_API_
 import {budgetHeaders, itemDetailHeaders, spentTypeEnum, paymentTypeEnum, itemCategoryEnum, enumFields, dateFields, validationBudgetFields} from '../../utils/constantHelper.js';
 import { filterMapObject, isEffectivelyEmpty } from "../../utils/functionHelper.js";
 import UpdateItemPage from "./UpdateBudgetPage.jsx";
-import { buttonCSS, ddOptionCSS, inputddCSS, linkButtonCSS, spentTypeColorMap, tableCSS, tableRowCSS, tdCSS, theadCSS } from "../../utils/cssConstantHelper.js";
+import { buttonCSS, ddOptionCSS, errorTextCSS, inputddCSS, linkButtonCSS, spentTypeColorMap, tableCSS, tableRowCSS, tdCSS, theadCSS } from "../../utils/cssConstantHelper.js";
 
 const LOG_PREFIX = "BudgetPage::"
 
@@ -163,9 +163,7 @@ export default function BudgetPage() {
     if (Object.keys(filterMapObject(newParams, "selectedYear", "page")).length === 0){
       setSearchValue('')
     }
-    // if (JSON.stringify(newParams) !== JSON.stringify(globalParam)) {
-      setGlobalParam(newParams);
-    // }
+    setGlobalParam(newParams);
   };
 
   const handleUpdateSubmit = (e) => {
@@ -183,9 +181,6 @@ export default function BudgetPage() {
 
   const handleAddSubmit = (e) => {
     e.preventDefault();
-    // if (!errors || Object.keys(errors).length == 0) {
-    //   setEditRowId(null)
-    // }
     let formData = new FormData(e.currentTarget.form);
     formData.append("redirectTo", `${BUDGET_FE_URL}?${searchParams.toString()}`)
     formData.append("intent", 'add')
@@ -280,7 +275,6 @@ export default function BudgetPage() {
             }
             {/* Add button to add multiple condition */}
             <button
-                // type="submit"
                 className={`${buttonCSS}`}
                 onClick={(e) => {handleAddParam(e)}}
               >Add Search
@@ -300,12 +294,6 @@ export default function BudgetPage() {
               </option>
             ))}
           </select>
-          {/* <button
-            type="submit"
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded"
-            onClick={(e) => handleSearch(e)}
-          >🔍
-          </button> */}
         </div>
 
 
@@ -364,7 +352,7 @@ export default function BudgetPage() {
                   {budgetHeaders.map((header, idx) => (
                     editRowId === item['id']
                     ? <td key={`${item.id}${header.key}`} className={`${tdCSS}`}>
-                          {errors && errors[updateIntent+header.key] && <p className="text-red-500">{errors[updateIntent+header.key]}</p>}
+                          {errors && errors[updateIntent+header.key] && <p className={`${errorTextCSS}`}>{errors[updateIntent+header.key]}</p>}
                           <UpdateItemPage header={header} item={item}/>
                       </td>
                     : header.key == 'id' && item['itemDetail'] && item['itemDetail'].length > 0
@@ -421,12 +409,6 @@ export default function BudgetPage() {
             {isAddPage && <tr className={`${tableRowCSS}`}>
             
                 <Outlet name="add" context={errors}/>
-                {/* {budgetHeaders.map((header, idx) => (
-                  <td key={header.key} className={`${tdCSS}`}>
-                    {errors && errors[addIntent+header.key] && <p className="text-red-500 text-xs">{errors[addIntent+header.key]}</p>}
-                    <Outlet name="add" context={header}/>
-                  </td>
-                ))} */}
                 <td className={`${tdCSS} space-x-2`}>
                   <>
                       <button onClick={(e) => {handleAddSubmit(e)}} type="submit" name="intent" value="add" className="text-blue-600 hover:underline">Add</button>

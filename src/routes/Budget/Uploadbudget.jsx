@@ -1,57 +1,75 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { upload_budget } from "../../utils/APIHelper";
+import { buttonCSS, errorTextCSS, inputCSS } from "../../utils/cssConstantHelper";
+import { useFetcher } from "react-router-dom";
 
+export async function action({ request }) {
+    const formData = await request.formData();
+    if (!formData || formData.get("file") === "null" || !formData.get("file")){
+      return {error:"Please select a file first."};
+    }
+    const res = await upload_budget(formData);
+    return {error:res?.error, message:res?.message}
+  }
 
 export default function Uploadbudget() {
   const [file, setFile] = useState(null);
-  const [message, setMessage] = useState("");
+  const fetcher = useFetcher();
+  const [message, setMessage] = useState(fetcher.data?.error || fetcher.data?.message  || "");
+
+    useEffect(() => {
+      if (fetcher.data) {
+        setMessage(fetcher.data?.error || fetcher.data?.message);
+      }
+    }, [fetcher.data]);
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
     setMessage("");
   };
 
-  const handleUpload = async () => {
-    if (!file) {
-      setMessage("Please select a file first.");
-      return;
-    }
-
+  const handleUpload = (e) => {
+    e.preventDefault();
     const formData = new FormData();
     formData.append("file", file);
-
-    try {
-      const res = await upload_budget(formData);
-
-      setMessage(res.data);
-    } catch (err) {
-      setMessage("Upload failed. Make sure the backend is running.");
-    }
+    fetcher.submit(formData, {
+        method: "POST",
+        encType: "multipart/form-data"
+      });
   };
+  let status =
+    fetcher.state;
+
+  let isLoading = status !== "idle";
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-indigo-600 p-6">
-      <div className="bg-blue shadow-lg rounded-2xl p-8 w-full max-w-md">
-        <h2 className="text-xl font-semibold mb-4 text-center">Upload Excel File</h2>
+    <fetcher.Form method="post" >
+        <div className="flex flex-col items-center justify-center min-h-screen bg-indigo-600 p-6 rounded-xl shadow border border-gray-200">
+        <div className="bg-blue shadow-lg rounded-2xl p-8 w-full max-w-md bg-neutral-800 space-y-4">
+            <h2 className="text-xl font-semibold mb-4 text-center">Upload Excel File</h2>
 
-        <input
-          type="file"
-          accept=".xlsx"
-          onChange={handleFileChange}
-          className="w-full border p-2 rounded mb-4"
-        />
+            <input
+            disabled={isLoading}
+            type="file"
+            accept=".xlsx"
+            name="file"
+            onChange={handleFileChange}
+            className={inputCSS}
+            />
 
-        <button
-          onClick={handleUpload}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition"
-        >
-          Upload
-        </button>
+            <button
+            disabled={isLoading}
+            onClick={(e) => {handleUpload(e)}}
+            className={buttonCSS}
+            >
+            {isLoading ? "Uploading...": "Upload" }
+            </button>
 
-        {message && (
-          <p className="mt-4 text-center text-sm text-red-700">{message}</p>
-        )}
-      </div>
-    </div>
+            {message && (
+            <p className={`mt-4 text-center text-red-500 text-l`}>{message}</p>
+            )}
+        </div>
+        </div>
+    </fetcher.Form>
   );
 };

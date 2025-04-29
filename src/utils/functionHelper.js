@@ -13,7 +13,6 @@ function filterMapObject(originalMapObj, ...extraKeys) {
         Object.entries(originalMapObj).filter(([key, value]) => {
             if (extraKeys) {
                 const anyKeyFound = extraKeys.some(extraKey => extraKey === key)
-                // console.log("fitlering extra key", extraKey, key)
                 if (anyKeyFound) {
                     return false;
                 }
@@ -22,7 +21,6 @@ function filterMapObject(originalMapObj, ...extraKeys) {
             })
             .map(([key, value]) => [key, value])
     );
-    // console.log("cleaned", cleaned, Object.keys(cleaned).length)
     return cleaned
 }
 
