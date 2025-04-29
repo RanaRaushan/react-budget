@@ -28,10 +28,6 @@ export async function action({ request }) {
   if (Object.keys(errors).length > 0){
     return errors;
   }
-  let temp;
-  for (const pair of formData.entries()) {
-    temp += " key="+pair[0] + " , val=" + pair[1] ;
-  }
   if (intent === "edit" && payload) {
     await get_update_budget(payload);
     return redirect(redirectUrl || BUDGET_FE_URL);

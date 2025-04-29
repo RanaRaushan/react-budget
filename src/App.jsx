@@ -11,6 +11,7 @@ import AddBudgetItem from "./routes/Budget/AddBudgetPage";
 import HomePage from "./routes/Home"
 import Header from "./routes/Header";
 import ErrorPage from "./error-page";
+import Uploadbudget from "./routes/Budget/Uploadbudget";
 
 function App() { 
 
@@ -21,6 +22,7 @@ function App() {
           <Route path="budget" element={<BudgetPage />} loader={budgetLoader} errorElement={<ErrorPage />} action={BudgetAction}>
             <Route path="add" element={<AddBudgetItem />} errorElement={<ErrorPage />} />
           </Route>     
+          <Route index path="upload" element={<Uploadbudget />} errorElement={<ErrorPage />} />    
           <Route index path="*" element={<Navigate to="/" replace={true} />} />     
       </Route>
       )

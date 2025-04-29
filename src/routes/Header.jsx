@@ -55,10 +55,10 @@ const Header = () => {
                     Add Budget
                   </Link>
                   <Link
-                    to="/budget/edit"
+                    to="/upload"
                     className="block px-4 py-2 hover:bg-indigo-100 rounded-md"
                   >
-                    Edit Budget
+                    Upload Budget
                   </Link>
                 </div>
               )}
