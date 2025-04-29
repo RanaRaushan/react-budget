@@ -6,7 +6,7 @@ import { BUDGET_ADD_API_URL, BUDGET_UPDATE_API_URL } from '../../utils/APIHelper
 
 const LOG_PREFIX = "AddBudgetPage::"
 
-export default function AddItemPage() {
+export default function AddBudgetItemPage() {
     const [formData, setFormData] = useState(budgetHeaders.reduce((acc, col) => {
         acc[col.key] = "";
         return acc;
