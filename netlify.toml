@@ -1,0 +1,27 @@
+# Redirect with a 200
+[[redirects]]
+from = "/"
+to = "/"
+status = 200
+
+[[redirects]]
+from = "/budget"
+to = "/budget"
+status = 200
+
+[[redirects]]
+from = "/budget/add"
+to = "/budget/add"
+status = 200
+
+[[redirects]]
+from = "/upload"
+to = "/upload"
+status = 200
+
+# Redirect with a 404
+[[redirects]]
+from = "/*"
+to = "/404"
+status = 404
+
