@@ -7,7 +7,7 @@ import { IoMdArrowDropright, IoMdArrowDropdown } from "react-icons/io";
 import { useNavigate, useLoaderData, Outlet, useParams, useSearchParams, useLocation, Form, useActionData, redirect, Link, useFetcher, PrefetchPageLinks } from "react-router-dom";
 import {BUDGET_ADD_API_URL, BUDGET_ADD_FE_URL, BUDGET_FE_URL, BUDGET_UPDATE_API_URL, get_add_budget, get_all_budget, get_update_budget, post} from '../../utils/APIHelper.js';
 import {budgetHeaders, itemDetailHeaders, spentTypeEnum, paymentTypeEnum, itemCategoryEnum, enumFields, dateFields, validationBudgetFields} from '../../utils/constantHelper.js';
-import { filterMapObject, isEffectivelyEmpty } from "../../utils/functionHelper.js";
+import { filterMapObject, isEffectivelyEmpty, isEffectivelyEmptyObject } from "../../utils/functionHelper.js";
 import UpdateItemPage from "./UpdateBudgetPage.jsx";
 import { buttonCSS, ddOptionCSS, errorTextCSS, inputddCSS, linkButtonCSS, spentTypeColorMap, tableCSS, tableRowCSS, tdCSS, theadCSS } from "../../utils/cssConstantHelper.js";
 
@@ -136,19 +136,22 @@ export default function BudgetPage() {
     e.preventDefault();
     const searchParmValue = `${searchValue}`;
     const searchKeyParm = `${searchKey}`;
-
-    if (searchParmValue && !isEffectivelyEmpty(paramToAdd)) {
+    console.log("handleAddParam", isEffectivelyEmptyObject(paramToAdd), " paramToAdd:", paramToAdd)
+    if (searchParmValue && !isEffectivelyEmptyObject(paramToAdd)) {
+      console.log("handleAddParam1", isEffectivelyEmptyObject(paramToAdd), " paramToAdd:", paramToAdd)
       setGlobalParam((prev) => ({
         ...prev,
         [searchKeyParm]: searchParmValue,
         ...paramToAdd,
       }));
     } else if(searchParmValue) {
+      console.log("handleAddParam2", isEffectivelyEmptyObject(paramToAdd), " paramToAdd:", paramToAdd)
       setGlobalParam((prev) => ({
         ...prev,
         [searchKeyParm]: searchParmValue,
       }));
-    } else if (!isEffectivelyEmpty(paramToAdd)) {
+    } else if (!isEffectivelyEmptyObject(paramToAdd)) {
+      console.log("handleAddParam3", isEffectivelyEmptyObject(paramToAdd), " paramToAdd:", paramToAdd)
       setGlobalParam((prev) => ({
         ...prev,
         ...paramToAdd,

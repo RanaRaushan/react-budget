@@ -7,6 +7,16 @@ function isEffectivelyEmpty(arr) {
       });
   }
 
+function isEffectivelyEmptyObject(obj) {
+    if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) return true;
+  
+    return Object.values(obj).every(value => {
+      if (value === null || value === undefined) return true;
+  
+      const str = String(value).trim().toLowerCase();
+      return str === '' || str === 'null' || str === 'undefined' || str === 'nan';
+    });
+  }
 
 function filterMapObject(originalMapObj, ...extraKeys) {
     const cleaned = Object.fromEntries(
@@ -27,6 +37,7 @@ function filterMapObject(originalMapObj, ...extraKeys) {
 
   export {
     isEffectivelyEmpty,
+    isEffectivelyEmptyObject,
     filterMapObject,
   }
 
