@@ -4,12 +4,13 @@ import "./BudgetPage.css";
 import { HiChevronUp } from "react-icons/hi";
 import { FaSkullCrossbones, FaPlus } from "react-icons/fa";
 import { IoMdArrowDropright, IoMdArrowDropdown } from "react-icons/io";
-import { useNavigate, useLoaderData, Outlet, useParams, useSearchParams, useLocation, Form, useActionData, redirect, Link, useFetcher, PrefetchPageLinks } from "react-router-dom";
-import {BUDGET_ADD_API_URL, BUDGET_ADD_FE_URL, BUDGET_FE_URL, BUDGET_UPDATE_API_URL, get_add_budget, get_all_budget, get_update_budget, post} from '../../utils/APIHelper.js';
+import { useNavigate, useLoaderData, Outlet, useSearchParams, useLocation, redirect, Link, useFetcher, useNavigation } from "react-router-dom";
+import {BUDGET_ADD_FE_URL, BUDGET_FE_URL, get_add_budget, get_all_budget, get_update_budget} from '../../utils/APIHelper.js';
 import {budgetHeaders, itemDetailHeaders, spentTypeEnum, paymentTypeEnum, itemCategoryEnum, enumFields, dateFields, validationBudgetFields} from '../../utils/constantHelper.js';
-import { filterMapObject, isEffectivelyEmpty, isEffectivelyEmptyObject } from "../../utils/functionHelper.js";
-import UpdateItemPage from "./UpdateBudgetPage.jsx";
+import { filterMapObject, isEffectivelyEmptyObject } from "../../utils/functionHelper.js";
+import UpdateItemComponent from "./Components/UpdateBudget.jsx";
 import { buttonCSS, ddOptionCSS, errorTextCSS, inputddCSS, linkButtonCSS, spentTypeColorMap, tableCSS, tableRowCSS, tdCSS, theadCSS } from "../../utils/cssConstantHelper.js";
+import LoadingTableComponent from "./Components/LoadingTable.jsx";
 
 const LOG_PREFIX = "BudgetPage::"
 
@@ -94,7 +95,11 @@ export default function BudgetPage() {
   const [page, setPage] = useState(searchParams.get("page") || 0);
   const [editRowId, setEditRowId] = useState(null);
   const [errors, setErrors] = useState(fetcher.data || {});
+  const navigation = useNavigation();
 
+  let status = navigation.state;
+  let isLoading = status !== "idle";
+  
   const toggleExpand = (id) => {
     setExpandedRow(prev => (prev === id ? null : id));
   };
@@ -229,6 +234,7 @@ export default function BudgetPage() {
     }
     return pages;
   };
+  
   return (
       <div className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl shadow border border-gray-200">
@@ -345,80 +351,84 @@ export default function BudgetPage() {
             </tr>
           </thead>
           <tbody>
-            {filteredBudgetData && filteredBudgetData.map((item, index) => (
+            {isLoading ? <LoadingTableComponent /> :
+                <>
+                  {filteredBudgetData && filteredBudgetData.map((item, index) => (
 
-              <React.Fragment key={item.id}>
-                <tr
-                  key={index}
-                  className={`${editRowId === item['id'] ? '': spentTypeColorMap[item.spentType] || tableRowCSS}`}
-                >
-                  {budgetHeaders.map((header, idx) => (
-                    editRowId === item['id']
-                    ? <td key={`${item.id}${header.key}`} className={`${tdCSS}`}>
-                          {errors && errors[updateIntent+header.key] && <p className={`${errorTextCSS}`}>{errors[updateIntent+header.key]}</p>}
-                          <UpdateItemPage header={header} item={item}/>
-                      </td>
-                    : header.key == 'id' && item['itemDetail'] && item['itemDetail'].length > 0
-                        ? <td key={`${item.id}${header.key}`} className={`${tdCSS}`}>
-                          <label onClick={() => toggleExpand(item.id)} className="focus:outline-none cursor-pointer">
-                            <span>{item[header.key]}{expandedRow === item.id ? <IoMdArrowDropdown /> : <IoMdArrowDropright />}</span>
-                          </label>
-                          </td>
-                        : <td key={`${item.id}${header.key}`} className={`${tdCSS}`}>{item[header.key]}</td>
-                  ))}
-                  
-                  <td className={`${tdCSS}`}>
-                    {editRowId !== item['id'] 
-                      ? <button onClick={(e) => {setEditRowId(item.id), e.preventDefault()}} className="text-blue-600 hover:underline">Update</button>
-                      : <><button onClick={(e) => {handleUpdateSubmit(e)}} type="submit" name="intent" value="edit" className="text-blue-600 hover:underline">Y</button>
-                        <button onClick={(e) => {setEditRowId(null), e.preventDefault()}} className="text-blue-600 hover:underline">X</button></>
-                    }
-                  </td>
-                </tr>
-                {expandedRow === item.id && item['itemDetail'] && (
-                  <tr className="">
-                      <td colSpan={budgetHeaders.length} className="px-6 py-4">
-                        <div className="flex flex-wrap gap-4">
-                            {/* Example expanded content */}
-                            {item['itemDetail'].map((itemDetail, index) => (
-                              <div className="text-sm text-white">
-                                {itemDetailHeaders.map((itemDH, idx) => (
-                                  <div>{itemDH.label}: {itemDetail[itemDH.key]}</div>
-                                ))}
+                    <React.Fragment key={item.id}>
+                      <tr
+                        key={index}
+                        className={`${editRowId === item['id'] ? '': spentTypeColorMap[item.spentType] || tableRowCSS}`}
+                      >
+                        {budgetHeaders.map((header, idx) => (
+                          editRowId === item['id']
+                          ? <td key={`${item.id}${header.key}`} className={`${tdCSS}`}>
+                                {errors && errors[updateIntent+header.key] && <p className={`${errorTextCSS}`}>{errors[updateIntent+header.key]}</p>}
+                                <UpdateItemComponent header={header} item={item}/>
+                            </td>
+                          : header.key == 'id' && item['itemDetail'] && item['itemDetail'].length > 0
+                              ? <td key={`${item.id}${header.key}`} className={`${tdCSS}`}>
+                                <label onClick={() => toggleExpand(item.id)} className="focus:outline-none cursor-pointer">
+                                  <span>{item[header.key]}{expandedRow === item.id ? <IoMdArrowDropdown /> : <IoMdArrowDropright />}</span>
+                                </label>
+                                </td>
+                              : <td key={`${item.id}${header.key}`} className={`${tdCSS}`}>{item[header.key]}</td>
+                        ))}
+                        
+                        <td className={`${tdCSS}`}>
+                          {editRowId !== item['id'] 
+                            ? <button onClick={(e) => {setEditRowId(item.id), e.preventDefault()}} className="text-blue-600 hover:underline">Update</button>
+                            : <><button onClick={(e) => {handleUpdateSubmit(e)}} type="submit" name="intent" value="edit" className="text-blue-600 hover:underline">Y</button>
+                              <button onClick={(e) => {setEditRowId(null), e.preventDefault()}} className="text-blue-600 hover:underline">X</button></>
+                          }
+                        </td>
+                      </tr>
+                      {expandedRow === item.id && item['itemDetail'] && (
+                        <tr className="">
+                            <td colSpan={budgetHeaders.length} className="px-6 py-4">
+                              <div className="flex flex-wrap gap-4">
+                                  {/* Example expanded content */}
+                                  {item['itemDetail'].map((itemDetail, index) => (
+                                    <div className="text-sm text-white">
+                                      {itemDetailHeaders.map((itemDH, idx) => (
+                                        <div>{itemDH.label}: {itemDetail[itemDH.key]}</div>
+                                      ))}
+                                    </div>
+                                  ))}
                               </div>
-                            ))}
-                        </div>
+                            </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  )
+                  )}
+                  {!isAddPage && <tr className={`${tableRowCSS}`}>
+                      {[...Array(budgetHeaders.length + 1)].map((_, idx) => {
+                        return idx === budgetHeaders.length
+                          ? <td key={`${idx}${budgetHeaders.key}`} className={`${tdCSS}`}>
+                              {/* <button onClick={(e) => e.preventDefault()} className="hover:text-indigo-200" > */}
+                                <Link className={`${linkButtonCSS}`} to={BUDGET_ADD_FE_URL+"?"+searchParams.toString()} 
+                                  style={{color: 'inherit'}}
+                                  >
+                                    <FaPlus />
+                                </Link>
+                              {/* </button> */}
+                            </td>
+                          : <td key={`${idx}${budgetHeaders.key}`}></td>
+                      })}
+                  </tr>}
+                  {isAddPage && <tr className={`${tableRowCSS}`}>
+                  
+                      <Outlet name="add" context={errors}/>
+                      <td className={`${tdCSS} space-x-2`}>
+                        <>
+                            <button onClick={(e) => {handleAddSubmit(e)}} type="submit" name="intent" value="add" className="text-blue-600 hover:underline">Add</button>
+                            <button onClick={(e) => {navigate(BUDGET_FE_URL+"?"+searchParams.toString()), resetErrorState(), e.preventDefault()}} className="text-blue-600 hover:underline">X</button>
+                            </>
                       </td>
-                  </tr>
-                )}
-              </React.Fragment>
-            )
-            )}
-            {!isAddPage && <tr className={`${tableRowCSS}`}>
-                {[...Array(budgetHeaders.length + 1)].map((_, idx) => {
-                  return idx === budgetHeaders.length
-                    ? <td key={`${idx}${budgetHeaders.key}`} className={`${tdCSS}`}>
-                        {/* <button onClick={(e) => e.preventDefault()} className="hover:text-indigo-200" > */}
-                          <Link className={`${linkButtonCSS}`} to={BUDGET_ADD_FE_URL+"?"+searchParams.toString()} 
-                            style={{color: 'inherit'}}
-                            >
-                              <FaPlus />
-                          </Link>
-                        {/* </button> */}
-                      </td>
-                    : <td key={`${idx}${budgetHeaders.key}`}></td>
-                })}
-            </tr>}
-            {isAddPage && <tr className={`${tableRowCSS}`}>
-            
-                <Outlet name="add" context={errors}/>
-                <td className={`${tdCSS} space-x-2`}>
-                  <>
-                      <button onClick={(e) => {handleAddSubmit(e)}} type="submit" name="intent" value="add" className="text-blue-600 hover:underline">Add</button>
-                      <button onClick={(e) => {navigate(BUDGET_FE_URL+"?"+searchParams.toString()), resetErrorState(), e.preventDefault()}} className="text-blue-600 hover:underline">X</button>
-                      </>
-                </td>
-            </tr>}
+                  </tr>}
+                </>
+            }
           </tbody>
         </table>
 
