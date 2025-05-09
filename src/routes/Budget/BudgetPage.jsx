@@ -94,6 +94,7 @@ export default function BudgetPage() {
   const [editRowId, setEditRowId] = useState(null);
   const [errors, setErrors] = useState(fetcher.data || {});
   const navigation = useNavigation();
+  const [isExactSearch, setIsExactSearch] = useState(false);
 
   const scrollTargetRef = useRef(null);
 
@@ -103,7 +104,7 @@ export default function BudgetPage() {
   const toggleExpand = (id) => {
     setExpandedRow(prev => (prev === id ? null : id));
   };
-  
+
   const extra_headers = [
     { label: "Actions", key: "actions" }
   ];
@@ -142,6 +143,7 @@ export default function BudgetPage() {
       setGlobalParam((prev) => ({
         ...prev,
         [searchKeyParm]: searchParmValue,
+        exact: isExactSearch,
         ...paramToAdd,
       }));
     } else if(searchParmValue) {
@@ -149,12 +151,14 @@ export default function BudgetPage() {
       setGlobalParam((prev) => ({
         ...prev,
         [searchKeyParm]: searchParmValue,
+        exact: isExactSearch,
       }));
     } else if (!isEffectivelyEmptyObject(paramToAdd)) {
       console.log("handleAddParam3", isEffectivelyEmptyObject(paramToAdd), " paramToAdd:", paramToAdd)
       setGlobalParam((prev) => ({
         ...prev,
         ...paramToAdd,
+        exact: isExactSearch,
       }));
     }
   };
@@ -191,6 +195,10 @@ export default function BudgetPage() {
       method: "POST",
     });
   }
+
+  const handleCheckboxChange = (e) => {
+    setIsExactSearch(e.target.checked);
+  };
 
   useEffect(() => {
     if (fetcher.data) {
@@ -283,6 +291,15 @@ export default function BudgetPage() {
                       className={`${inputddCSS}`}
                   />
             }
+            {/* Add a checkbox */}
+            <label >
+              <input
+                type="checkbox"
+                checked={isExactSearch}
+                onChange={handleCheckboxChange}
+              />
+              Exact Search
+            </label>
             {/* Add button to add multiple condition */}
             <button
                 className={`${buttonCSS}`}
