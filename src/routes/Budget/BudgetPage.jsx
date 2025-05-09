@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./BudgetPage.css";
 import { HiChevronUp } from "react-icons/hi";
 import { FaSkullCrossbones, FaPlus } from "react-icons/fa";
@@ -7,7 +7,7 @@ import { IoMdArrowDropright, IoMdArrowDropdown } from "react-icons/io";
 import { useNavigate, useLoaderData, Outlet, useSearchParams, useLocation, redirect, Link, useFetcher, useNavigation } from "react-router-dom";
 import {BUDGET_ADD_FE_URL, BUDGET_FE_URL, get_add_budget, get_all_budget, get_update_budget} from '../../utils/APIHelper.js';
 import {budgetHeaders, itemDetailHeaders, spentTypeEnum, paymentTypeEnum, itemCategoryEnum, enumFields, dateFields, validationBudgetFields} from '../../utils/constantHelper.js';
-import { filterMapObject, isEffectivelyEmptyObject } from "../../utils/functionHelper.js";
+import { filterMapObject, getCurrentYear, getYearOption, isEffectivelyEmptyObject } from "../../utils/functionHelper.js";
 import UpdateItemComponent from "./Components/UpdateBudget.jsx";
 import { buttonCSS, ddOptionCSS, errorTextCSS, inputddCSS, linkButtonCSS, spentTypeColorMap, tableCSS, tableRowCSS, tdCSS, theadCSS } from "../../utils/cssConstantHelper.js";
 import LoadingTableComponent from "./Components/LoadingTable.jsx";
@@ -81,13 +81,11 @@ export default function BudgetPage() {
   const { filteredBudgetData, currentPage, totalPages } = useLoaderData();
 
   const isAddPage = location.pathname.includes("add");
-  // Get current year dynamically
-  const currentYear = new Date().getFullYear();
 
-  let [searchParams, setSearchParams] = useSearchParams({selectedYear:currentYear, sort:"spentDate-asc"});
+  let [searchParams, setSearchParams] = useSearchParams({selectedYear:getCurrentYear() , sort:"spentDate-asc"});
   const [searchKey, setSearchKey] = useState("id");
   const [searchValue, setSearchValue] = useState("");
-  const [selectedYear, setSelectedYear] = useState(searchParams.get("selectedYear") || currentYear);
+  const [selectedYear, setSelectedYear] = useState(searchParams.get("selectedYear") || getCurrentYear());
   const [sortColumn, setSortColumn] = useState(searchParams.get("sort")?.split("-")[0] || "spentDate");
   const [sortDirection, setSortDirection] = useState(searchParams.get("sort")?.split("-")[1] || "asc");
   const [globalParam, setGlobalParam] = useState({});
@@ -97,18 +95,15 @@ export default function BudgetPage() {
   const [errors, setErrors] = useState(fetcher.data || {});
   const navigation = useNavigation();
 
+  const scrollTargetRef = useRef(null);
+
   let status = navigation.state;
   let isLoading = status !== "idle";
   
   const toggleExpand = (id) => {
     setExpandedRow(prev => (prev === id ? null : id));
   };
-
-  // Generate years from 2024 to current year
-  const yearOptions = [];
-  for (let year = 2023; year <= currentYear; year++) {
-    yearOptions.push(year);
-  }
+  
   const extra_headers = [
     { label: "Actions", key: "actions" }
   ];
@@ -220,6 +215,12 @@ export default function BudgetPage() {
       }
     })
   }, [globalParam]);
+
+  useEffect(() => {
+    if (location.state?.scrollTo === 'add') {
+      scrollTargetRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [location.state]);
   
 
   const getPageNumbers = () => {
@@ -267,9 +268,9 @@ export default function BudgetPage() {
                           onChange={(e) => setSearchValue(e.target.value)}
                           className={`${inputddCSS}`}
                         >
-                          <option value="">Select</option>
+                          <option className={`${ddOptionCSS}`} value="">Select</option>
                           {Object.entries(searchKey == 'spentType' ? spentTypeEnum : searchKey == 'itemType' ? itemCategoryEnum : paymentTypeEnum).map(([ddKey, ddLabel]) => (
-                            <option key={ddKey} value={ddKey}>
+                            <option className={`${ddOptionCSS}`} key={ddKey} value={ddKey}>
                               {ddLabel}
                             </option>
                           ))}
@@ -297,7 +298,7 @@ export default function BudgetPage() {
             className={`${inputddCSS}`}
           >
             <option className={`${ddOptionCSS}`} value="">All Year</option>
-            {yearOptions.map((year) => (
+            {getYearOption().map((year) => (
               <option className={`${ddOptionCSS}`} key={year} value={year}>
                 {year}
               </option>
@@ -417,7 +418,7 @@ export default function BudgetPage() {
                           : <td key={`${idx}${budgetHeaders.key}`}></td>
                       })}
                   </tr>}
-                  {isAddPage && <tr className={`${tableRowCSS}`}>
+                  {isAddPage && <tr className={`${tableRowCSS}`} ref={scrollTargetRef} >
                   
                       <Outlet name="add" context={errors}/>
                       <td className={`${tdCSS} space-x-2`}>

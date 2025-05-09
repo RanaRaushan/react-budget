@@ -19,7 +19,7 @@ export default function AddBudgetItemPage() {
   return (
     
         budgetHeaders.map((header, idx) => (
-            <td key={header.key} className={`${tdCSS} --${dateFields} ${header.key} ${dateFields.includes(header.key)}--`}>
+            <td key={header.key} className={`${tdCSS}`}>
             {errors && errors[intent+header.key] && <p className={`${errorTextCSS}`}>{errors[intent+header.key]}</p>}
             
             <>

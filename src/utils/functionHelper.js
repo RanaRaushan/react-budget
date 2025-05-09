@@ -34,10 +34,28 @@ function filterMapObject(originalMapObj, ...extraKeys) {
     return cleaned
 }
 
+function getCurrentYear(startFrom=2023) {
+  return new Date().getFullYear();;
+}
+
+function getYearOption(startFrom=2023) {
+  // Get current year dynamically
+  const currentYear =getCurrentYear();
+
+  // Generate years from {startFrom} to current year
+  const yearOptions = [];
+  for (let year = startFrom; year <= currentYear; year++) {
+    yearOptions.push(year);
+  }
+  return yearOptions;
+}
+
 
   export {
     isEffectivelyEmpty,
     isEffectivelyEmptyObject,
     filterMapObject,
+    getCurrentYear,
+    getYearOption
   }
 
