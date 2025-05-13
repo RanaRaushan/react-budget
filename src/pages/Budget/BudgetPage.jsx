@@ -8,9 +8,9 @@ import { useNavigate, useLoaderData, Outlet, useSearchParams, useLocation, redir
 import {BUDGET_ADD_FE_URL, BUDGET_FE_URL, get_add_budget, get_all_budget, get_update_budget} from '../../utils/APIHelper.js';
 import {budgetHeaders, itemDetailHeaders, spentTypeEnum, paymentTypeEnum, itemCategoryEnum, enumFields, dateFields, validationBudgetFields} from '../../utils/constantHelper.js';
 import { filterMapObject, getCurrentYear, getYearOption, isEffectivelyEmptyObject } from "../../utils/functionHelper.js";
-import UpdateItemComponent from "./Components/UpdateBudget.jsx";
+import UpdateItemComponent from "../../Components/UpdateBudget.jsx";
 import { buttonCSS, ddOptionCSS, errorTextCSS, inputddCSS, linkButtonCSS, spentTypeColorMap, tableCSS, tableRowCSS, tdCSS, theadCSS } from "../../utils/cssConstantHelper.js";
-import LoadingTableComponent from "./Components/LoadingTable.jsx";
+import LoadingTableComponent from "../../components/LoadingTable.jsx";
 
 const LOG_PREFIX = "BudgetPage::"
 
@@ -62,13 +62,12 @@ export async function loader({ request }) {
   const q = url.searchParams;
   const response = await get_all_budget(q.toString()) || [];
   let filteredBudgetData = []
-  const totalPages = response.totalPages
-  const currentPage = Math.min(response.number, totalPages)
+  const pagination = response.pagination
   if (response.empty !== true) {
-    filteredBudgetData = response.content
-    return { filteredBudgetData, currentPage, totalPages };
+    filteredBudgetData = response.result
+    return { filteredBudgetData, pagination };
   }
-  return { filteredBudgetData, currentPage, totalPages }
+  return { filteredBudgetData, pagination }
 }
 
 export default function BudgetPage() {
@@ -78,7 +77,9 @@ export default function BudgetPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const fetcher = useFetcher();
-  const { filteredBudgetData, currentPage, totalPages } = useLoaderData();
+  const { filteredBudgetData, pagination } = useLoaderData();
+  const totalPages = pagination?.totalPages
+  const currentPage = Math.min(pagination?.page, totalPages)
 
   const isAddPage = location.pathname.includes("add");
 
@@ -454,7 +455,7 @@ export default function BudgetPage() {
         <div className="flex justify-center items-center space-x-2">
           <button
             onClick={() => setPage((p) => Math.max(p - visibleCount, 1))}
-            disabled={currentPage === 1}
+            disabled={getPageNumbers()[0] === 1}
             className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
           >
             Previous
@@ -476,8 +477,8 @@ export default function BudgetPage() {
 
           <button
             onClick={() => setPage((p) => Math.min(p + visibleCount, totalPages))}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+            disabled={getPageNumbers()[getPageNumbers().length- 1] === totalPages}
+            className={`px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50`}
           >
             Next
           </button>

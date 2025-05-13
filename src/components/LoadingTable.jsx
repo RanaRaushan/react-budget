@@ -1,5 +1,5 @@
-import { budgetHeaders} from '../../../utils/constantHelper';
-import { spentTypeColorMap, tdCSS } from '../../../utils/cssConstantHelper';
+import { budgetHeaders} from '../utils/constantHelper';
+import { spentTypeColorMap, tdCSS } from '../utils/cssConstantHelper';
 
 const LOG_PREFIX = "UpdateBudgetPage::"
 const keys = Object.keys(spentTypeColorMap);

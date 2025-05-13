@@ -6,12 +6,12 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import './App.css'
-import BudgetPage, {loader as budgetLoader, action as BudgetAction} from "./routes/Budget/BudgetPage";
-import AddBudgetItemPage from "./routes/Budget/AddBudgetPage";
-import HomePage from "./routes/Home"
-import Header from "./routes/Header";
+import BudgetPage, {loader as budgetLoader, action as BudgetAction} from "./pages/Budget/BudgetPage";
+import AddBudgetItemPage from "./pages/Budget/AddBudgetPage";
+import HomePage from "./pages/Home"
+import Header from "./pages/Header";
 import ErrorPage from "./error-page";
-import Uploadbudget, {action as UploadAction} from "./routes/Budget/Uploadbudget";
+import Uploadbudget, {action as UploadAction} from "./pages/Budget/Uploadbudget";
 
 function App() { 
 
