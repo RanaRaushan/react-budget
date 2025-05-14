@@ -8,9 +8,9 @@ import { useNavigate, useLoaderData, Outlet, useSearchParams, useLocation, redir
 import {BUDGET_ADD_FE_URL, BUDGET_FE_URL, get_add_budget, get_all_budget, get_update_budget} from '../../utils/APIHelper.js';
 import {budgetHeaders, itemDetailHeaders, spentTypeEnum, paymentTypeEnum, itemCategoryEnum, enumFields, dateFields, validationBudgetFields} from '../../utils/constantHelper.js';
 import { filterMapObject, getCurrentYear, getYearOption, isEffectivelyEmptyObject } from "../../utils/functionHelper.js";
-import UpdateItemComponent from "../../Components/UpdateBudget.jsx";
 import { buttonCSS, ddOptionCSS, errorTextCSS, inputddCSS, linkButtonCSS, spentTypeColorMap, tableCSS, tableRowCSS, tdCSS, theadCSS } from "../../utils/cssConstantHelper.js";
 import LoadingTableComponent from "../../components/LoadingTable.jsx";
+import UpdateItemComponent from "../../components/UpdateItem.jsx";
 
 const LOG_PREFIX = "BudgetPage::"
 
