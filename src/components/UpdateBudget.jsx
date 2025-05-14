@@ -4,7 +4,7 @@ import { ddOptionCSS, inputCSS, inputddCSS } from '../utils/cssConstantHelper';
 
 const LOG_PREFIX = "UpdateBudgetPage::"
 
-export default function UpdateItemPage({header, item}) {
+export default function UpdateItemComponent({header, item}) {
     const [formData, setFormData] = useState(budgetHeaders.reduce((acc, col) => {
         acc[col.key] = item[col.key];
         return acc;
