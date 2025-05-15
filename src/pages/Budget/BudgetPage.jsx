@@ -73,6 +73,7 @@ export async function loader({ request }) {
 export default function BudgetPage() {
   const updateIntent = "edit-"
   const addIntent = "add-"
+  const defaulFiltertExtraKeys = ["selectedYear", "page", "exact", "between"];
   const visibleCount = 5;
   const navigate = useNavigate();
   const location = useLocation();
@@ -95,7 +96,9 @@ export default function BudgetPage() {
   const [editRowId, setEditRowId] = useState(null);
   const [errors, setErrors] = useState(fetcher.data || {});
   const navigation = useNavigation();
-  const [isExactSearch, setIsExactSearch] = useState(false);
+  const [isCheckedSearch, setIsCheckedSearch] = useState(false);
+  const [toDate, setToDate] = useState("");
+  const [fromDate, setFromDate] = useState("");
 
   const scrollTargetRef = useRef(null);
 
@@ -136,15 +139,21 @@ export default function BudgetPage() {
 
   const handleAddParam = (e, paramToAdd) => {
     e.preventDefault();
-    const searchParmValue = `${searchValue}`;
+    let searchParmValue = `${searchValue}`;
     const searchKeyParm = `${searchKey}`;
+    let isExactSearchKey = "exact";
+    let isExactSearchValue = isCheckedSearch;
     console.log("handleAddParam", isEffectivelyEmptyObject(paramToAdd), " paramToAdd:", paramToAdd)
+    if (dateFields.includes(searchKey) && isCheckedSearch) {
+      searchParmValue = `${fromDate}:${toDate}`
+      isExactSearchKey = "between"
+    }
     if (searchParmValue && !isEffectivelyEmptyObject(paramToAdd)) {
       console.log("handleAddParam1", isEffectivelyEmptyObject(paramToAdd), " paramToAdd:", paramToAdd)
       setGlobalParam((prev) => ({
         ...prev,
         [searchKeyParm]: searchParmValue,
-        exact: isExactSearch,
+        [isExactSearchKey]: isExactSearchValue,
         ...paramToAdd,
       }));
     } else if(searchParmValue) {
@@ -152,14 +161,14 @@ export default function BudgetPage() {
       setGlobalParam((prev) => ({
         ...prev,
         [searchKeyParm]: searchParmValue,
-        exact: isExactSearch,
+        [isExactSearchKey]: isExactSearchValue,
       }));
     } else if (!isEffectivelyEmptyObject(paramToAdd)) {
       console.log("handleAddParam3", isEffectivelyEmptyObject(paramToAdd), " paramToAdd:", paramToAdd)
       setGlobalParam((prev) => ({
         ...prev,
         ...paramToAdd,
-        exact: isExactSearch,
+        [isExactSearchKey]: isExactSearchValue,
       }));
     }
   };
@@ -168,7 +177,7 @@ export default function BudgetPage() {
     e.preventDefault();
     const newParams = { ...globalParam };
     delete newParams[keyToRemove];
-    if (Object.keys(filterMapObject(newParams, "selectedYear", "page")).length === 0){
+    if (Object.keys(filterMapObject(newParams, ...defaulFiltertExtraKeys)).length === 0){
       setSearchValue('')
     }
     setGlobalParam(newParams);
@@ -198,7 +207,7 @@ export default function BudgetPage() {
   }
 
   const handleCheckboxChange = (e) => {
-    setIsExactSearch(e.target.checked);
+    setIsCheckedSearch(e.target.checked);
   };
 
   useEffect(() => {
@@ -264,13 +273,28 @@ export default function BudgetPage() {
 
             {/* Search Inputs */}
             { dateFields.includes(searchKey) 
-                    ? <input
+                    ? <><input
                       type="date"
                       placeholder="Search value"
-                      value={searchValue}
-                      onChange={(e) => setSearchValue(e.target.value)}
+                      value={isCheckedSearch ? fromDate : searchValue}
+                      onChange={(e) => {isCheckedSearch ? setFromDate(e.target.value) : setSearchValue(e.target.value)}}
                       className={`${inputddCSS}`}
                     />
+                    { isCheckedSearch 
+                        ?
+                          <>
+                            <label>and</label>
+                            <input
+                              type="date"
+                              placeholder="Search value"
+                              value={toDate}
+                              onChange={(e) => {setToDate(e.target.value)}}
+                              className={`${inputddCSS}`}
+                            /> 
+                          </>
+                        : <></>
+                    }
+                    </>
                     : enumFields.includes(searchKey) 
                       ? <select
                           value={searchValue}
@@ -296,10 +320,10 @@ export default function BudgetPage() {
             <label >
               <input
                 type="checkbox"
-                checked={isExactSearch}
+                checked={isCheckedSearch}
                 onChange={handleCheckboxChange}
               />
-              Exact Search
+              {dateFields.includes(searchKey) ? " between" :" Exact Search" }
             </label>
             {/* Add button to add multiple condition */}
             <button
@@ -325,13 +349,13 @@ export default function BudgetPage() {
         </div>
 
 
-        {Object.keys(filterMapObject(globalParam, "selectedYear", "page")).length !== 0 && 
+        {Object.keys(filterMapObject(globalParam, ...defaulFiltertExtraKeys)).length !== 0 && 
           <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl shadow border border-gray-200">
 
             {/* Dynamic Labels for Global Params */}
             <div className="flex flex-wrap gap-2">
               <div className="text-lg font-semibold mb-2">Filters:</div>
-              {Object.entries(filterMapObject(globalParam, "selectedYear", "page")).map(([key, value]) => (
+              {Object.entries(filterMapObject(globalParam, ...defaulFiltertExtraKeys)).map(([key, value]) => (
                 <span
                   key={key}
                   className="flex items-center bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-medium"
