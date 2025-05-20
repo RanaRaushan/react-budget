@@ -1,6 +1,7 @@
 import React, { useState, useRef  } from "react";
 import { Link } from 'react-router-dom';
 import { Outlet } from "react-router-dom";
+import { BUDGET_ADD_FE_URL, BUDGET_FE_URL } from "../utils/APIHelper";
 
 const Header = () => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
@@ -31,7 +32,7 @@ const Header = () => {
                   onMouseLeave={() => setDropdownVisible(false)} // Hide dropdown when not hovering
                   >
             <button className="hover:text-indigo-200">
-              <Link to="/budget" 
+              <Link to={BUDGET_FE_URL} 
                 style={{color: 'inherit'}}
                 >
                   Budget
@@ -49,7 +50,7 @@ const Header = () => {
                   }}
                 >
                   <Link
-                    to="/budget/add"
+                    to={BUDGET_ADD_FE_URL}
                     state={{ scrollTo: 'add' }}
                     className="block px-4 py-2 hover:bg-indigo-100 rounded-md"
                   >

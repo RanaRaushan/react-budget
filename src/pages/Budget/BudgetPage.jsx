@@ -11,6 +11,7 @@ import { filterMapObject, getCurrentYear, getYearOption, isEffectivelyEmptyObjec
 import { buttonCSS, ddOptionCSS, errorTextCSS, inputddCSS, linkButtonCSS, spentTypeColorMap, tableCSS, tableRowCSS, tdCSS, theadCSS } from "../../utils/cssConstantHelper.js";
 import LoadingTableComponent from "../../components/LoadingTable.jsx";
 import UpdateItemComponent from "../../components/UpdateItem.jsx";
+import { useAuth } from "../../hooks/AuthProvider.jsx";
 
 const LOG_PREFIX = "BudgetPage::"
 
@@ -57,10 +58,12 @@ function validateInputs(input, inputValue, prefix) {
   return inputError
 }
 
-export async function loader({ request }) {
+export const loader = (auth) => async ({ request })  => {
+  // const auth = useAuth();
+  console.log("auth at budgetPage loader", auth)
   const url = new URL(request.url);
   const q = url.searchParams;
-  const response = await get_all_budget(q.toString()) || [];
+  const response = (auth.token && await get_all_budget(q.toString(), auth.token)) || [];
   let filteredBudgetData = []
   const pagination = response.pagination
   if (response.empty !== true) {

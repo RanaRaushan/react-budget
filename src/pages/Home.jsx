@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Outlet } from "react-router-dom";
+import { BUDGET_FE_URL } from "../utils/APIHelper";
 
 export default function HomePage() {
     return (
@@ -11,7 +11,7 @@ export default function HomePage() {
             </div>
             <div>
                 <span>Look at your budget here&nbsp;
-                  <Link to={`/budget`}>
+                  <Link to={BUDGET_FE_URL}>
                       Budget
                   </Link>
                 </span>

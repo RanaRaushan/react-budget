@@ -1,0 +1,38 @@
+
+
+.logout {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 10px 20px;
+    border-radius: 25px;
+}
+
+.logout::before {
+    content: "";
+    /* background-image: url("logout-icon.png"); // replace with your icon URL */
+    background-size: 20px 20px;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+}
+
+
+.logout button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 55px;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: inherit;
+    margin-left: 30%;
+}
+
+.logout button:hover::after {
+    content: "Logout"; 
+    position: absolute;
+    top: 0;
+    right: 25px; 
+    border-radius: inherit;
+    padding: 5px;
+  }
