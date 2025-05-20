@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Login, { Render } from 'react-login-page';
 import './login.css';
-import { Form, Link, useActionData, useLocation, useNavigate, useNavigation } from 'react-router-dom';
+import { Form, Link, useActionData, useLocation, useNavigate, useNavigation, useParams, useSearchParams } from 'react-router-dom';
 import {auth_get_token} from '../../utils/APIHelper';
 import { SpinnerDotted } from 'spinners-react';
 import { useAuth } from '../../hooks/AuthProvider';
@@ -40,6 +40,7 @@ const LoginPage = () => {
     const actionData = useActionData();
     const navigate = useNavigate();
     const location = useLocation();
+    const [queryParams] = useSearchParams();
     const auth = useAuth();
     const prevState = location.state;
     const prevlocation = prevState?.redirectFrom;
@@ -54,14 +55,14 @@ const LoginPage = () => {
             auth.removeToken();
         }
     }, []);
-    console.log("LoginPage || redirectPathCHeck Login", location, location.pathname)
+    console.log("LoginPage || redirectPathCHeck Login", queryParams, queryParams.get("redirectTo"), queryParams.toString())
     useEffect(() => {
         if (actionData && actionData.tokenData) {
             console.log("LoginPage || Inside usesubmit")
             const { tokenData } = actionData;
             
             console.log("LoginPage || REDIRECT_URL", REDIRECT_URL)
-            navigate(REDIRECT_URL, { state: {redirectFrom:prevlocation, tokenData:tokenData}, replace: true });
+            navigate(`${REDIRECT_URL}?redirectTo=${queryParams.get("redirectTo")}`, { state: {redirectFrom:prevlocation, tokenData:tokenData}, replace: true });
         }
       }, [actionData, navigate]);
       

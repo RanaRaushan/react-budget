@@ -9,7 +9,7 @@ export const RequireAuth = ({ children }) => {
   console.log("RequireAuth || ", location, location.pathname)
   if (location.pathname !== "/login" && (!token || !validateToken(token))) {
     console.log("RequireAuth || navigating to login??")
-    return <Navigate to={'/login'} state={{redirectFrom:location}} replace={true}/>;
+    return <Navigate to={`/login?redirectTo=${location.pathname}`} state={{redirectFrom:location}} replace={true}/>;
   }
   if (validateToken(token) && location.pathname === "/login") {
     console.log("RequireAuth || navigating to home")

@@ -2,6 +2,7 @@ import {
     useLocation,
     useNavigate,
     useParams,
+    useSearchParams,
   } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthProvider";
 import { useEffect } from "react";
@@ -13,10 +14,10 @@ import { SpinnerCircularSplit } from "spinners-react";
     console.log("Authorize || calling Authorize")
     const location = useLocation();
     const { setAuthenticateUser } = useAuth();
-    let params = useParams();
+    const [queryParams] = useSearchParams();
     const navigate = useNavigate();
-    const redirectUrl = params.length ? "" : "/"
-    console.log("Authorize || useParams", params)
+    const redirectUrl = queryParams.get("redirectTo");
+    console.log("Authorize || queryParams", queryParams, queryParams.get("redirectTo"), queryParams.toString())
     console.log("Authorize || location", location)
     const prevState = location.state;
     const prevlocation = prevState?.redirectFrom;
@@ -26,11 +27,11 @@ import { SpinnerCircularSplit } from "spinners-react";
     //     await setAuthenticateUser(prevState)        
     // };
     console.log("Authorize || redirectPathCHeck Authorize", location, location.pathname, location.state, prevlocation?.pathname)
-    console.log("Authorize || state", prevState);
+    console.log("Authorize || state", redirectUrl);
     useEffect(() => {
       if (tokenData) {
         setAuthenticateUser(tokenData)      
-        navigate(redirectUrl, {state: {redirectFrom:prevlocation}, replace: true})
+        navigate(redirectUrl, {replace: true})
       }
     }, []);
     return (
