@@ -1,19 +1,21 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { validateToken } from "../utils/ValidateToken";
 import { useAuth } from "../hooks/AuthProvider";
 
 export const RequireAuth = ({ children }) => {
-  console.log("Inside RequireAuth start")
+  console.log("RequireAuth || Inside RequireAuth start")
   const { token, logout } = useAuth();
-  const prevLocation = useLocation();
-  console.log("validation",location, token)
+  const location = useLocation();
+  console.log("RequireAuth || ", location, location.pathname)
   if (location.pathname !== "/login" && (!token || !validateToken(token))) {
-    return <Navigate to={'/login?'} state={prevLocation} />;
+    console.log("RequireAuth || navigating to login??")
+    return <Navigate to={'/login'} state={{redirectFrom:location}} replace={true}/>;
   }
   if (validateToken(token) && location.pathname === "/login") {
-    return <Navigate to="/" replace />;
+    console.log("RequireAuth || navigating to home")
+    return <Navigate to="/" state={{redirectFrom:location}} replace={true} />;
   }
-  console.log("RequireAuth | token", token)
-  console.log("Inside RequireAuth end")
+  console.log("RequireAuth || token", token)
+  console.log("RequireAuth || Inside RequireAuth end")
   return children;
 };

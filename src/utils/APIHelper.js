@@ -23,15 +23,15 @@ export async function get(url, params = {}, header = {}, tokenData) {
         }
         apiHeader[CONTENT_TYPE] = APPLICATION_JSON
         const urlWithParams = `${url}?${params.toString()}`
-        console.log("GET API::", urlWithParams, apiHeader)
+        console.log("APIHelper || GET API::", urlWithParams, apiHeader)
         const response = await fetch(API_BASE_URL + urlWithParams, apiHeader);
         if (!response.ok) {
-            console.log("response error", response, response.status, response.statusText);
+            console.log("APIHelper || response error", response, response.status, response.statusText);
             throw new Error("Failed to fetch");
         }
         return response.json();
     } catch (response) {
-        console.log("response error", response);
+        console.log("APIHelper || response error", response);
         console.log(response.status, response.statusText);
     }
 }
@@ -45,17 +45,17 @@ export async function post(url, data = {}, header = {}, requireAuth=false) {
         apiHeader.body = JSON.stringify(data)
         apiHeader.headers = header
     }
-    console.log("POST API::", url, apiHeader, data, apiHeader.body)
+    console.log("APIHelper || POST API::", url, apiHeader, data, apiHeader.body)
     try {
         const response = await fetch(API_BASE_URL + url, apiHeader)
         if (!response.ok) {
-            console.log("response error", response, response.status, response.statusText);
+            console.log("APIHelper || response error", response, response.status, response.statusText);
             throw new Error("Failed to fetch");
         }
         return response.json();
     } catch (response) {
-        console.log("response error", response)
-        console.log(response.status, response.statusText);
+        console.log("APIHelper || response error", response)
+        console.log("APIHelper || ",response.status, response.statusText);
     }
 }
 

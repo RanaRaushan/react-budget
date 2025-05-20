@@ -2,6 +2,7 @@ import React, { useState, useRef  } from "react";
 import { Link } from 'react-router-dom';
 import { Outlet } from "react-router-dom";
 import { BUDGET_ADD_FE_URL, BUDGET_FE_URL } from "../utils/APIHelper";
+import LoginLogoutComponent from "../components/LoginLogout";
 
 const Header = () => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
@@ -65,6 +66,7 @@ const Header = () => {
                 </div>
               )}
           </div>
+          <LoginLogoutComponent/>
         </nav>
       </div>
     </header>

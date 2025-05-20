@@ -60,10 +60,10 @@ function validateInputs(input, inputValue, prefix) {
 
 export const loader = (auth) => async ({ request })  => {
   // const auth = useAuth();
-  console.log("auth at budgetPage loader", auth)
+  console.log("BudgetPage || auth at budgetPage loader", auth)
   const url = new URL(request.url);
   const q = url.searchParams;
-  const response = (auth.token && await get_all_budget(q.toString(), auth.token)) || [];
+  const response = (auth?.token && await get_all_budget(q.toString(), auth.token)) || [];
   let filteredBudgetData = []
   const pagination = response.pagination
   if (response.empty !== true) {
@@ -146,13 +146,13 @@ export default function BudgetPage() {
     const searchKeyParm = `${searchKey}`;
     let isExactSearchKey = "exact";
     let isExactSearchValue = isCheckedSearch;
-    console.log("handleAddParam", isEffectivelyEmptyObject(paramToAdd), " paramToAdd:", paramToAdd)
+    console.log("BudgetPage || handleAddParam", isEffectivelyEmptyObject(paramToAdd), " paramToAdd:", paramToAdd)
     if (dateFields.includes(searchKey) && isCheckedSearch) {
       searchParmValue = `${fromDate}:${toDate}`
       isExactSearchKey = "between"
     }
     if (searchParmValue && !isEffectivelyEmptyObject(paramToAdd)) {
-      console.log("handleAddParam1", isEffectivelyEmptyObject(paramToAdd), " paramToAdd:", paramToAdd)
+      console.log("BudgetPage || handleAddParam1", isEffectivelyEmptyObject(paramToAdd), " paramToAdd:", paramToAdd)
       setGlobalParam((prev) => ({
         ...prev,
         [searchKeyParm]: searchParmValue,
@@ -160,14 +160,14 @@ export default function BudgetPage() {
         ...paramToAdd,
       }));
     } else if(searchParmValue) {
-      console.log("handleAddParam2", isEffectivelyEmptyObject(paramToAdd), " paramToAdd:", paramToAdd)
+      console.log("BudgetPage || handleAddParam2", isEffectivelyEmptyObject(paramToAdd), " paramToAdd:", paramToAdd)
       setGlobalParam((prev) => ({
         ...prev,
         [searchKeyParm]: searchParmValue,
         [isExactSearchKey]: isExactSearchValue,
       }));
     } else if (!isEffectivelyEmptyObject(paramToAdd)) {
-      console.log("handleAddParam3", isEffectivelyEmptyObject(paramToAdd), " paramToAdd:", paramToAdd)
+      console.log("BudgetPage || handleAddParam3", isEffectivelyEmptyObject(paramToAdd), " paramToAdd:", paramToAdd)
       setGlobalParam((prev) => ({
         ...prev,
         ...paramToAdd,

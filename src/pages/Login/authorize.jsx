@@ -10,30 +10,32 @@ import { SpinnerCircularSplit } from "spinners-react";
 
 
   export default function Authorize() {
-    console.log("Authorize | calling Authorize")
+    console.log("Authorize || calling Authorize")
     const location = useLocation();
     const { setAuthenticateUser } = useAuth();
     let params = useParams();
     const navigate = useNavigate();
     const redirectUrl = params.length ? "" : "/"
-    console.log("useParams", params)
-    console.log("location", location)
-    const state = location.state;
+    console.log("Authorize || useParams", params)
+    console.log("Authorize || location", location)
+    const prevState = location.state;
+    const prevlocation = prevState?.redirectFrom;
+    const tokenData = prevState?.tokenData;
     // const handleAuthorization = async () => {
     //     console.log("calling hanlde login")
-    //     await setAuthenticateUser(state)        
+    //     await setAuthenticateUser(prevState)        
     // };
-    
-    console.log("Authorize | state", state);
+    console.log("Authorize || redirectPathCHeck Authorize", location, location.pathname, location.state, prevlocation?.pathname)
+    console.log("Authorize || state", prevState);
     useEffect(() => {
-      if (state) {
-        setAuthenticateUser(state)      
-        navigate(redirectUrl, {state: state, replace: true})
+      if (tokenData) {
+        setAuthenticateUser(tokenData)      
+        navigate(redirectUrl, {state: {redirectFrom:prevlocation}, replace: true})
       }
     }, []);
     return (
       <>
-        {state ? 
+        {tokenData ? 
         <div>
            <SpinnerCircularSplit size={50} thickness={100} speed={100} color="#36ad47" secondaryColor="rgba(0, 0, 0, 0.44)" />
         </div>

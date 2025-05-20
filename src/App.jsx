@@ -5,6 +5,8 @@ import {
   Outlet,
   Route,
   RouterProvider,
+  useLocation,
+  useNavigate,
 } from "react-router-dom";
 import './App.css'
 import BudgetPage, {loader as budgetLoader, action as BudgetAction} from "./pages/Budget/BudgetPage";
@@ -13,24 +15,25 @@ import HomePage from "./pages/Home"
 import Header from "./pages/Header";
 import ErrorPage from "./error-page";
 import Uploadbudget, {action as UploadAction} from "./pages/Budget/Uploadbudget";
-import LogoutPage from "./pages/Login/logout";
+// import LogoutPage from "./components/LoginLogout";
 import LoginPage, {action as loginAction} from "./pages/Login/login";
 import { RequireAuth } from "./components/RequireAuth";
 import { AuthProvider, useAuth } from "./hooks/AuthProvider";
 import SingupPage, { action as singupAction} from "./pages/Login/signup";
 import Authorize from "./pages/Login/authorize";
 import React from "react";
+import { validateToken } from "./utils/ValidateToken";
 
 function App() { 
 
-  const AuthProviderLayout = () => (
-    <AuthProvider>
-      <LogoutPage />
-      <Outlet />
-    </AuthProvider>
-  );
+  // const AuthProviderLayout = () => (
+  //   <AuthProvider>
+  //     <LogoutPage />
+  //     <Outlet />
+  //   </AuthProvider>
+  // );
   const auth = useAuth();
-  console.log("auth at app", auth)
+  console.log("App || auth at app", auth)
   const router = React.useMemo(() => {
   
   return createBrowserRouter(

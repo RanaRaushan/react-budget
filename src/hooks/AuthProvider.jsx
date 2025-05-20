@@ -15,16 +15,16 @@ export const AuthProvider = ({ children }) => {
   };
 
   // call this function to sign out logged in user
-  const logout = () => {
+  const removeToken = () => {
     setToken(null);
-    console.log("navigate to login ")
+    // console.log("navigate to login ")
     // Navigate({to:"/login", replace:true} );
   };
   const value = useMemo(
     () => ({
         token,
         setAuthenticateUser,
-        logout,
+        removeToken,
     }),
     [token]
   );

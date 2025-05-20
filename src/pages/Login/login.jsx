@@ -4,12 +4,14 @@ import './login.css';
 import { Form, Link, useActionData, useLocation, useNavigate, useNavigation } from 'react-router-dom';
 import {auth_get_token} from '../../utils/APIHelper';
 import { SpinnerDotted } from 'spinners-react';
+import { useAuth } from '../../hooks/AuthProvider';
+import { validateToken } from '../../utils/ValidateToken';
 
 
 let REDIRECT_URL = "/auth/callback";
 
 export async function action({ request }) {
-    console.log("login action | start")
+    console.log("LoginPage || login action | start")
     const loginFormData = await request.formData();
     const loginData = Object.fromEntries(loginFormData);
     let response;
@@ -26,25 +28,40 @@ export async function action({ request }) {
     if (!response) {
         return {loginData:loginData, error: "Something went wrong! Please try again after some time..."};
     }
-    console.log("login action | response", response)
+    console.log("LoginPage || login action | response", response)
     const expireAt = new Date().getTime() + Number(response.expires_in)
     return {loginData:loginData, tokenData:{"body":response, "expireAt":expireAt, "user":loginData.email}};
   }
 
 
 const LoginPage = () => {
-    console.log("calling LoginPage")
+    console.log("LoginPage || calling LoginPage")
     const navigation = useNavigation();
     const actionData = useActionData();
     const navigate = useNavigate();
+    const location = useLocation();
+    const auth = useAuth();
+    const prevState = location.state;
+    const prevlocation = prevState?.redirectFrom;
     // console.log("actionData", actionData, location)
     useEffect(() => {
+        if (auth && auth.token && validateToken(auth.token)) {
+        // Redirect to login or home page
+            console.log("LoginPage || valid token found", auth)
+            navigate('/', { replace: true });
+        } else if (auth && auth.token && !validateToken(auth.token)) {
+            console.log("LoginPage || token expired or invalid", auth)
+            auth.removeToken();
+        }
+    }, []);
+    console.log("LoginPage || redirectPathCHeck Login", location, location.pathname)
+    useEffect(() => {
         if (actionData && actionData.tokenData) {
-            console.log("Inside usesubmit")
+            console.log("LoginPage || Inside usesubmit")
             const { tokenData } = actionData;
             
-            console.log("REDIRECT_URL", REDIRECT_URL)
-            navigate(REDIRECT_URL, { state: tokenData, replace: true });
+            console.log("LoginPage || REDIRECT_URL", REDIRECT_URL)
+            navigate(REDIRECT_URL, { state: {redirectFrom:prevlocation, tokenData:tokenData}, replace: true });
         }
       }, [actionData, navigate]);
       
