@@ -2,7 +2,7 @@ import { useState } from "react";
 import DataStore from "../utils/DataStore";
 
 export const useLocalStorage = (keyName, defaultValue) => {
-    const { getItem, setItem } = DataStore();
+    const { getItem, setItem, removeItem } = DataStore();
   const [storedValue, setStoredValue] = useState(() => {
     try {
       const value = getItem(keyName);
@@ -24,5 +24,13 @@ export const useLocalStorage = (keyName, defaultValue) => {
     }
     setStoredValue(newValue);
   };
-  return [storedValue, setValue];
+  
+  const removeValue = () => {
+    try {
+      removeItem(keyName);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  return [storedValue, setValue, removeValue];
 };

@@ -5,7 +5,7 @@ import { useLocalStorage } from "./useLocalStorage";
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useLocalStorage("token", null);
+  const [token, setToken, removeValue] = useLocalStorage("token", null);
   // const navigate = useNavigate();
 
   // call this function when you want to authenticate the user
@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
   // call this function to sign out logged in user
   const removeToken = () => {
     setToken(null);
+    removeValue();
     // console.log("navigate to login ")
     // Navigate({to:"/login", replace:true} );
   };
