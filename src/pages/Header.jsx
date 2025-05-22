@@ -1,7 +1,7 @@
 import React, { useState, useRef  } from "react";
 import { Link } from 'react-router-dom';
 import { Outlet } from "react-router-dom";
-import { BUDGET_ADD_FE_URL, BUDGET_FE_URL } from "../utils/APIHelper";
+import { BUDGET_ADD_FE_URL, BUDGET_FE_URL, BUDGET_UPLOAD_FE_URL, BUDGET_EXPENSES_EXP_FE_URL } from "../utils/APIHelper";
 import LoginLogoutComponent from "../components/LoginLogout";
 
 const Header = () => {
@@ -51,6 +51,12 @@ const Header = () => {
                   }}
                 >
                   <Link
+                    to={BUDGET_EXPENSES_EXP_FE_URL}
+                    className="block px-4 py-2 hover:bg-indigo-100 rounded-md"
+                  >
+                    Expenses
+                  </Link>
+                  <Link
                     to={BUDGET_ADD_FE_URL}
                     state={{ scrollTo: 'add' }}
                     className="block px-4 py-2 hover:bg-indigo-100 rounded-md"
@@ -58,7 +64,7 @@ const Header = () => {
                     Add Budget
                   </Link>
                   <Link
-                    to="/upload"
+                    to={BUDGET_UPLOAD_FE_URL}
                     className="block px-4 py-2 hover:bg-indigo-100 rounded-md"
                   >
                     Upload Budget

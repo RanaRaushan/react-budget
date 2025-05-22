@@ -412,7 +412,7 @@ export default function BudgetPage() {
                                 {errors && errors[updateIntent+header.key] && <p className={`${errorTextCSS}`}>{errors[updateIntent+header.key]}</p>}
                                 <UpdateItemComponent header={header} item={item}/>
                             </td>
-                          : header.key == 'id' && item['itemDetail'] && item['itemDetail'].length > 0
+                          : header.key == 'id' && item['transactionItems'] && item['transactionItems'].length > 0
                               ? <td key={`${item.id}${header.key}`} className={`${tdCSS}`}>
                                 <label onClick={() => toggleExpand(item.id)} className="focus:outline-none cursor-pointer">
                                   <span>{item[header.key]}{expandedRow === item.id ? <IoMdArrowDropdown /> : <IoMdArrowDropright />}</span>
@@ -429,12 +429,12 @@ export default function BudgetPage() {
                           }
                         </td>
                       </tr>
-                      {expandedRow === item.id && item['itemDetail'] && (
+                      {expandedRow === item.id && item['transactionItems'] && (
                         <tr className="">
                             <td colSpan={budgetHeaders.length} className="px-6 py-4">
                               <div className="flex flex-wrap gap-4">
                                   {/* Example expanded content */}
-                                  {item['itemDetail'].map((itemDetail, index) => (
+                                  {item['transactionItems'].map((itemDetail, index) => (
                                     <div className="text-sm text-white">
                                       {itemDetailHeaders.map((itemDH, idx) => (
                                         <div>{itemDH.label}: {itemDetail[itemDH.key]}</div>

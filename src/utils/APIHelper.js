@@ -4,13 +4,30 @@ const API_BASE_URL = SERVER_HOST + import.meta.env.VITE_API_PREFIX;
 export const BUDGET_API_URL = `/users/{userId}/budget`;
 export const BUDGET_ADD_API_URL = "/users/{userId}/budget/add-transaction";
 export const BUDGET_UPDATE_API_URL = "/users/{userId}/budget/update-transaction";
-export const BUDGET_ULOAD_API_URL = "/users/{userId}/budget/upload-transaction";
+export const BUDGET_UPLOAD_API_URL = "/users/{userId}/budget/upload-transaction";
+export const BUDGET_EXPENSE_API_URL = "/users/{userId}/expenses/{type}";
 export const BUDGET_FE_URL = "/budget";
 export const BUDGET_ADD_FE_URL = "/budget/add";
+export const BUDGET_UPLOAD_FE_URL = "/upload";
+export const BUDGET_EXPENSES_EXP_FE_URL = "/expenses/expense";
+export const BUDGET_EXPENSES_INC_FE_URL = "/expenses/income";
+export const BUDGET_EXPENSES_FE_URL = "/expenses/{type}";
 
 const CONTENT_TYPE = "Content-Type";
 const APPLICATION_JSON = 'application/json';
 const defaultHeader = {[CONTENT_TYPE]: APPLICATION_JSON};
+
+const createHeaders = (tokenData) => {
+  const headers = {
+    [CONTENT_TYPE]: APPLICATION_JSON
+  };
+
+  if (tokenData) {
+    headers['Authorization'] = `${tokenData.body.token_type} ${tokenData.body.token}`;
+  }
+
+  return headers;
+};
 
 export async function get(url, params = {}, header = {}, tokenData) {
     try {
@@ -18,10 +35,8 @@ export async function get(url, params = {}, header = {}, tokenData) {
             method: 'GET',
         }
         if (tokenData && tokenData.body) {
-            header.Authorization = `${tokenData.body.token_type} ${tokenData.body.token}`
-            apiHeader.headers = header
+            apiHeader.headers = createHeaders(tokenData)
         }
-        apiHeader[CONTENT_TYPE] = APPLICATION_JSON
         const urlWithParams = `${url}?${params.toString()}`
         console.log("APIHelper || GET API::", urlWithParams, apiHeader)
         const response = await fetch(API_BASE_URL + urlWithParams, apiHeader);
@@ -36,14 +51,17 @@ export async function get(url, params = {}, header = {}, tokenData) {
     }
 }
 
-export async function post(url, data = {}, header = {}, requireAuth=false) {
+export async function post(url, data = {}, header = {}, tokenData) {
     let apiHeader = {
         method: 'POST',
         body: data
     }
     if (header && header[CONTENT_TYPE] === APPLICATION_JSON) {
         apiHeader.body = JSON.stringify(data)
-        apiHeader.headers = header
+        apiHeader.headers = createHeaders(tokenData)
+    }
+    if (tokenData && tokenData.body) {
+        apiHeader.headers = createHeaders(tokenData)
     }
     console.log("APIHelper || POST API::", url, apiHeader, data, apiHeader.body)
     try {
@@ -78,6 +96,7 @@ export async function delete_call(url, params = {}) {
 
 export async function auth_get_token(data = {}) {
     const AUTH_API_URL = "/auth";
+    console.log("APIHelper || auth_get_token", data, defaultHeader)
     return await post(AUTH_API_URL, data, defaultHeader)
     }
 
@@ -86,8 +105,8 @@ export async function register_user(data = {}) {
     return await post(AUTH_API_URL, data, defaultHeader)
 }
 
-export async function get_all_budget(params = {}, tokenData, userId="rana@gmail.com") {
-    const api_url = BUDGET_API_URL.replace('{userId}', userId)
+export async function get_all_budget(params = {}, tokenData) {
+    const api_url = BUDGET_API_URL.replace('{userId}', tokenData?.user)
     return await get(api_url, params, defaultHeader, tokenData)
     }
 
@@ -100,7 +119,12 @@ export async function get_update_budget(data = {}) {
     }
 
 export async function upload_budget(data = {}) {
-    return await post(BUDGET_ULOAD_API_URL, data)
+    return await post(BUDGET_UPLOAD_API_URL, data)
+    }
+
+export async function get_expenses(params = {}, tokenData, expenseType) {
+    const api_url = BUDGET_EXPENSE_API_URL.replace('{userId}', tokenData?.user).replace("{type}", expenseType)
+    return await get(api_url, params, defaultHeader, tokenData)
     }
 
 export default {

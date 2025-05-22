@@ -4,6 +4,11 @@ const enumFields = ['itemType', 'paymentType', 'spentType']
 const lockedFields = ['id']
 const validationBudgetFields = ['id', 'paidDate', 'spentDate', 'itemType', 'paymentType', 'spentType', 'amount', 'paidAmount', 'description', 'owner']
 
+const monthNames = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
 const budgetHeaders = [
     { label: "ID", key: "id" },
     { label: "Spent Type", key: "spentType" },
@@ -82,4 +87,5 @@ export {
     dateFields,
     lockedFields,
     validationBudgetFields,
+    monthNames,
 };
