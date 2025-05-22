@@ -160,7 +160,7 @@ const handleAddParam = (e, paramToAdd) => {
 
                         {monthNames.concat(["Total"]).map((month, idx) => (
                             month === "Total" 
-                            ? <td key={`${item + index}`} className={`${tdCSS}`}>{item === "Total" ? categoryTypeExpense.categoryTypeExpenseTotal  : categoryTypeExpense?.itemCategoryAmounts[item]?.itemCategoryMonthlyTotalAmount ?? 0}</td>
+                            ? <td key={`${item + index}`} className={`${tdCSS}`}>{item === "Total" ? categoryTypeExpense?.categoryTypeExpenseTotal  : categoryTypeExpense?.itemCategoryAmounts[item]?.itemCategoryMonthlyTotalAmount ?? 0}</td>
                             : item === "Total" 
                                 ? <td key={`${item + month + index}`} className={`${tdCSS}`}>{monthlyExpense?.monthlyAmounts[month.toUpperCase()]?.monthlyItemCategoryTotalAmount ?? 0}</td>
                                 : <td key={`${item + month + index}`} className={`${tdCSS}`}>{categoryTypeExpense?.itemCategoryAmounts[item]?.monthlyWiseAmount[month.toUpperCase()] ?? 0}</td>
