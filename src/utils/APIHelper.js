@@ -94,7 +94,7 @@ export const getRequest = async (
           response.status,
           errorMsg
         );
-        throw new Error(`Error ${response.status}: ${errorMsg.message}`);
+        return errorMsg;
       }
       return response.json();
     })
@@ -147,7 +147,7 @@ export const postRequest = async (
           response.status,
           errorMsg
         );
-        throw new Error(`Error ${response.status}: ${errorMsg.message}`);
+        return errorMsg;
       }
       return response.json();
     })

@@ -84,32 +84,38 @@ const LoginPage = () => {
         navigation.state === "loading"
         ? "Logged-in!"
         : "Login";
+    const labelCSS = 'block mb-2.5 text-[#333] text-lg font-bold'
+    const inputCSS = 'w-full min-w-80 p-2.5 rounded-3xl border-none text-sm font-inherit bg-[#3B3B3B] text-gray-300 shadow-[0_0_10px_rgba(0,0,0,0.1)]'
+    const buttonCSS = 'py-2.5 rounded cursor-pointer text-base font-inherit'
+    const linkLabelCSS = 'text-sm'
+    const labelErrorCSS = 'w-80 pl-2.5 pb-3.5 break-words hyphens-auto text-red-500'
+
   return (
     <>
     
     
-    <div className="login-body">
+    <div className="flex justify-center items-center flex-grow h-full w-full">
         <Login>
         <Render>
             {({ fields, buttons, blocks, $$index }) => {
             return (
                 <div >
-                    <Form method="post" id="login-form" >
-                        <header className='login-header'>
+                    <Form method="post" id="login-form" className='flex flex-col gap-4'>
+                        <header className='p-5 text-center text-2xl font-bold'>
                             {blocks.title}
                         </header>
-                        <div className='label-input-container input-margin-btm'>
-                            <label>{fields.email}</label>
+                        <div >
+                            <label className={labelCSS}>{fields.email}</label>
                         </div>
-                        <div className='label-input-container'>
-                            <label>{fields.password}</label>
+                        <div >
+                            <label className={labelCSS}>{fields.password}</label>
                         </div>
-                        <div className='link-label'>
+                        <div className={linkLabelCSS}>
                             <Link to={`/signup`}>
                                 Don't have an account? Sign in
                             </Link>
                         </div>
-                        {actionData && actionData.error && <div className='singup-label-error'>{actionData.error}</div>}
+                        {actionData && actionData.error && <div className={labelErrorCSS}>{actionData.error}</div>}
                         <div >
                             {buttons.submit}
                         </div>
@@ -121,9 +127,9 @@ const LoginPage = () => {
         <Login.Block keyname="title" tagName="span">
             Login
         </Login.Block>
-        <Login.Input name="email" keyname="email" placeholder="Please enter Email" defaultValue={actionData?.loginData?.email} />
-        <Login.Input name="password" keyname="password" placeholder="Please enter password" type="password" defaultValue={actionData?.loginData?.password} />
-        <Login.Button keyname="submit" type="submit" disabled={navigation.state === "submitting"}>
+        <Login.Input className={inputCSS} name="email" keyname="email" placeholder="Please enter Email" defaultValue={actionData?.loginData?.email} />
+        <Login.Input className={inputCSS} name="password" keyname="password" placeholder="Please enter password" type="password" defaultValue={actionData?.loginData?.password} />
+        <Login.Button className={buttonCSS} keyname="submit" type="submit" disabled={navigation.state === "submitting"}>
             {navigation.state === "submitting" 
             ? <SpinnerDotted size={30} thickness={100} speed={100} color="rgba(57, 143, 172, 1)" /> 
              : loginButtonText}

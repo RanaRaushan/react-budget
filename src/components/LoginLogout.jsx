@@ -10,10 +10,10 @@ const LoginLogoutComponent = () => {
     const toShow = currentPath !== '/auth/callback';
     const handleLogout = () => {
       removeToken();
-      navigate('/login')
+      navigate('/login', {replace: true})
     };
     const handleLogin = () => {
-      navigate('/login', {state: {redirectFrom:location}, replace: true})
+      navigate('/login', {replace: true})
     };
     console.log("LoginLogoutComponent || redirectPathCHeck loginLogout", location, location.pathname, location.state)
     return !token ? 

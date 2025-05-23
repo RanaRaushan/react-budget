@@ -10,8 +10,9 @@ export async function action({ request }) {
     const registerData = Object.fromEntries(registerFormData);
     let response;
     let error;
-    if (registerData && registerData.email && registerData.password)
+    if (registerData && registerData.email && registerData.password){
         response = await register_user(registerData)
+    }
     else {
         return {registerData:registerData, error: "Please enter data to Register"};
     }
@@ -26,8 +27,6 @@ export async function action({ request }) {
   }
 
 const SingupPage = () => {
-    // const [name, setName] = useState('');
-    // const [email, setEmail] = useState('');
     const [errors, setErrors] = useState({});
     const actionData = useActionData();
     const navigation = useNavigation();
@@ -90,40 +89,47 @@ const SingupPage = () => {
         navigation.state === "loading"
         ? "Signed-in!"
         : "Signup";
+
+    const labelCSS = 'block mb-2.5 text-[#333] text-lg font-bold'
+    const inputCSS = 'w-full min-w-80 p-2.5 rounded-3xl border-none text-sm font-inherit bg-[#3B3B3B] text-gray-300 shadow-[0_0_10px_rgba(0,0,0,0.1)]'
+    const buttonCSS = 'py-2.5 rounded cursor-pointer text-base font-inherit'
+    const linkLabelCSS = 'text-sm'
+    const labelErrorCSS = 'w-80 pl-2.5 pb-3.5 break-words hyphens-auto text-red-500'
+
     return (
-    <div className="login-body">
+    <div className="flex justify-center items-center flex-grow h-full w-full">
         <Login>
         <Render>
             {({ fields, buttons, blocks, $$index }) => {
             return (
                 <div >
-                    <Form method="post" id="signup-form" >
-                        <header className='login-header'>
+                    <Form method="post" id="signup-form" className='flex flex-col gap-4' >
+                        <header className='p-5 text-center text-2xl font-bold'>
                             {blocks.title}
                         </header>
-                        <div className='label-input-container input-margin-btm'>
-                            <label>{fields.firstName}</label>
-                            {errors.fname && <div className='singup-label-error'>{errors.fname}</div>}
+                        <div>
+                            <label className={labelCSS}>{fields.firstName}</label>
+                            {errors.fname && <div className={labelErrorCSS}>{errors.fname}</div>}
                         </div>
-                        <div className='label-input-container input-margin-btm'>
-                            <label>{fields.lastName}</label>
-                            {errors.lname && <div className='singup-label-error'>{errors.lname}</div>}
+                        <div>
+                            <label className={labelCSS}>{fields.lastName}</label>
+                            {errors.lname && <div className={labelErrorCSS}>{errors.lname}</div>}
                         </div>
-                        <div className='label-input-container input-margin-btm'>
-                            <label>{fields.email}</label>
-                            {errors.email && <div className='singup-label-error'>{errors.email}</div>}
+                        <div>
+                            <label className={labelCSS}>{fields.email}</label>
+                            {errors.email && <div className={labelErrorCSS}>{errors.email}</div>}
                         </div>
-                        <div className='label-input-container'>
-                            <label>{fields.password}</label>
-                            {errors.password && <div className='singup-label-error'><div dangerouslySetInnerHTML={errors.password} /></div>}
+                        <div>
+                            <label className={labelCSS}>{fields.password}</label>
+                            {errors.password && <div className={labelErrorCSS}><div dangerouslySetInnerHTML={errors.password} /></div>}
                         </div>
-                        <div className='link-label'>
+                        <div className={linkLabelCSS}>
                             <Link to={`/login`}>
                                 Already have an account? Sign in
                             </Link>
                         </div>
-                        {actionData && actionData.error && <div className='singup-label-error'>{actionData.error}</div>}
-                        <div className= {errors ? "disabled" : ""}>
+                        {actionData && actionData.error && <div className={labelErrorCSS}>{actionData.error}</div>}
+                        <div className= {`${buttonCSS} ${errors ? "disabled" : ""}`}>
                             {buttons.submit}
                         </div>
                     </Form>
@@ -134,11 +140,11 @@ const SingupPage = () => {
         <Login.Block keyname="title" tagName="span">
             Singup
         </Login.Block>
-        <Login.Input name="firstName" keyname="firstName" placeholder="Please enter First Name" onChange={(e) => validateInput(e.target.value, "firstName") }/>
-        <Login.Input name="lastName" keyname="lastName" placeholder="Please enter Last Name" onChange={(e) => validateInput(e.target.value, "lastName") }/>
-        <Login.Input name="email" keyname="email" placeholder="Please enter Email" onChange={(e) => validateInput(e.target.value, "email") }/>
-        <Login.Input name="password" keyname="password" placeholder="Please enter Password" type="password" onChange={(e) => validateInput(e.target.value, "password") }/>
-        <Login.Button keyname="submit" type="submit" disabled={errors && Object.keys(errors).length ? 'disabled' : ''} >
+        <Login.Input className={inputCSS} name="firstName" keyname="firstName" placeholder="Please enter First Name" onChange={(e) => validateInput(e.target.value, "firstName") }/>
+        <Login.Input className={inputCSS} name="lastName" keyname="lastName" placeholder="Please enter Last Name" onChange={(e) => validateInput(e.target.value, "lastName") }/>
+        <Login.Input className={inputCSS} name="email" keyname="email" placeholder="Please enter Email" onChange={(e) => validateInput(e.target.value, "email") }/>
+        <Login.Input className={inputCSS} name="password" keyname="password" placeholder="Please enter Password" type="password" onChange={(e) => validateInput(e.target.value, "password") }/>
+        <Login.Button className={buttonCSS} keyname="submit" type="submit" disabled={errors && Object.keys(errors).length ? 'disabled' : ''} >
         {navigation.state === "submitting" 
             ? <SpinnerDotted size={30} thickness={100} speed={100} color="rgba(57, 143, 172, 1)" /> 
              : signupButtonText}
