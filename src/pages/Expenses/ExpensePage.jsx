@@ -104,8 +104,12 @@ const handleAddParam = (e, paramToAdd) => {
 
           {/* Year Dropdown */}
           <select
-            value={selectedYear}
-            onChange={(e) => {setSelectedYear(e.target.value), handleAddParam(e, {selectedYear:e.target.value})}}
+            value={searchParams.get("selectedYear") }
+            // onChange={(e) => {setSelectedYear(e.target.value), handleAddParam(e, {selectedYear:e.target.value})}}
+            onChange={(e) => setSearchParams(param => {
+                        param.set("selectedYear", e.target.value);
+                        return searchParams;
+                      })}
             className={`${inputddCSS}`}
           >
             <option className={`${ddOptionCSS}`} value="">All Year</option>
