@@ -6,21 +6,14 @@ import { budgetHeaders, itemCategoryEnum, monthNames, spentTypeEnum } from "../.
 import LoadingTableComponent from "../../components/LoadingTable";
 import { getCurrentYear, getYearOption, isEffectivelyEmptyObject } from "../../utils/functionHelper";
 
-export async function action({ request }) {
-    const formData = await request.formData();
-    if (!formData || formData.get("file") === "null" || !formData.get("file")){
-      return {error:"Please select a file first."};
-    }
-    const res = await get_expenses(formData);
-    return {error:res?.error, message:res?.message}
-  }
 
 export const loader = (auth) => async ({ request, params })  => {
   // const auth = useAuth();
   console.log("ExpenseBudget || auth at Expense loader", auth)
   const url = new URL(request.url);
   const q = url.searchParams;
-  const response = (auth?.token && await get_expenses(q.toString(), auth.token, params.type)) || [];
+  console.log("ExpenseBudget || auth at Expense loader params", params)
+  const response = (auth?.token && await get_expenses(q.toString(), params.type)) || [];
   let categoryTypeExpense = []
   let monthlyExpense = []
   if (response.empty !== true) {

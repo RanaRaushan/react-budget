@@ -5,7 +5,7 @@ import {
     useSearchParams,
   } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthProvider";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { SpinnerCircularSplit } from "spinners-react";
   
 
@@ -16,32 +16,49 @@ import { SpinnerCircularSplit } from "spinners-react";
     const { setAuthenticateUser } = useAuth();
     const [queryParams] = useSearchParams();
     const navigate = useNavigate();
+    const [isReady, setIsReady] = useState(false);
     const redirectUrl = queryParams.get("redirectTo");
     console.log("Authorize || queryParams", queryParams, queryParams.get("redirectTo"), queryParams.toString())
-    console.log("Authorize || location", location)
+    // console.log("Authorize || location", location)
     const prevState = location.state;
-    const prevlocation = prevState?.redirectFrom;
     const tokenData = prevState?.tokenData;
     // const handleAuthorization = async () => {
     //     console.log("calling hanlde login")
     //     await setAuthenticateUser(prevState)        
     // };
-    console.log("Authorize || redirectPathCHeck Authorize", location, location.pathname, location.state, prevlocation?.pathname)
-    console.log("Authorize || state", redirectUrl);
+    console.log("Authorize || location & token", location, tokenData)
+    console.log("Authorize || redirectUrl", redirectUrl);
+    // useEffect(() => {
+    //   if (tokenData) {
+    //     setAuthenticateUser(tokenData)      
+    //     navigate(redirectUrl, {replace: true})
+    //   }
+    // }, [tokenData]);
+
     useEffect(() => {
       if (tokenData) {
         setAuthenticateUser(tokenData)      
-        navigate(redirectUrl, {replace: true})
+        setIsReady(true);
+        // navigate(redirectUrl, {replace: true})
       }
-    }, []);
+    }, [tokenData]);
+
+    useEffect(() => {
+    if (isReady) {
+      navigate(redirectUrl, { replace: true });
+    }
+  }, [isReady, navigate, redirectUrl]);
     return (
       <>
-        {tokenData ? 
-        <div>
+        <div className="Rana check">
+           <SpinnerCircularSplit size={50} thickness={100} speed={100} color="#36ad47" secondaryColor="rgba(0, 0, 0, 0.44)" />
+        </div>
+        {/* {tokenData ? 
+        <div className="Rana check">
            <SpinnerCircularSplit size={50} thickness={100} speed={100} color="#36ad47" secondaryColor="rgba(0, 0, 0, 0.44)" />
         </div>
             : <></>
-        }
+        } */}
       </>
     );
   }

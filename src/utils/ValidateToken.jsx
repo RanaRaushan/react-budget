@@ -5,6 +5,7 @@ export const validateToken = (tokenData) => {
       console.log("APIHelper || Token expired")
       return false;
     }
+    // return false;
     return tokenData && tokenData?.body?.token 
             && tokenData?.expireAt;
   }

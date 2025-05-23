@@ -5,12 +5,13 @@ import { useLocalStorage } from "./useLocalStorage";
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken, removeValue] = useLocalStorage("token", null);
+  const [token, setToken, removeValue] = useLocalStorage("token");
   // const navigate = useNavigate();
 
   // call this function when you want to authenticate the user
   const setAuthenticateUser = (data) => {
     setToken(data);
+    console.log("setAuthenticateUser", data)
     // Navigate({to:"/"});
   };
 
@@ -18,7 +19,7 @@ export const AuthProvider = ({ children }) => {
   const removeToken = () => {
     setToken(null);
     removeValue();
-    // console.log("navigate to login ")
+    console.log("removeToken")
     // Navigate({to:"/login", replace:true} );
   };
   const value = useMemo(

@@ -6,7 +6,7 @@ export const RequireAuth = ({ children }) => {
   console.log("RequireAuth || Inside RequireAuth start")
   const { token, logout } = useAuth();
   const location = useLocation();
-  console.log("RequireAuth || ", location, location.pathname)
+  console.log("RequireAuth || ", location, location.pathnam, token)
   if (location.pathname !== "/login" && (!token || !validateToken(token))) {
     console.log("RequireAuth || navigating to login??")
     return <Navigate to={`/login?redirectTo=${location.pathname}`} state={{redirectFrom:location}} replace={true}/>;

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Login, { Render } from 'react-login-page';
 import './login.css';
 import { Form, Link, useActionData, useLocation, useNavigate, useNavigation, useParams, useSearchParams } from 'react-router-dom';
-import {auth_get_token} from '../../utils/APIHelper';
+import {auth_get_token, refresh_token} from '../../utils/APIHelper';
 import { SpinnerDotted } from 'spinners-react';
 import { useAuth } from '../../hooks/AuthProvider';
 import { validateToken } from '../../utils/ValidateToken';
@@ -43,17 +43,31 @@ const LoginPage = () => {
     const [queryParams] = useSearchParams();
     const auth = useAuth();
     const prevState = location.state;
-    const prevlocation = prevState?.redirectFrom;
+    // const prevlocation = prevState?.redirectFrom;
     // console.log("actionData", actionData, location)
     useEffect(() => {
-        if (auth && auth.token && validateToken(auth.token)) {
-        // Redirect to login or home page
-            console.log("LoginPage || valid token found", auth)
-            navigate('/', { replace: true });
-        } else if (auth && auth.token && !validateToken(auth.token)) {
-            console.log("LoginPage || token expired or invalid", auth)
-            auth.removeToken();
+        const checkAuth = async () => {
+            if (auth && auth.token && validateToken(auth.token)) {
+            // Redirect to login or home page
+                console.log("LoginPage || valid token found", auth)
+                navigate('/', { replace: true });
+            } else if (auth && auth.token && auth.token.body && !validateToken(auth.token) && auth.token.body.refreshToken) {
+                console.log("LoginPage || token expired or invalid", auth)
+                try {
+                const res = await refresh_token({refreshToken:auth.token?.body?.refreshToken})
+                // .then( (res) =>{
+                console.log("LoginPage || res refresh token", res);
+                const expireAt = new Date().getTime() + Number(res?.expires_in);
+                const tokenData = res && {"body":res, "expireAt":expireAt, "user":auth.token?.user};
+                auth.removeToken();
+                res && navigate(`${REDIRECT_URL}?redirectTo=${queryParams.get("redirectTo")}`, { state: {tokenData:tokenData}, replace: true })
+                // }
+                } catch (err) {
+                    console.error("LoginPage || refresh token error", err);
+                }
+            }
         }
+        checkAuth();
     }, []);
     console.log("LoginPage || redirectPathCHeck Login", queryParams, queryParams.get("redirectTo"), queryParams.toString())
     useEffect(() => {
@@ -62,7 +76,7 @@ const LoginPage = () => {
             const { tokenData } = actionData;
             
             console.log("LoginPage || REDIRECT_URL", REDIRECT_URL)
-            navigate(`${REDIRECT_URL}?redirectTo=${queryParams.get("redirectTo")}`, { state: {redirectFrom:prevlocation, tokenData:tokenData}, replace: true });
+            navigate(`${REDIRECT_URL}?redirectTo=${queryParams.get("redirectTo")}`, { state: {tokenData:tokenData}, replace: true });
         }
       }, [actionData, navigate]);
       

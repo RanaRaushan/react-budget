@@ -8,21 +8,23 @@ export const useLocalStorage = (keyName, defaultValue) => {
       const value = getItem(keyName);
       if (value) {
         return value;
-      } else {
-        setItem(keyName, defaultValue);
-        return defaultValue;
-      }
+      } 
+      // else {
+      //   setItem(keyName, defaultValue);
+      //   return defaultValue;
+      // }
     } catch (err) {
       return defaultValue;
     }
   });
   const setValue = (newValue) => {
+    if (newValue) {
     try {
       setItem(keyName, newValue);
     } catch (err) {
       console.log(err);
     }
-    setStoredValue(newValue);
+    setStoredValue(newValue);}
   };
   
   const removeValue = () => {

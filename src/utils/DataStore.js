@@ -8,8 +8,8 @@ export const DataStore = () => {
   };
 
   const removeItem = (key) => {
-    const newData = { ...data };
-    delete newData[key];
+    // const newData = { ...data };
+    // delete newData[key];
     localStorage.removeItem(key);
   };
 
