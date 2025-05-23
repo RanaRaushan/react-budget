@@ -30,6 +30,7 @@ export const useLocalStorage = (keyName, defaultValue) => {
   const removeValue = () => {
     try {
       removeItem(keyName);
+      setStoredValue(null)
     } catch (err) {
       console.log(err);
     }

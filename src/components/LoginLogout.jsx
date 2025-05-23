@@ -3,20 +3,21 @@ import { BiLogOut, BiLogIn } from "react-icons/bi";
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const LoginLogoutComponent = () => {
-    const { token, removeToken } = useAuth();
+    // const { token, removeToken } = useAuth();
+    const auth = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
     const currentPath = location.pathname;
     const toShow = currentPath !== '/auth/callback';
     const handleLogout = () => {
-      removeToken();
+      auth.removeToken();
       navigate('/login', {replace: true})
     };
     const handleLogin = () => {
       navigate('/login', {replace: true})
     };
     console.log("LoginLogoutComponent || redirectPathCHeck loginLogout", location, location.pathname, location.state)
-    return !token ? 
+    return !auth.token ? 
       <div className="absolute top-3 right-0 p-4 ">
           <button
             onClick={handleLogin}
@@ -29,7 +30,7 @@ const LoginLogoutComponent = () => {
           </button>
         </div>
     
-    : token && toShow && (
+    : auth.token && toShow && (
       // <div className='logout'>
       //   <button onClick={handleLogout}><BiLogOut /></button>
       // </div>

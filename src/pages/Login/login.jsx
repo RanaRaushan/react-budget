@@ -39,10 +39,10 @@ const LoginPage = () => {
     const navigation = useNavigation();
     const actionData = useActionData();
     const navigate = useNavigate();
-    const location = useLocation();
+    // const location = useLocation();
     const [queryParams] = useSearchParams();
     const auth = useAuth();
-    const prevState = location.state;
+    // const prevState = location.state;
     // const prevlocation = prevState?.redirectFrom;
     // console.log("actionData", actionData, location)
     useEffect(() => {

@@ -15,8 +15,8 @@ export const AuthProvider = ({ children }) => {
 
   // call this function to sign out logged in user
   const removeToken = () => {
-    setToken(null);
     removeValue();
+    setToken(null);
     console.log("removeToken")
   };
   const value = useMemo(
