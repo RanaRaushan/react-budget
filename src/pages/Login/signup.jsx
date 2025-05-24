@@ -90,10 +90,10 @@ const SingupPage = () => {
         ? "Signed-in!"
         : "Signup";
 
-    const labelCSS = 'block mb-2.5 text-[#333] text-lg font-bold'
-    const inputCSS = 'w-full min-w-80 p-2.5 rounded-3xl border-none text-sm font-inherit bg-[#3B3B3B] text-gray-300 shadow-[0_0_10px_rgba(0,0,0,0.1)]'
-    const buttonCSS = 'py-2.5 rounded cursor-pointer text-base font-inherit'
-    const linkLabelCSS = 'text-sm'
+    const labelCSS = 'block mb-2.5 text-[#333] text-[1.125em] font-bold'
+    const inputCSS = 'w-full min-w-80 p-2.5 rounded-3xl border-none text-[0.875em] font-inherit bg-[#3B3B3B] text-gray-300 shadow-[0_0_10px_rgba(0,0,0,0.1)]'
+    const buttonCSS = 'py-2.5 rounded cursor-pointer font-inherit'
+    const linkLabelCSS = 'text-[0.875em]'
     const labelErrorCSS = 'w-80 pl-2.5 pb-3.5 break-words hyphens-auto text-red-500'
 
     return (
@@ -104,7 +104,7 @@ const SingupPage = () => {
             return (
                 <div >
                     <Form method="post" id="signup-form" className='flex flex-col gap-4' >
-                        <header className='p-5 text-center text-2xl font-bold'>
+                        <header className='p-5 text-center text-[1.5em] font-bold'>
                             {blocks.title}
                         </header>
                         <div>

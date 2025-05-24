@@ -46,7 +46,7 @@ export default function Uploadbudget() {
     <fetcher.Form method="post" >
         <div className="flex flex-col items-center justify-center min-h-screen bg-indigo-600 p-6 rounded-xl shadow border border-gray-200">
         <div className="bg-blue shadow-lg rounded-2xl p-8 w-full max-w-md bg-neutral-800 space-y-4">
-            <h2 className="text-xl font-semibold mb-4 text-center">Upload Excel File</h2>
+            <h2 className="text-[1.25em] font-semibold mb-4 text-center">Upload Excel File</h2>
 
             <input
             disabled={isLoading}

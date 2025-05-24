@@ -357,11 +357,11 @@ export default function BudgetPage() {
 
             {/* Dynamic Labels for Global Params */}
             <div className="flex flex-wrap gap-2">
-              <div className="text-lg font-semibold mb-2">Filters:</div>
+              <div className="text-[1.125em] font-semibold mb-2">Filters:</div>
               {Object.entries(filterMapObject(globalParam, ...defaulFiltertExtraKeys)).map(([key, value]) => (
                 <span
                   key={key}
-                  className="flex items-center bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-medium"
+                  className="flex items-center bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-[0.875em] font-medium"
                 >
                   {key}: {value}
                   <FaSkullCrossbones
@@ -435,7 +435,7 @@ export default function BudgetPage() {
                               <div className="flex flex-wrap gap-4">
                                   {/* Example expanded content */}
                                   {item['transactionItems'].map((itemDetail, index) => (
-                                    <div className="text-sm text-white">
+                                    <div className="text-[0.875em] text-white">
                                       {itemDetailHeaders.map((itemDH, idx) => (
                                         <div>{itemDH.label}: {itemDetail[itemDH.key]}</div>
                                       ))}

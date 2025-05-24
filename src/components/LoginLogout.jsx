@@ -18,10 +18,10 @@ const LoginLogoutComponent = () => {
     };
     console.log("LoginLogoutComponent || redirectPathCHeck loginLogout", location, location.pathname, location.state)
     return !auth.token ? 
-      <div className="absolute top-3 right-0 p-4 ">
+      <div className="">
           <button
             onClick={handleLogin}
-            className="rounded-[55px] cursor-pointer text-xl font-inherit relative group"
+            className="rounded-[55px] cursor-pointer text-[1.25em] font-inherit relative group"
           >
             <BiLogIn className="inline-block w-5 h-5" />
             <span className="absolute -top-5 right-2 rounded-inherit hidden group-hover:inline-block">
@@ -35,10 +35,10 @@ const LoginLogoutComponent = () => {
       //   <button onClick={handleLogout}><BiLogOut /></button>
       // </div>
 
-      <div className="absolute top-3 right-0 p-4 ">
+      <div className="">
         <button
           onClick={handleLogout}
-          className="rounded-[55px] cursor-pointer text-xl font-inherit relative group"
+          className="rounded-[55px] cursor-pointer text-[1.25em] font-inherit relative group"
         >
           <BiLogOut className="inline-block w-5 h-5" />
           <span className="absolute -top-5 right-2 rounded-inherit hidden group-hover:inline-block">
