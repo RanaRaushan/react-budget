@@ -49,7 +49,7 @@ const Header = () => {
               </Link>
             </button>
             <button className="hover:text-indigo-200">
-              <Link to="/" style={{ color: 'inherit' }}>
+              <Link to="/bank" style={{ color: 'inherit' }}>
                 Bank
               </Link>
             </button>

@@ -100,15 +100,15 @@ export default function ExpenseBudget() {
           </label>
 
           <select
-            value={useParams.type}
+            value={params.type}
             onChange={(e) =>
               navigate(BUDGET_EXPENSES_FE_URL.replace('{type}', e.target.value))
             }
             className={`${inputddCSS}`}
           >
-            <option className={`${ddOptionCSS}`} value="income">
-              Expense Type
-            </option>
+            {/* <option className={`${ddOptionCSS}`} value="income">
+              All Expense
+            </option> */}
             {Object.keys(spentTypeEnum).map((expType) => (
               <option
                 className={`${ddOptionCSS}`}
@@ -124,7 +124,6 @@ export default function ExpenseBudget() {
         {/* Year Dropdown */}
         <select
           value={searchParams.get('selectedYear')}
-          // onChange={(e) => {setSelectedYear(e.target.value), handleAddParam(e, {selectedYear:e.target.value})}}
           onChange={(e) =>
             setSearchParams((param) => {
               param.set('selectedYear', e.target.value);
@@ -149,7 +148,7 @@ export default function ExpenseBudget() {
         <table className={`${tableCSS} `}>
           <thead className={`${theadCSS}`}>
             <tr>
-              {[params.type.toUpperCase()]
+              {[params.type?.toUpperCase()]
                 .concat(monthNames)
                 .concat(['Total'])
                 .map((month, idx) => (

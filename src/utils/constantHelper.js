@@ -30,8 +30,8 @@ const itemDetailHeaders = [
 
 const spentTypeEnum = Object.freeze({
     EXPENSE: "Expense",
-    OTHER: "Other",
     INCOME: "Income",
+    OTHER: "Other",
     SELF_TRANSFER_OUT: "Self Transfer Out",
     SELF_TRANSFER_IN: "Self Transfer In",
   });

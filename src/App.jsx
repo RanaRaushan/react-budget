@@ -20,6 +20,7 @@ import SingupPage, { action as singupAction} from "./pages/Login/signup";
 import Authorize from "./pages/Login/authorize";
 import React from "react";
 import ExpenseBudget, {loader as expenseLoader} from "./pages/Expenses/ExpensePage";
+import BankBudget, {loader as bankLoader} from "./pages/Bank/BankPage";
 
 function App() { 
 
@@ -50,6 +51,7 @@ function App() {
                 </Route>
                 <Route index path="upload" element={<RequireAuth><Uploadbudget /></RequireAuth>} errorElement={<ErrorPage />} action={uploadAction} />    
                 <Route index path="expenses/:type" element={<RequireAuth><ExpenseBudget /></RequireAuth>} errorElement={<ErrorPage />} loader={expenseLoader(auth)}/>    
+                <Route index path="bank" element={<RequireAuth><BankBudget /></RequireAuth>} errorElement={<ErrorPage />} loader={bankLoader(auth)}/>    
                 <Route index path="*" element={<Navigate to="/" replace={true} />} />     
               </Route>
               

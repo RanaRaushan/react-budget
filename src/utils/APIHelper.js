@@ -12,6 +12,7 @@ export const BUDGET_ADD_API_URL = "/users/:userId/budget/add-transaction";
 export const BUDGET_UPDATE_API_URL = "/users/:userId/budget/update-transaction";
 export const BUDGET_UPLOAD_API_URL = "/users/:userId/budget/upload-transaction";
 export const BUDGET_EXPENSE_API_URL = "/users/:userId/expenses/:type";
+export const BUDGET_BANK_API_URL = "/users/:userId/bank";
 
 export const BUDGET_FE_URL = "/budget";
 export const BUDGET_ADD_FE_URL = "/budget/add";
@@ -188,6 +189,12 @@ export async function upload_budget(data = {}) {
 
 export async function get_expenses(params = {}, expenseType) {
   return getRequest(BUDGET_EXPENSE_API_URL, params, true, null, {
+    type: expenseType,
+  });
+}
+
+export async function get_bank_expenses(params = {}, expenseType) {
+  return getRequest(BUDGET_BANK_API_URL, params, true, null, {
     type: expenseType,
   });
 }
