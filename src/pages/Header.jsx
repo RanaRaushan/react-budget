@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Outlet } from 'react-router-dom';
 import {
   BUDGET_ADD_FE_URL,
   BUDGET_FE_URL,
   BUDGET_UPLOAD_FE_URL,
   BUDGET_EXPENSES_EXP_FE_URL,
+  BUDGET_BANK_FE_URL,
+  BUDGET_HOME_FE_URL,
 } from '../utils/APIHelper';
 import LoginLogoutComponent from '../components/LoginLogout';
 
@@ -14,6 +16,7 @@ const Header = () => {
   const buttonRef = useRef(null);
   const headerRef = useRef(null);
   const [headerHeight, setHeaderHeight] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (headerRef.current) {
@@ -42,26 +45,20 @@ const Header = () => {
           <h1 className="text-[1.25em] font-bold flex-shrink-0 logo logo-spin">
             My App
           </h1>
-          <nav className="flex space-x-6 mx-auto">
-            <button className="hover:text-indigo-200">
-              <Link to="/" style={{ color: 'inherit' }}>
+          <nav className="flex space-x-6 mx-auto">            
+            <button className="hover:text-indigo-200" onClick={()=>navigate(BUDGET_HOME_FE_URL)}>
                 Home
-              </Link>
             </button>
-            <button className="hover:text-indigo-200">
-              <Link to="/bank" style={{ color: 'inherit' }}>
+            <button className="hover:text-indigo-200" onClick={()=>navigate(BUDGET_BANK_FE_URL)}>
                 Bank
-              </Link>
             </button>
             <div
               className="relative"
               onMouseEnter={() => setDropdownVisible(true)} // Show dropdown on hover
               onMouseLeave={() => setDropdownVisible(false)} // Hide dropdown when not hovering
             >
-              <button className="hover:text-indigo-200">
-                <Link to={BUDGET_FE_URL} style={{ color: 'inherit' }}>
+              <button className="hover:text-indigo-200" onClick={()=>navigate(BUDGET_FE_URL)}>
                   Budget
-                </Link>
               </button>
               {/* Dropdown Menu */}
               {dropdownVisible && (

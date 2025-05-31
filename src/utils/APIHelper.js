@@ -14,12 +14,15 @@ export const BUDGET_UPLOAD_API_URL = "/users/:userId/budget/upload-transaction";
 export const BUDGET_EXPENSE_API_URL = "/users/:userId/expenses/:type";
 export const BUDGET_BANK_API_URL = "/users/:userId/bank";
 
+
+export const BUDGET_HOME_FE_URL = "/";
 export const BUDGET_FE_URL = "/budget";
 export const BUDGET_ADD_FE_URL = "/budget/add";
 export const BUDGET_UPLOAD_FE_URL = "/upload";
 export const BUDGET_EXPENSES_EXP_FE_URL = "/expenses/expense";
 export const BUDGET_EXPENSES_INC_FE_URL = "/expenses/income";
 export const BUDGET_EXPENSES_FE_URL = "/expenses/{type}";
+export const BUDGET_BANK_FE_URL = "/bank";
 
 const CONTENT_TYPE = "Content-Type";
 const APPLICATION_JSON = "application/json";
