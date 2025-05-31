@@ -50,6 +50,7 @@ const paymentTypeEnum = Object.freeze({
     PNB_BANK: "PNB Bank",
     SBI_BANK: "SBI Bank",
     CASH: "Cash",
+    SLICE_BANK: "Slice"
   });
   
 const itemCategoryEnum = Object.freeze({
