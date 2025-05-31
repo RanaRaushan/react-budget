@@ -70,7 +70,7 @@ export default function BankBudget() {
 
   const tdBorderCSS = 'border border-gray-300';
   const tdCornerDataCSS = 'font-bold';
-  console.log("selectedExpense", selectedExpense)
+  console.log('selectedExpense', selectedExpense);
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl shadow border border-gray-200">
@@ -86,7 +86,7 @@ export default function BankBudget() {
             {Object.keys(spentTypeEnum).map((expType) => (
               <option
                 className={`${ddOptionCSS}`}
-                key={expType}
+                key={`${expType}`}
                 value={expType}
               >
                 {expType}
@@ -97,7 +97,7 @@ export default function BankBudget() {
 
         {/* Year Dropdown */}
         <select
-          value={searchParams.get('selectedYear')??getCurrentYear()}
+          value={searchParams.get('selectedYear') ?? getCurrentYear()}
           onChange={(e) =>
             setSearchParams((param) => {
               param.set('selectedYear', e.target.value);
@@ -110,20 +110,26 @@ export default function BankBudget() {
             All Year
           </option>
           {getYearOption().map((year) => (
-            <option className={`${ddOptionCSS}`} key={year} value={year}>
+            <option className={`${ddOptionCSS}`} key={`${year}`} value={year}>
               {year}
             </option>
           ))}
         </select>
       </div>
-      {Object.keys(spentTypeEnum).filter((spentKey) => (selectedExpense=='total' || spentKey==selectedExpense)).map((expType) => (
-        <BankTableComponent
-          params={params}
-          isLoading={isLoading}
-          bankExpenses={bankExpenses[expType]}
-          expType={expType}
-        />
-      ))}
+      {Object.keys(spentTypeEnum)
+        .filter(
+          (spentKey) =>
+            selectedExpense == 'total' || spentKey == selectedExpense,
+        )
+        .map((expType, eidx) => (
+          <BankTableComponent
+            key={eidx}
+            params={params}
+            isLoading={isLoading}
+            bankExpenses={bankExpenses[expType]}
+            expType={expType}
+          />
+        ))}
     </div>
   );
 }

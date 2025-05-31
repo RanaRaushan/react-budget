@@ -42,7 +42,7 @@ export default function BankTableComponent({
             <tr>
               {[expType.toUpperCase()].concat(monthNames).map((month, idx) => (
                 <th
-                  key={idx}
+                  key={`${idx}${month}${expType}`}
                   className={`px-4 py-4 whitespace-nowrap font-medium cursor-pointer border ${tdBorderCSS} ${tdCornerDataCSS}`}
                 >
                   {month}
@@ -55,18 +55,18 @@ export default function BankTableComponent({
               <LoadingTableComponent />
             ) : (
               <>
-                {bankList.map(([bankId, bankName]) => (
-                  <React.Fragment key={bankId}>
-                    <tr key={bankId} className={`${tableRowCSS}`}>
+                {bankList.map(([bankId, bankName], bidx) => (
+                  <React.Fragment key={`${bankId}${bidx}${expType}`}>
+                    <tr key={`${bankId}${expType}`} className={`${tableRowCSS}`}>
                       <td
-                        key={`${bankId + bankName}`}
+                        key={`${bankId}${bankName}${expType}`}
                         className={`${tdCSS} ${tdBorderCSS} ${tdCornerDataCSS}`}
                       >
                         {bankName}
                       </td>
-                      {monthNames.map((month, idx) => (
+                      {monthNames.map((month, midx) => (
                         <td
-                          key={`${month + idx}`}
+                          key={`${bankId}${month}${midx}${expType}`}
                           className={`${tdCSS} ${tdBorderCSS} ${tdCornerDataCSS} ${month.toUpperCase()} ${bankId} ${bankExpenses?.monthlyRecords[month.toUpperCase()]?.bankData[bankId]}`}
                         >
                           {bankExpenses?.monthlyRecords[month.toUpperCase()]?.bankData[bankId.split('_')[0]] ?? 0}
