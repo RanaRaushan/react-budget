@@ -12,6 +12,7 @@ import { buttonCSS, ddOptionCSS, errorTextCSS, inputddCSS, linkButtonCSS, spentT
 import LoadingTableComponent from "../../components/LoadingTable.jsx";
 import UpdateItemComponent from "../../components/UpdateItem.jsx";
 import { useAuth } from "../../hooks/AuthProvider.jsx";
+import DownloadBudgetComponent from "../../components/DownloadBudget.jsx";
 
 const LOG_PREFIX = "BudgetPage::"
 
@@ -59,7 +60,6 @@ function validateInputs(input, inputValue, prefix) {
 }
 
 export const loader = (auth) => async ({ request })  => {
-  // const auth = useAuth();
   console.log("BudgetPage || auth at budgetPage loader", auth)
   const url = new URL(request.url);
   const q = url.searchParams;
@@ -74,6 +74,7 @@ export const loader = (auth) => async ({ request })  => {
 }
 
 export default function BudgetPage() {
+  const auth = useAuth();
   const updateIntent = "edit-"
   const addIntent = "add-"
   const defaulFiltertExtraKeys = ["selectedYear", "page", "exact", "between"];
@@ -259,6 +260,7 @@ export default function BudgetPage() {
   
   return (
       <div className="space-y-6">
+        <><DownloadBudgetComponent queryParams={searchParams} auth={auth}/></>
         <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl shadow border border-gray-200">
           <div className="flex flex-wrap items-center gap-4">
             {/* Search Key Dropdown */}
