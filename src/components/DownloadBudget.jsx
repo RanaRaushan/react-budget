@@ -16,7 +16,6 @@ const LOG_PREFIX = 'UpdateBudgetPage::';
 
 export default function DownloadBudgetComponent({ queryParams, auth }) {
   const [loading, setLoading] = useState(false);
-  console.log(queryParams)
   const fetchBudgetData = async () => {
     // Construct API URL with query params
   console.log("isnie fetchBudgetData",queryParams)
