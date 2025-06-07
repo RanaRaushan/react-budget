@@ -8,10 +8,10 @@ const AUTH_API_URL = "/auth";
 const AUTH_REGISTER_API_URL = "/auth/register";
 const AUTH_REFRESH_TOKEN_API_URL = "/auth/refresh-token";
 export const BUDGET_API_URL = `/users/:userId/budget`;
-export const BUDGET_ADD_API_URL = "/users/:userId/budget/add-transaction";
-export const BUDGET_UPDATE_API_URL = "/users/:userId/budget/update-transaction";
-export const BUDGET_UPLOAD_API_URL = "/users/:userId/budget/upload-transaction";
-export const BUDGET_DOWNLOAD_API_URL = `/users/:userId/budget/download-transaction`;
+export const BUDGET_ADD_API_URL = "/users/:userId/budget/add-budgetItem";
+export const BUDGET_UPDATE_API_URL = "/users/:userId/budget/update-budgetItem";
+export const BUDGET_UPLOAD_API_URL = "/users/:userId/budget/upload-budgetItem";
+export const BUDGET_DOWNLOAD_API_URL = `/users/:userId/budget/download-budgetItem`;
 export const BUDGET_EXPENSE_API_URL = "/users/:userId/expenses/:type";
 export const BUDGET_BANK_API_URL = "/users/:userId/bank";
 
