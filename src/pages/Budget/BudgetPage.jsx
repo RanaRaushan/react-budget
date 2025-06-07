@@ -518,7 +518,7 @@ export default function BudgetPage() {
           }}
           className={`${inputddCSS}`}
         >
-          <option className={`${ddOptionCSS}`} value="">
+          <option className={`${ddOptionCSS}`} value="all">
             All Year
           </option>
           {getYearOption().map((year) => (
