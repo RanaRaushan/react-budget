@@ -1,16 +1,11 @@
 import { useState } from 'react';
-import { budgetHeaders, dateFields, enumFields, itemCategoryEnum, lockedFields, paymentTypeEnum, spentTypeEnum } from '../utils/constantHelper';
+import { dateFields, enumFields, itemCategoryEnum, lockedFields, paymentTypeEnum, spentTypeEnum } from '../utils/constantHelper';
 import { ddOptionCSS, inputCSS, inputddCSS } from '../utils/cssConstantHelper';
 
 const LOG_PREFIX = "UpdateBudgetPage::"
 
-export default function UpdateItemComponent({header, item}) {
-    const [formData, setFormData] = useState(budgetHeaders.reduce((acc, col) => {
-        acc[col.key] = item[col.key];
-        return acc;
-      }, {}));
+export default function UpdateItemComponent({header, item, intent, formInputs}) {
 
-  const intent = "edit-"
   return (
     <>
         {
@@ -18,16 +13,16 @@ export default function UpdateItemComponent({header, item}) {
             ? <input 
                 type="date"
                 placeholder={header.key}
-                name={`${intent}${header.key}`}
-                value={formData[header.key]}
-                onChange={(e) => setFormData((prev) => ({ ...prev, [`${header.key}`]: e.target.value }))}
+                name={`${intent}-${header.key}`}
+                defaultValue={new Date(item[header.key]).toISOString().split('T')[0]}
+                onChange={(e) => e.target.value}
                 className={`${inputCSS}`}
             />
             : enumFields.includes(header.key) 
                 ? <select
-                    value={formData[header.key]}
-                    name={`${intent}${header.key}`}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, [`${header.key}`]: e.target.value }))}
+                    name={`${intent}-${header.key}`}
+                    defaultValue={item[header.key]}
+                    onChange={(e) => e.target.value}
                     className={`${inputddCSS}`}
                 >
                     <option className={`${ddOptionCSS}`} value="">{header.label}</option>
@@ -41,9 +36,9 @@ export default function UpdateItemComponent({header, item}) {
                 type="text"
                 readOnly={lockedFields.includes(header.key)}
                 placeholder={header.label}
-                name={`${intent}${header.key}`}
-                value={formData[header.key]}
-                onChange={(e) => setFormData((prev) => ({ ...prev, [`${header.key}`]: e.target.value }))}
+                name={`${intent}-${header.key}`}
+                defaultValue={item[header.key]}
+                onChange={(e) => e.target.value}
                 className={`${inputCSS}`}
             />
         }

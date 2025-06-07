@@ -25,6 +25,8 @@ const budgetHeaders = [
 const itemDetailHeaders = [
     { label: "ID", key: "id" },
     { label: "Item Name", key: "itemName" },
+    { label: "Item Quantity", key: "itemQty" },
+    { label: "Unit", key: "unit" },
     { label: "Item price", key: "itemPrice" },
   ];
 

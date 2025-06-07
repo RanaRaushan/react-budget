@@ -53,8 +53,14 @@ import LoadingTableComponent from '../../components/LoadingTable.jsx';
 import UpdateItemComponent from '../../components/UpdateItem.jsx';
 import { useAuth } from '../../hooks/AuthProvider.jsx';
 import DownloadBudgetComponent from '../../components/DownloadBudget.jsx';
+import FormErrorsComponent from '../../components/FormErrors.jsx';
 
 const LOG_PREFIX = 'BudgetPage::';
+
+const updateItemIntent = 'itemUpdate';
+const addItemIntent = 'itemAdd';
+const updateItemDetailIntent = 'itemDetailUpdate';
+const addItemDetailIntent = 'itemDetailAdd';
 
 export async function action({ request }) {
   let formData = await request.formData();
@@ -63,7 +69,7 @@ export async function action({ request }) {
   const payload = {};
   let errors = {};
   let fieldValue;
-  budgetHeaders.map(
+  budgetHeaders.concat(itemDetailHeaders).map(
     (header, idx) => (
       (fieldValue = formData.get(intent + '-' + header.key)),
       (payload[header.key] = fieldValue),
@@ -76,12 +82,12 @@ export async function action({ request }) {
   if (Object.keys(errors).length > 0) {
     return errors;
   }
-  if (intent === 'edit' && payload) {
+  if (intent === updateItemIntent && payload) {
     await get_update_budget(payload);
     return redirect(redirectUrl || BUDGET_FE_URL);
   }
 
-  if (intent === 'add' && payload) {
+  if (intent === addItemIntent && payload) {
     await get_add_budget(payload);
     return redirect(redirectUrl || BUDGET_FE_URL);
   }
@@ -95,18 +101,18 @@ function validateInputs(input, inputValue, prefix) {
     prefix !== 'null-' &&
     validationBudgetFields.includes(input.key)
   ) {
-    if (!inputValue || !inputValue.trim()) {
+    if (!inputValue || !inputValue.trim() || inputValue.trim() === '') {
       inputError[prefix + input.key] = `${input.label} is required`;
     }
     if (
-      prefix === 'edit-' &&
+      prefix === updateItemIntent + '-' &&
       inputValue?.trim() &&
       input.key === 'id' &&
       isNaN(Number(inputValue))
     ) {
       inputError[prefix + input.key] = `Not a valid ${input.label}`;
     }
-    if (prefix === 'add-') {
+    if (prefix === addItemIntent + '-') {
       delete inputError[prefix + 'id'];
     }
   }
@@ -116,7 +122,6 @@ function validateInputs(input, inputValue, prefix) {
 export const loader =
   (auth) =>
   async ({ request }) => {
-    console.log('BudgetPage || auth at budgetPage loader', auth);
     const url = new URL(request.url);
     const q = url.searchParams;
     const response =
@@ -132,8 +137,6 @@ export const loader =
 
 export default function BudgetPage() {
   const auth = useAuth();
-  const updateIntent = 'edit-';
-  const addIntent = 'add-';
   const defaulFiltertExtraKeys = ['selectedYear', 'page', 'exact', 'between'];
   const visibleCount = 5;
   const navigate = useNavigate();
@@ -141,7 +144,7 @@ export default function BudgetPage() {
   const fetcher = useFetcher();
   const { filteredBudgetData, pagination } = useLoaderData();
   const totalPages = pagination?.totalPages;
-  const currentPage = Math.min(pagination?.page, totalPages);
+  // const currentPage = Math.min(pagination?.page, totalPages);
 
   const isAddPage = location.pathname.includes('add');
 
@@ -164,7 +167,8 @@ export default function BudgetPage() {
   const [expandedRow, setExpandedRow] = useState(null);
   const [page, setPage] = useState(searchParams.get('page') || 0);
   const [editBudgetRowId, setEditBudgetRowId] = useState(null);
-  const [editTransactionItemRowId, setEditTransactionItemRowId] = useState(null);
+  const [editTransactionItemRowId, setEditTransactionItemRowId] =
+    useState(null);
   const [errors, setErrors] = useState(fetcher.data || {});
   const navigation = useNavigation();
   const [isCheckedSearch, setIsCheckedSearch] = useState(false);
@@ -276,20 +280,71 @@ export default function BudgetPage() {
     setGlobalParam(newParams);
   };
 
-  const handleUpdateSubmit = (e) => {
-    e.preventDefault();
-    if (!errors || Object.keys(errors).length == 0) {
-      setEditBudgetRowId(null);
+  const checkIfAnyFormDataUpdated = (existingData, newFormData) => {
+    const newFormDataWithUpdatedKey = Object.entries(newFormData).reduce(
+      (acc, [key, value]) => {
+        const newKey = key.split('-')[1];
+        if (newKey) {
+          acc[newKey] = value;
+        }
+        return acc;
+      },
+      {},
+    );
+    const combinedHeaders = budgetHeaders.concat(itemDetailHeaders);
+
+    for (const header of combinedHeaders) {
+      const key = header.key;
+
+      if (dateFields.includes(key)) {
+        if (
+          new Date(existingData[key]).toISOString().split('T')[0] !=
+          newFormDataWithUpdatedKey[key]
+        ) {
+          return true;
+        }
+      } else if (
+        existingData[key] &&
+        existingData[key] != newFormDataWithUpdatedKey[key]
+      ) {
+        return true;
+      }
     }
+    return false;
+  };
+
+  const updateBudgetRowSubmit = (e, previousValue) => {
+    e.preventDefault();
     let formData = new FormData(e.currentTarget.form);
     formData.append(
       'redirectTo',
       `${BUDGET_FE_URL}?${searchParams.toString()}`,
     );
-    formData.append('intent', 'edit');
-    fetcher.submit(formData, {
-      method: 'POST',
-    });
+    formData.append('intent', updateItemIntent);
+    if (
+      checkIfAnyFormDataUpdated(previousValue, Object.fromEntries(formData))
+    ) {
+      fetcher.submit(formData, {
+        method: 'POST',
+      });
+    } else {
+      resetErrorState();
+      setEditBudgetRowId(null);
+    }
+  };
+
+  const updateTransactionItemRowSubmit = (e) => {
+    e.preventDefault();
+
+    // let formData = new FormData(e.currentTarget.form);
+    // formData.append(
+    //   'redirectTo',
+    //   `${BUDGET_FE_URL}?${searchParams.toString()}`,
+    // );
+    // formData.append('intent', 'edit');
+    // fetcher.submit(formData, {
+    //   method: 'POST',
+    // });
   };
 
   const handleAddSubmit = (e) => {
@@ -299,7 +354,7 @@ export default function BudgetPage() {
       'redirectTo',
       `${BUDGET_FE_URL}?${searchParams.toString()}`,
     );
-    formData.append('intent', 'add');
+    formData.append('intent', addItemIntent);
     fetcher.submit(formData, {
       method: 'POST',
     });
@@ -548,15 +603,22 @@ export default function BudgetPage() {
                                 key={`${item.id}${header.key}`}
                                 className={`${tdCSS}`}
                               >
-                                {errors &&
-                                  errors[updateIntent + header.key] && (
+                                {/* {errors &&
+                                  errors[updateItemIntent + "-" + header.key] && (
                                     <p className={`${errorTextCSS}`}>
-                                      {errors[updateIntent + header.key]}
+                                      {errors[updateItemIntent + "-" + header.key]}
                                     </p>
-                                  )}
+                                  )} */}
+                                <FormErrorsComponent
+                                  errors={errors}
+                                  header={header}
+                                  intent={updateItemIntent}
+                                />
                                 <UpdateItemComponent
                                   header={header}
                                   item={item}
+                                  intent={updateItemIntent}
+                                  formInputs={budgetHeaders}
                                 />
                               </td>
                             ) : header.key == 'id' &&
@@ -605,17 +667,18 @@ export default function BudgetPage() {
                               <>
                                 <button
                                   onClick={(e) => {
-                                    handleUpdateSubmit(e);
+                                    updateBudgetRowSubmit(e, item);
                                   }}
                                   type="submit"
                                   name="intent"
-                                  value="edit"
+                                  value="item-edit"
                                   className="text-blue-600 hover:underline"
                                 >
                                   Y
                                 </button>
                                 <button
                                   onClick={(e) => {
+                                    resetErrorState();
                                     setEditBudgetRowId(null),
                                       e.preventDefault();
                                   }}
@@ -637,6 +700,117 @@ export default function BudgetPage() {
                               >
                                 <div className="">
                                   {/* Example expanded content */}
+                                  <table className={`${tableCSS}`}>
+                                    <thead className={`${theadCSS}`}>
+                                      <tr>
+                                        {itemDetailHeaders
+                                          .concat(extra_headers)
+                                          .map((itemDH, idx) => (
+                                            <th
+                                              key={idx}
+                                              className={`${tdCSS}`}
+                                            >
+                                              {itemDH.label}
+                                            </th>
+                                          ))}
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {item['transactionItems'].map(
+                                        (itemDetail, index) => (
+                                          <tr key={index}>
+                                            {itemDetailHeaders.map(
+                                              (itemDH, idx) =>
+                                                editTransactionItemRowId ===
+                                                itemDetail['id'] ? (
+                                                  <td
+                                                    key={`${itemDetail.id}${itemDH.key}`}
+                                                    className={`${tdCSS}`}
+                                                  >
+                                                    {errors &&
+                                                      errors[
+                                                        updateItemDetailIntent +
+                                                          itemDH.key
+                                                      ] && (
+                                                        <p
+                                                          className={`${errorTextCSS}`}
+                                                        >
+                                                          {
+                                                            errors[
+                                                              updateItemDetailIntent +
+                                                                itemDH.key
+                                                            ]
+                                                          }
+                                                        </p>
+                                                      )}
+                                                    <UpdateItemComponent
+                                                      header={itemDH}
+                                                      item={itemDetail}
+                                                      intent={
+                                                        updateItemDetailIntent
+                                                      }
+                                                      formInputs={
+                                                        itemDetailHeaders
+                                                      }
+                                                    />
+                                                  </td>
+                                                ) : (
+                                                  <td
+                                                    key={idx}
+                                                    className={`${tdCSS}`}
+                                                  >
+                                                    {itemDetail[itemDH.key]}
+                                                  </td>
+                                                ),
+                                            )}
+                                            <td className={`${tdCSS}`}>
+                                              {editTransactionItemRowId !==
+                                              itemDetail['id'] ? (
+                                                <button
+                                                  onClick={(e) => {
+                                                    setEditTransactionItemRowId(
+                                                      itemDetail.id,
+                                                    ),
+                                                      e.preventDefault();
+                                                  }}
+                                                  className="text-blue-600 hover:underline"
+                                                >
+                                                  Update
+                                                </button>
+                                              ) : (
+                                                <>
+                                                  <button
+                                                    onClick={(e) => {
+                                                      updateTransactionItemRowSubmit(
+                                                        e,
+                                                      );
+                                                    }}
+                                                    type="submit"
+                                                    name="intent"
+                                                    value="itemDetail-edit"
+                                                    className="text-blue-600 hover:underline"
+                                                  >
+                                                    Y
+                                                  </button>
+                                                  <button
+                                                    onClick={(e) => {
+                                                      setEditTransactionItemRowId(
+                                                        null,
+                                                      ),
+                                                        e.preventDefault();
+                                                    }}
+                                                    className="text-blue-600 hover:underline"
+                                                  >
+                                                    X
+                                                  </button>
+                                                </>
+                                              )}
+                                            </td>
+                                          </tr>
+                                        ),
+                                      )}
+                                    </tbody>
+                                  </table>
                                 </div>
                               </td>
                             </tr>
@@ -673,7 +847,10 @@ export default function BudgetPage() {
                   )}
                   {isAddPage && (
                     <tr className={`${tableRowCSS}`} ref={scrollTargetRef}>
-                      <Outlet name="add" context={errors} />
+                      <Outlet
+                        name="add"
+                        context={{ errors, intent: addItemIntent }}
+                      />
                       <td className={`${tdCSS} space-x-2`}>
                         <>
                           <button
@@ -682,17 +859,17 @@ export default function BudgetPage() {
                             }}
                             type="submit"
                             name="intent"
-                            value="add"
+                            value="item-add"
                             className="text-blue-600 hover:underline"
                           >
                             Add
                           </button>
                           <button
                             onClick={(e) => {
-                              navigate(
-                                BUDGET_FE_URL + '?' + searchParams.toString(),
-                              ),
-                                resetErrorState(),
+                              resetErrorState(),
+                                navigate(
+                                  BUDGET_FE_URL + '?' + searchParams.toString(),
+                                ),
                                 e.preventDefault();
                             }}
                             className="text-blue-600 hover:underline"
