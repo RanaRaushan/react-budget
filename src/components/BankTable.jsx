@@ -55,7 +55,7 @@ export default function BankTableComponent({
               <LoadingTableComponent />
             ) : (
               <>
-                {bankList.map(([bankId, bankName], bidx) => (
+                {bankList.concat([["monthlyTotalAmount", "Totals"]]).map(([bankId, bankName], bidx) => (
                   <React.Fragment key={`${bankId}${bidx}${expType}`}>
                     <tr key={`${bankId}${expType}`} className={`${tableRowCSS}`}>
                       <td
@@ -65,7 +65,14 @@ export default function BankTableComponent({
                         {bankName}
                       </td>
                       {monthNames.map((month, midx) => (
-                        <td
+                        bankName === "Totals" 
+                        ? <td
+                          key={`${bankId}${month}${midx}${expType}`}
+                          className={`${tdCSS} ${tdBorderCSS} ${tdCornerDataCSS} ${month.toUpperCase()} ${bankId} ${bankExpenses?.monthlyRecords[month.toUpperCase()]?.bankData[bankId]}`}
+                        >
+                          {bankExpenses?.monthlyRecords[month.toUpperCase()]?.[bankId] ?? 0}
+                        </td>
+                        : <td
                           key={`${bankId}${month}${midx}${expType}`}
                           className={`${tdCSS} ${tdBorderCSS} ${tdCornerDataCSS} ${month.toUpperCase()} ${bankId} ${bankExpenses?.monthlyRecords[month.toUpperCase()]?.bankData[bankId]}`}
                         >

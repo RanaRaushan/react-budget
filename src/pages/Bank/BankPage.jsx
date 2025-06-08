@@ -59,13 +59,13 @@ export const loader =
 
 export default function BankBudget() {
   const params = useParams();
-  let [searchParams, setSearchParams] = useSearchParams({});
+  let [searchParams, setSearchParams] = useSearchParams({selectedYear: getCurrentYear()});
   const navigation = useNavigation();
   const navigate = useNavigate();
   let status = navigation.state;
   let isLoading = status !== 'idle';
   const { bankExpenses } = useLoaderData();
-  const [selectedExpense, setSelectedExpense] = useState('total');
+  const [selectedExpense, setSelectedExpense] = useState('ALL');
   console.log('BankBudget || params', params, bankExpenses);
 
   const tdBorderCSS = 'border border-gray-300';
@@ -80,10 +80,10 @@ export default function BankBudget() {
             onChange={(e) => setSelectedExpense(e.target.value)}
             className={`${inputddCSS}`}
           >
-            <option className={`${ddOptionCSS}`} value="total">
-              All Expense
+            <option className={`${ddOptionCSS}`} value="ALL">
+              Total
             </option>
-            {Object.keys(spentTypeEnum).map((expType) => (
+            {Object.keys(spentTypeEnum).concat(['All Expense']).map((expType) => (
               <option
                 className={`${ddOptionCSS}`}
                 key={`${expType}`}
@@ -116,10 +116,10 @@ export default function BankBudget() {
           ))}
         </select>
       </div>
-      {Object.keys(spentTypeEnum)
+      {Object.keys(spentTypeEnum).concat(['ALL'])
         .filter(
           (spentKey) =>
-            selectedExpense == 'total' || spentKey == selectedExpense,
+            selectedExpense == 'All Expense' || spentKey == selectedExpense,
         )
         .map((expType, eidx) => (
           <BankTableComponent
