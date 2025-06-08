@@ -13,10 +13,12 @@ import {
   Link,
   useFetcher,
   useNavigation,
+  useParams,
 } from 'react-router-dom';
 import {
   BUDGET_ADD_FE_URL,
   BUDGET_FE_URL,
+  BUDGET_TRANSACTION_ENTRY_ADD_FE_URL,
   get_add_budget,
   get_all_budget,
   get_update_budget,
@@ -136,6 +138,7 @@ export const loader =
   };
 
 export default function BudgetPage() {
+  const params = useParams();
   const auth = useAuth();
   const defaulFiltertExtraKeys = ['selectedYear', 'page', 'exact', 'between'];
   const visibleCount = 5;
@@ -146,7 +149,8 @@ export default function BudgetPage() {
   const totalPages = pagination?.totalPages;
   // const currentPage = Math.min(pagination?.page, totalPages);
 
-  const isAddPage = location.pathname.includes('add');
+  const isAddBudgetPage = location.pathname.includes('budget/add');
+  const isAddBudgetEntryPage = location.pathname.includes('budget/entry/add');
 
   let [searchParams, setSearchParams] = useSearchParams({
     selectedYear: getCurrentYear(),
@@ -164,7 +168,7 @@ export default function BudgetPage() {
     searchParams.get('sort')?.split('-')[1] || 'asc',
   );
   const [globalParam, setGlobalParam] = useState({});
-  const [expandedRow, setExpandedRow] = useState(null);
+  const [expandedRow, setExpandedRow] = useState(params.entryId);
   const [page, setPage] = useState(searchParams.get('page') || 0);
   const [editBudgetRowId, setEditBudgetRowId] = useState(null);
   const [editTransactionItemRowId, setEditTransactionItemRowId] =
@@ -175,7 +179,8 @@ export default function BudgetPage() {
   const [toDate, setToDate] = useState('');
   const [fromDate, setFromDate] = useState('');
 
-  const scrollTargetRef = useRef(null);
+  const scrollTargetAddBudgetRef = useRef(null);
+  const scrollTargetAddBudgetEntryRef = useRef(null);
 
   let status = navigation.state;
   let isLoading = status !== 'idle';
@@ -388,8 +393,13 @@ export default function BudgetPage() {
   }, [globalParam]);
 
   useEffect(() => {
-    if (location.state?.scrollTo === 'add') {
-      scrollTargetRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (location.state?.scrollTo === 'addBudget') {
+      scrollTargetAddBudgetRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+    if (location.state?.scrollTo === 'addBudgetEntry' || isAddBudgetEntryPage) {
+      scrollTargetAddBudgetEntryRef.current?.scrollIntoView({
+        behavior: 'smooth',
+      });
     }
   }, [location.state]);
 
@@ -621,9 +631,7 @@ export default function BudgetPage() {
                                   formInputs={budgetHeaders}
                                 />
                               </td>
-                            ) : header.key == 'id' &&
-                              item['transactionItems'] &&
-                              item['transactionItems'].length > 0 ? (
+                            ) : header.key == 'id' ? (
                               <td
                                 key={`${item.id}${header.key}`}
                                 className={`${tdCSS}`}
@@ -634,7 +642,7 @@ export default function BudgetPage() {
                                 >
                                   <span>
                                     {item[header.key]}
-                                    {expandedRow === item.id ? (
+                                    {expandedRow == item.id ? (
                                       <IoMdArrowDropdown />
                                     ) : (
                                       <IoMdArrowDropright />
@@ -690,134 +698,217 @@ export default function BudgetPage() {
                             )}
                           </td>
                         </tr>
-                        {expandedRow === item.id &&
-                          item['transactionItems'] && (
-                            <tr className="">
-                              <td
-                                key={item.id}
-                                colSpan={budgetHeaders.length + 1}
-                                className="px-6 py-4"
-                              >
-                                <div className="">
-                                  {/* Example expanded content */}
-                                  <table className={`${tableCSS}`}>
-                                    <thead className={`${theadCSS}`}>
-                                      <tr>
-                                        {itemDetailHeaders
-                                          .concat(extra_headers)
-                                          .map((itemDH, idx) => (
-                                            <th
-                                              key={idx}
-                                              className={`${tdCSS}`}
-                                            >
-                                              {itemDH.label}
-                                            </th>
-                                          ))}
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {item['transactionItems'].map(
-                                        (itemDetail, index) => (
-                                          <tr key={index}>
-                                            {itemDetailHeaders.map(
-                                              (itemDH, idx) =>
-                                                editTransactionItemRowId ===
-                                                itemDetail['id'] ? (
-                                                  <td
-                                                    key={`${itemDetail.id}${itemDH.key}`}
-                                                    className={`${tdCSS}`}
-                                                  >
-                                                    {errors &&
-                                                      errors[
-                                                        updateItemDetailIntent +
-                                                          itemDH.key
-                                                      ] && (
-                                                        <p
-                                                          className={`${errorTextCSS}`}
-                                                        >
-                                                          {
-                                                            errors[
-                                                              updateItemDetailIntent +
-                                                                itemDH.key
-                                                            ]
-                                                          }
-                                                        </p>
-                                                      )}
-                                                    <UpdateItemComponent
-                                                      header={itemDH}
-                                                      item={itemDetail}
-                                                      intent={
-                                                        updateItemDetailIntent
-                                                      }
-                                                      formInputs={
-                                                        itemDetailHeaders
-                                                      }
-                                                    />
-                                                  </td>
-                                                ) : (
-                                                  <td
-                                                    key={idx}
-                                                    className={`${tdCSS}`}
-                                                  >
-                                                    {itemDetail[itemDH.key]}
-                                                  </td>
-                                                ),
-                                            )}
-                                            <td className={`${tdCSS}`}>
-                                              {editTransactionItemRowId !==
+                        {expandedRow == item.id && item['transactionItems'] && (
+                          <tr className="">
+                            <td
+                              key={item.id}
+                              colSpan={budgetHeaders.length + 1}
+                              className="px-6 py-4"
+                            >
+                              <div className="">
+                                {/* Example expanded content */}
+                                <table className={`${tableCSS}`}>
+                                  <thead className={`${theadCSS}`}>
+                                    <tr ref={ params.entryId == item.id ? scrollTargetAddBudgetEntryRef : null}>
+                                      {itemDetailHeaders
+                                        .concat(extra_headers)
+                                        .map((itemDH, idx) => (
+                                          <th key={idx} className={`${tdCSS}`}>
+                                            {itemDH.label}
+                                          </th>
+                                        ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {item['transactionItems'].map(
+                                      (itemDetail, index) => (
+                                        <tr
+                                          key={index}
+                                          className={`${itemDetail['id']}`}
+                                        >
+                                          {itemDetailHeaders.map(
+                                            (itemDH, idx) =>
+                                              editTransactionItemRowId ===
                                               itemDetail['id'] ? (
+                                                <td
+                                                  key={`${itemDetail.id}${itemDH.key}`}
+                                                  className={`${tdCSS}`}
+                                                >
+                                                  {errors &&
+                                                    errors[
+                                                      updateItemDetailIntent +
+                                                        itemDH.key
+                                                    ] && (
+                                                      <p
+                                                        className={`${errorTextCSS}`}
+                                                      >
+                                                        {
+                                                          errors[
+                                                            updateItemDetailIntent +
+                                                              itemDH.key
+                                                          ]
+                                                        }
+                                                      </p>
+                                                    )}
+                                                  <UpdateItemComponent
+                                                    header={itemDH}
+                                                    item={itemDetail}
+                                                    intent={
+                                                      updateItemDetailIntent
+                                                    }
+                                                    formInputs={
+                                                      itemDetailHeaders
+                                                    }
+                                                  />
+                                                </td>
+                                              ) : (
+                                                <td
+                                                  key={idx}
+                                                  className={`${tdCSS}`}
+                                                >
+                                                  {itemDH.key == 'unit'
+                                                    ? itemDetail[itemDH.key]
+                                                        ?.name
+                                                    : itemDetail[itemDH.key]}
+                                                </td>
+                                              ),
+                                          )}
+                                          <td className={`${tdCSS}`}>
+                                            {editTransactionItemRowId !==
+                                            itemDetail['id'] ? (
+                                              <button
+                                                onClick={(e) => {
+                                                  setEditTransactionItemRowId(
+                                                    itemDetail.id,
+                                                  ),
+                                                    e.preventDefault();
+                                                }}
+                                                className="text-blue-600 hover:underline"
+                                              >
+                                                Update
+                                              </button>
+                                            ) : (
+                                              <>
+                                                <button
+                                                  onClick={(e) => {
+                                                    updateTransactionItemRowSubmit(
+                                                      e,
+                                                    );
+                                                  }}
+                                                  type="submit"
+                                                  name="intent"
+                                                  value="itemDetail-edit"
+                                                  className="text-blue-600 hover:underline"
+                                                >
+                                                  Y
+                                                </button>
                                                 <button
                                                   onClick={(e) => {
                                                     setEditTransactionItemRowId(
-                                                      itemDetail.id,
+                                                      null,
                                                     ),
                                                       e.preventDefault();
                                                   }}
                                                   className="text-blue-600 hover:underline"
                                                 >
-                                                  Update
+                                                  X
                                                 </button>
-                                              ) : (
-                                                <>
-                                                  <button
-                                                    onClick={(e) => {
-                                                      updateTransactionItemRowSubmit(
-                                                        e,
-                                                      );
-                                                    }}
-                                                    type="submit"
-                                                    name="intent"
-                                                    value="itemDetail-edit"
-                                                    className="text-blue-600 hover:underline"
-                                                  >
-                                                    Y
-                                                  </button>
-                                                  <button
-                                                    onClick={(e) => {
-                                                      setEditTransactionItemRowId(
-                                                        null,
-                                                      ),
-                                                        e.preventDefault();
-                                                    }}
-                                                    className="text-blue-600 hover:underline"
-                                                  >
-                                                    X
-                                                  </button>
-                                                </>
-                                              )}
+                                              </>
+                                            )}
+                                          </td>
+                                        </tr>
+                                      ),
+                                    )}
+                                    {isAddBudgetEntryPage &&
+                                    params.entryId == item.id ? (
+                                      <tr
+                                        className={`${tableRowCSS}`}
+                                      >
+                                        <Outlet
+                                          name="addBudgetEntry"
+                                          context={{
+                                            errors,
+                                            intent: addItemIntent,
+                                          }}
+                                        />
+                                        <td className={`${tdCSS} space-x-2`}>
+                                          <>
+                                            <button
+                                              onClick={(e) => {
+                                                handleAddSubmit(e);
+                                              }}
+                                              type="submit"
+                                              name="intent"
+                                              value="item-add"
+                                              className="text-blue-600 hover:underline"
+                                            >
+                                              Add
+                                            </button>
+                                            <button
+                                              onClick={(e) => {
+                                                resetErrorState(),
+                                                  navigate(
+                                                    BUDGET_FE_URL +
+                                                      '?' +
+                                                      searchParams.toString(),
+                                                  ),
+                                                  e.preventDefault();
+                                              }}
+                                              className="text-blue-600 hover:underline"
+                                            >
+                                              X
+                                            </button>
+                                          </>
+                                        </td>
+                                      </tr>
+                                    ) : (
+                                      <tr className={`${tableRowCSS}`}>
+                                        {[
+                                          ...Array(
+                                            itemDetailHeaders.length + 1,
+                                          ),
+                                        ].map((_, idx) => {
+                                          return idx ===
+                                            itemDetailHeaders.length ? (
+                                            <td
+                                              key={`${idx}${itemDetailHeaders.key}`}
+                                              className={`${tdCSS}`}
+                                            >
+                                              <Link
+                                                className={`${linkButtonCSS}`}
+                                                state={{
+                                                  scrollTo: 'addBudgetEntry',
+                                                }}
+                                                to={
+                                                  BUDGET_TRANSACTION_ENTRY_ADD_FE_URL.replace(
+                                                    '{entryId}',
+                                                    item.id,
+                                                  ) +
+                                                  '?' +
+                                                  searchParams.toString()
+                                                }
+                                                style={{ color: 'inherit' }}
+                                              >
+                                                <FaPlus />
+                                              </Link>
                                             </td>
-                                          </tr>
-                                        ),
-                                      )}
-                                    </tbody>
-                                  </table>
-                                </div>
-                              </td>
-                            </tr>
-                          )}
+                                          ) : (
+                                            <td
+                                              key={`${idx}${itemDetailHeaders.key}`}
+                                            ></td>
+                                          );
+                                        })}
+                                      </tr>
+                                    )}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
                       </React.Fragment>
                     ))}
-                  {!isAddPage && (
+                  {!isAddBudgetPage && (
                     <tr className={`${tableRowCSS}`}>
                       {[...Array(budgetHeaders.length + 1)].map((_, idx) => {
                         return idx === budgetHeaders.length ? (
@@ -828,6 +919,7 @@ export default function BudgetPage() {
                             {/* <button onClick={(e) => e.preventDefault()} className="hover:text-indigo-200" > */}
                             <Link
                               className={`${linkButtonCSS}`}
+                              state={{ scrollTo: 'addBudget' }}
                               to={
                                 BUDGET_ADD_FE_URL +
                                 '?' +
@@ -845,10 +937,13 @@ export default function BudgetPage() {
                       })}
                     </tr>
                   )}
-                  {isAddPage && (
-                    <tr className={`${tableRowCSS}`} ref={scrollTargetRef}>
+                  {isAddBudgetPage && (
+                    <tr
+                      className={`${tableRowCSS}`}
+                      ref={scrollTargetAddBudgetRef}
+                    >
                       <Outlet
-                        name="add"
+                        name="addBudget"
                         context={{ errors, intent: addItemIntent }}
                       />
                       <td className={`${tdCSS} space-x-2`}>

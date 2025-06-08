@@ -81,7 +81,7 @@ const Header = () => {
                   </Link>
                   <Link
                     to={BUDGET_ADD_FE_URL}
-                    state={{ scrollTo: 'add' }}
+                    state={{ scrollTo: 'addBudget' }}
                     className="block px-4 py-2 hover:bg-indigo-100 rounded-md"
                   >
                     Add Budget

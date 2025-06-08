@@ -88,7 +88,7 @@ const LoginPage = () => {
     const inputCSS = 'w-full min-w-80 p-2.5 rounded-3xl border-none text-[0.875em] font-inherit bg-[#3B3B3B] text-gray-300 shadow-[0_0_10px_rgba(0,0,0,0.1)]'
     const buttonCSS = 'py-2.5 rounded cursor-pointer font-inherit'
     const linkLabelCSS = 'text-[0.875em]'
-    const labelErrorCSS = 'w-80 pl-2.5 pb-3.5 break-words hyphens-auto text-red-500'
+    const labelErrorCSS = 'w-80 pl-2.5 pb-3.5 break-words text-red-500'
 
   return (
     <>

@@ -24,6 +24,7 @@ export const BUDGET_EXPENSES_EXP_FE_URL = "/expenses/expense";
 export const BUDGET_EXPENSES_INC_FE_URL = "/expenses/income";
 export const BUDGET_EXPENSES_FE_URL = "/expenses/{type}";
 export const BUDGET_BANK_FE_URL = "/bank";
+export const BUDGET_TRANSACTION_ENTRY_ADD_FE_URL = "/budget/entry/add/{entryId}";
 
 const CONTENT_TYPE = "Content-Type";
 const APPLICATION_JSON = "application/json";

@@ -21,6 +21,7 @@ import Authorize from "./pages/Login/authorize";
 import React from "react";
 import ExpenseBudget, {loader as expenseLoader} from "./pages/Expenses/ExpensePage";
 import BankBudget, {loader as bankLoader} from "./pages/Bank/BankPage";
+import AddBudgetEntryPage from "./pages/Budget/AddBudgetEntryPage";
 
 function App() { 
 
@@ -48,6 +49,7 @@ function App() {
                 <Route path="signup" element={<SingupPage />} action={singupAction} errorElement={<ErrorPage />} />,
                 <Route path="budget" element={<RequireAuth><BudgetPage /></RequireAuth>} loader={budgetLoader(auth)} errorElement={<ErrorPage />} action={budgetAction}>
                   <Route path="add" element={<AddBudgetItemPage />} errorElement={<ErrorPage />} />
+                  <Route path="entry/add/:entryId" element={<AddBudgetEntryPage />} errorElement={<ErrorPage />} />
                 </Route>
                 <Route index path="upload" element={<RequireAuth><Uploadbudget /></RequireAuth>} errorElement={<ErrorPage />} action={uploadAction} />    
                 <Route index path="expenses/:type" element={<RequireAuth><ExpenseBudget /></RequireAuth>} errorElement={<ErrorPage />} loader={expenseLoader(auth)}/>    
