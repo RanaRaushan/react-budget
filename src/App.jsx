@@ -22,6 +22,8 @@ import React from "react";
 import ExpenseBudget, {loader as expenseLoader} from "./pages/Expenses/ExpensePage";
 import BankBudget, {loader as bankLoader} from "./pages/Bank/BankPage";
 import AddBudgetEntryPage from "./pages/Budget/AddBudgetEntryPage";
+import InvestmentBudget, {loader as investmentLoader, action as investmentAction} from "./pages/Investment/InvestmentPage";
+import AddInvestmentPage from "./pages/Investment/AddInvestmentpage";
 
 function App() { 
 
@@ -54,6 +56,9 @@ function App() {
                 <Route index path="upload" element={<RequireAuth><Uploadbudget /></RequireAuth>} errorElement={<ErrorPage />} action={uploadAction} />    
                 <Route index path="expenses/:type" element={<RequireAuth><ExpenseBudget /></RequireAuth>} errorElement={<ErrorPage />} loader={expenseLoader(auth)}/>    
                 <Route index path="bank" element={<RequireAuth><BankBudget /></RequireAuth>} errorElement={<ErrorPage />} loader={bankLoader(auth)}/>    
+                <Route path="investment" element={<RequireAuth><InvestmentBudget /></RequireAuth>} errorElement={<ErrorPage />} loader={investmentLoader(auth)} action={investmentAction}>
+                  <Route path="add" element={<AddInvestmentPage />} errorElement={<ErrorPage />} />
+                </Route>    
                 <Route index path="*" element={<Navigate to="/" replace={true} />} />     
               </Route>
               

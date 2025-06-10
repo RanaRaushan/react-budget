@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { dateFields, enumFields, itemCategoryEnum, lockedFields, paymentTypeEnum, spentTypeEnum } from '../utils/constantHelper';
+import { compoundingFrequencyEnum, dateFields, enumFields, itemCategoryEnum, lockedFields, paymentTypeEnum, spentTypeEnum } from '../utils/constantHelper';
 import { ddOptionCSS, inputCSS, inputddCSS } from '../utils/cssConstantHelper';
 
 const LOG_PREFIX = "UpdateBudgetPage::"
@@ -26,7 +26,7 @@ export default function UpdateItemComponent({header, item, intent, formInputs}) 
                     className={`${inputddCSS}`}
                 >
                     <option className={`${ddOptionCSS}`} value="">{header.label}</option>
-                    {Object.entries(header.key == 'spentType' ? spentTypeEnum : header.key == 'itemType' ? itemCategoryEnum : paymentTypeEnum).map(([ddKey, ddLabel]) => (
+                    {Object.entries(header.key == 'spentType' ? spentTypeEnum : header.key == 'itemType' ? itemCategoryEnum :  header.key == 'compoundingFrequency' ? compoundingFrequencyEnum : paymentTypeEnum).map(([ddKey, ddLabel]) => (
                     <option className={`${ddOptionCSS}`} key={ddKey} value={ddKey}>
                         {ddLabel}
                     </option>

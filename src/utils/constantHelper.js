@@ -1,7 +1,7 @@
 
-const dateFields = ['paidDate', 'spentDate']
-const enumFields = ['itemType', 'paymentType', 'spentType']
-const lockedFields = ['id']
+const dateFields = ['paidDate', 'spentDate', 'investmentDate', 'maturityDate']
+const enumFields = ['itemType', 'paymentType', 'spentType', 'compoundingFrequency']
+const lockedFields = ['id', 'period', 'maturityAmount', 'maturityTimeLeftInDays']
 const validationBudgetFields = ['id', 'paidDate', 'spentDate', 'itemType', 'paymentType', 'spentType', 'amount', 'paidAmount', 'description', 'owner']
 
 const monthNames = [
@@ -80,6 +80,36 @@ const itemCategoryEnum = Object.freeze({
     SALARY: "Salary",
   });  
 
+const investmentHeaders = [
+    { label: "ID", key: "id" },
+    { label: "Investment Type", key: "investmentType" },
+    { label: "Rate", key: "interestRate" },
+    { label: "Period (In Year)", key: "period" },
+    { label: "Investment Amount", key: "investmentAmount" },
+    { label: "Investment Date", key: "investmentDate" },
+    { label: "Maturity Amount", key: "maturityAmount" },
+    { label: "Maturity Date", key: "maturityDate" },
+    { label: "Mature in (In Days)", key: "maturityTimeLeftInDays" },
+    { label: "Compunding Frequency", key: "compoundingFrequency" },
+  ];
+
+
+const investmentTypeEnum = Object.freeze({
+    NSC: "NSC",
+    FD: "Fixed Deposit",
+    BOND: "Bond",
+    NPS: "NPS",
+  });
+
+const compoundingFrequencyEnum = Object.freeze({
+    ANNUALLY: "annually",
+    SEMI_ANNUALLY: "semi_annually",
+    QUARTERLY: "quarterly",
+    MONTHLY: "monthly",
+    WEEKLY: "weekly",
+    DAILY: "daily",
+  });
+
 export {
     budgetHeaders,
     itemDetailHeaders,
@@ -91,4 +121,7 @@ export {
     lockedFields,
     validationBudgetFields,
     monthNames,
+    investmentHeaders,
+    investmentTypeEnum,
+    compoundingFrequencyEnum,
 };

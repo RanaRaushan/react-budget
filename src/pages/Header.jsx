@@ -8,8 +8,10 @@ import {
   BUDGET_EXPENSES_EXP_FE_URL,
   BUDGET_BANK_FE_URL,
   BUDGET_HOME_FE_URL,
+  BUDGET_INVESTMENT_FE_URL,
 } from '../utils/APIHelper';
 import LoginLogoutComponent from '../components/LoginLogout';
+import { getCurrentYear } from '../utils/functionHelper';
 
 const Header = () => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
@@ -49,7 +51,10 @@ const Header = () => {
             <button className="hover:text-indigo-200" onClick={()=>navigate(BUDGET_HOME_FE_URL)}>
                 Home
             </button>
-            <button className="hover:text-indigo-200" onClick={()=>navigate(BUDGET_BANK_FE_URL)}>
+            <button className="hover:text-indigo-200" onClick={()=>navigate(BUDGET_INVESTMENT_FE_URL)}>
+                Investment
+            </button>
+            <button className="hover:text-indigo-200" onClick={()=>navigate(`${BUDGET_BANK_FE_URL}?selectedYear=${getCurrentYear()}`)}>
                 Bank
             </button>
             <div

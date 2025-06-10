@@ -14,17 +14,23 @@ export const BUDGET_UPLOAD_API_URL = "/users/:userId/budget/upload-budgetItem";
 export const BUDGET_DOWNLOAD_API_URL = `/users/:userId/budget/download-budgetItem`;
 export const BUDGET_EXPENSE_API_URL = "/users/:userId/expenses/:type";
 export const BUDGET_BANK_API_URL = "/users/:userId/bank";
+export const BUDGET_INVESTMENT_API_URL = "/users/:userId/investments";
+export const BUDGET_ADD_INVESTMENT_API_URL = "/users/:userId/investments/add";
+export const BUDGET_UPDATE_INVESTMENT_API_URL = "/users/:userId/investments/update/:id";
+export const BUDGET_REMOVE_INVESTMENT_API_URL = "/users/:userId/investments/remove/:id";
 
 
 export const BUDGET_HOME_FE_URL = "/";
 export const BUDGET_FE_URL = "/budget";
 export const BUDGET_ADD_FE_URL = "/budget/add";
+export const BUDGET_TRANSACTION_ENTRY_ADD_FE_URL = "/budget/entry/add/{entryId}";
 export const BUDGET_UPLOAD_FE_URL = "/upload";
 export const BUDGET_EXPENSES_EXP_FE_URL = "/expenses/expense";
 export const BUDGET_EXPENSES_INC_FE_URL = "/expenses/income";
 export const BUDGET_EXPENSES_FE_URL = "/expenses/{type}";
 export const BUDGET_BANK_FE_URL = "/bank";
-export const BUDGET_TRANSACTION_ENTRY_ADD_FE_URL = "/budget/entry/add/{entryId}";
+export const BUDGET_INVESTMENT_FE_URL = "/investment";
+export const BUDGET_ADD_INVESTMENT_FE_URL = "/investment/add";
 
 const CONTENT_TYPE = "Content-Type";
 const APPLICATION_JSON = "application/json";
@@ -205,6 +211,28 @@ export async function get_expenses(params = {}, expenseType) {
 export async function get_bank_expenses(params = {}, expenseType) {
   return getRequest(BUDGET_BANK_API_URL, params, true, null, {
     type: expenseType,
+  });
+}
+
+export async function get_investments(params = {}) {
+  return getRequest(BUDGET_INVESTMENT_API_URL, params, true, null);
+}
+
+export async function add_investments(data = {}, investmentId) {
+  return postRequest(BUDGET_ADD_INVESTMENT_API_URL, data, true, null, {
+    id: investmentId,
+  });
+}
+
+export async function update_investments(data = {}, investmentId) {
+  return postRequest(BUDGET_UPDATE_INVESTMENT_API_URL, data, true, null, {
+    id: investmentId,
+  });
+}
+
+export async function remove_investments(data = {}, investmentId) {
+  return postRequest(BUDGET_REMOVE_INVESTMENT_API_URL, data, true, null, {
+    id: investmentId,
   });
 }
 
