@@ -16,7 +16,7 @@ export const BUDGET_EXPENSE_API_URL = "/users/:userId/expenses/:type";
 export const BUDGET_BANK_API_URL = "/users/:userId/bank";
 export const BUDGET_INVESTMENT_API_URL = "/users/:userId/investments";
 export const BUDGET_ADD_INVESTMENT_API_URL = "/users/:userId/investments/add";
-export const BUDGET_UPDATE_INVESTMENT_API_URL = "/users/:userId/investments/update/:id";
+export const BUDGET_UPDATE_INVESTMENT_API_URL = "/users/:userId/investments/update";
 export const BUDGET_REMOVE_INVESTMENT_API_URL = "/users/:userId/investments/remove/:id";
 
 
@@ -224,10 +224,8 @@ export async function add_investments(data = {}, investmentId) {
   });
 }
 
-export async function update_investments(data = {}, investmentId) {
-  return postRequest(BUDGET_UPDATE_INVESTMENT_API_URL, data, true, null, {
-    id: investmentId,
-  });
+export async function update_investments(data = {}) {
+  return postRequest(BUDGET_UPDATE_INVESTMENT_API_URL, data, true, null);
 }
 
 export async function remove_investments(data = {}, investmentId) {

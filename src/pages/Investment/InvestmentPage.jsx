@@ -19,15 +19,15 @@ import {
   add_investments,
   BUDGET_ADD_INVESTMENT_FE_URL,
   BUDGET_INVESTMENT_FE_URL,
-  BUDGET_TRANSACTION_ENTRY_ADD_FE_URL,
   get_investments,
+  remove_investments,
   update_investments,
 } from '../../utils/APIHelper.js';
 import {
   itemDetailHeaders,
   enumFields,
   dateFields,
-  validationBudgetFields,
+  validationInvestmentFields,
   investmentHeaders,
   investmentTypeEnum,
   compoundingFrequencyEnum,
@@ -35,6 +35,7 @@ import {
 import {
   filterMapObject,
   getCurrentYear,
+  getFormatedDate,
   getYearOption,
   isEffectivelyEmptyObject,
 } from '../../utils/functionHelper.js';
@@ -60,6 +61,7 @@ const LOG_PREFIX = 'InvestmentPage::';
 
 const updateInvestmentIntent = 'investmentUpdate';
 const addInvestmentIntent = 'investmentAdd';
+const deleteInvestmentIntent = 'investmentDelete';
 
 export async function action({ request }) {
   let formData = await request.formData();
@@ -68,7 +70,7 @@ export async function action({ request }) {
   const payload = {};
   let errors = {};
   let fieldValue;
-  investmentHeaders.map(
+  !(intent === deleteInvestmentIntent) && investmentHeaders.map(
     (header, idx) => (
       (fieldValue = formData.get(intent + '-' + header.key)),
       (payload[header.key] = fieldValue),
@@ -90,6 +92,12 @@ export async function action({ request }) {
     await add_investments(payload);
     return redirect(redirectUrl || BUDGET_INVESTMENT_FE_URL);
   }
+  
+  if (intent === deleteInvestmentIntent && payload) {
+    console.log("delete investment", payload)
+    await remove_investments({}, formData.get('deleteInvestmentId'));
+    return redirect(redirectUrl || BUDGET_INVESTMENT_FE_URL);
+  }
   return {};
 }
 
@@ -98,7 +106,7 @@ function validateInputs(input, inputValue, prefix) {
   if (
     prefix &&
     prefix !== 'null-' &&
-    validationBudgetFields.includes(input.key)
+    validationInvestmentFields.includes(input.key)
   ) {
     if (!inputValue || !inputValue.trim() || inputValue.trim() === '') {
       inputError[prefix + input.key] = `${input.label} is required`;
@@ -147,7 +155,6 @@ export default function InvestmentBudget() {
   // const currentPage = Math.min(pagination?.page, totalPages);
 
   const isAddInvestmentPage = location.pathname.includes('investment/add');
-  console.log("location",isAddInvestmentPage, location)
 
   let [searchParams, setSearchParams] = useSearchParams({
     selectedYear: 'all',
@@ -174,7 +181,6 @@ export default function InvestmentBudget() {
   const [fromDate, setFromDate] = useState('');
 
   const scrollTargetAddInvestmentRef = useRef(null);
-  const scrollTargetAddBudgetEntryRef = useRef(null);
 
   let status = navigation.state;
   let isLoading = status !== 'idle';
@@ -276,7 +282,7 @@ export default function InvestmentBudget() {
   };
 
   const checkIfAnyFormDataUpdated = (existingData, newFormData) => {
-    const newFormDataWithUpdatedKey = Object.entries(newFormData).reduce(
+        const newFormDataWithUpdatedKey = Object.entries(newFormData).reduce(
       (acc, [key, value]) => {
         const newKey = key.split('-')[1];
         if (newKey) {
@@ -286,20 +292,18 @@ export default function InvestmentBudget() {
       },
       {},
     );
-    const combinedHeaders = investmentHeaders.concat(itemDetailHeaders);
 
-    for (const header of combinedHeaders) {
+    for (const header of investmentHeaders) {
       const key = header.key;
-
       if (dateFields.includes(key)) {
         if (
-          new Date(existingData[key]).toISOString().split('T')[0] !=
+          getFormatedDate(existingData[key]) !=
           newFormDataWithUpdatedKey[key]
         ) {
           return true;
         }
       } else if (
-        existingData[key] &&
+        newFormDataWithUpdatedKey[key] &&
         existingData[key] != newFormDataWithUpdatedKey[key]
       ) {
         return true;
@@ -308,7 +312,7 @@ export default function InvestmentBudget() {
     return false;
   };
 
-  const updateBudgetRowSubmit = (e, previousValue) => {
+  const updateInvestmentRowSubmit = (e, previousValue) => {
     e.preventDefault();
     let formData = new FormData(e.currentTarget.form);
     formData.append(
@@ -324,22 +328,23 @@ export default function InvestmentBudget() {
       });
     } else {
       resetErrorState();
-      setEditInvestmentRowId(-1);
     }
+    setEditInvestmentRowId(-1);
   };
 
-  const updateTransactionItemRowSubmit = (e) => {
+    const deleteInvestmentRowSubmit = (e, id) => {
     e.preventDefault();
-
-    // let formData = new FormData(e.currentTarget.form);
-    // formData.append(
-    //   'redirectTo',
-    //   `${BUDGET_INVESTMENT_FE_URL}?${searchParams.toString()}`,
-    // );
-    // formData.append('intent', 'edit');
-    // fetcher.submit(formData, {
-    //   method: 'POST',
-    // });
+    console.log("calling delete")
+    let formData = new FormData(e.currentTarget.form);
+    formData.append(
+      'redirectTo',
+      `${BUDGET_INVESTMENT_FE_URL}?${searchParams.toString()}`,
+    );
+    formData.append('intent', deleteInvestmentIntent);
+    formData.append('deleteInvestmentId', id);
+    fetcher.submit(formData, {
+        method: 'POST',
+      });
   };
 
   const handleAddSubmit = (e) => {
@@ -400,10 +405,15 @@ export default function InvestmentBudget() {
     }
     return pages;
   };
+  const isInvestmentMatured = (matureLeftInDays) => {
+    return matureLeftInDays <= 0;
+  }
+  const maturedCss = 'bg-green-100 text-green-600 hover:bg-inherit hover:text-inherit'
 
   return (
     <div className="space-y-6">
       <>
+      {/* TODO check for download with reusable */}
         <DownloadBudgetComponent queryParams={searchParams} auth={auth} />
       </>
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl shadow border border-gray-200">
@@ -587,7 +597,7 @@ export default function InvestmentBudget() {
                           className={`${
                             editInvestmentRowId && editInvestmentRowId === item['id']
                               ? ''
-                              : spentTypeColorMap[item.spentType] || tableRowCSS
+                              : isInvestmentMatured(item['maturityTimeLeftInDays']) && maturedCss || tableRowCSS
                           }`}
                         >
                           {investmentHeaders.map((header, idx) =>
@@ -613,12 +623,24 @@ export default function InvestmentBudget() {
                                 key={`${item.id}${header.key}`}
                                 className={`${tdCSS}`}
                               >
-                                {header.key == 'period' ? Math.floor(item[header.key]/365) : item[header.key]}
+                                {header.key == 'period' ? (item[header.key]/365).toFixed(1) : header.key == 'interestRate' ? item[header.key]+' %' : item[header.key]}
                               </td>
                             ),
                           )}
-
-                          <td className={`${tdCSS} ${editInvestmentRowId} ${item['id']} ${editInvestmentRowId !== item['id']}`}>
+                          {isInvestmentMatured(item['maturityTimeLeftInDays']) 
+                          ? <td className={`${tdCSS}`}>
+                              <button
+                                onClick={(e) => {
+                                  deleteInvestmentRowSubmit(e, item['id']),
+                                    e.preventDefault();
+                                }}
+                                className="text-blue-600 hover:underline"
+                              >
+                                Delete
+                              </button>
+                          </td>
+                          :
+                          <td className={`${tdCSS}`}>
                             {editInvestmentRowId && editInvestmentRowId !== item['id'] ? (
                               <button
                                 onClick={(e) => {
@@ -633,7 +655,7 @@ export default function InvestmentBudget() {
                               <>
                                 <button
                                   onClick={(e) => {
-                                    updateBudgetRowSubmit(e, item);
+                                    updateInvestmentRowSubmit(e, item);
                                   }}
                                   type="submit"
                                   name="intent"
@@ -655,6 +677,7 @@ export default function InvestmentBudget() {
                               </>
                             )}
                           </td>
+                          }
                         </tr>
                       </React.Fragment>
                     ))}

@@ -1,8 +1,9 @@
 
 const dateFields = ['paidDate', 'spentDate', 'investmentDate', 'maturityDate']
-const enumFields = ['itemType', 'paymentType', 'spentType', 'compoundingFrequency']
+const enumFields = ['itemType', 'paymentType', 'spentType', 'investmentType', 'compoundingFrequency']
 const lockedFields = ['id', 'period', 'maturityAmount', 'maturityTimeLeftInDays']
 const validationBudgetFields = ['id', 'paidDate', 'spentDate', 'itemType', 'paymentType', 'spentType', 'amount', 'paidAmount', 'description', 'owner']
+const validationInvestmentFields = ['id', 'investmentType', 'description', 'interestRate', 'investmentAmount', 'investmentDate', 'maturityDate', 'compoundingFrequency']
 
 const monthNames = [
   "January", "February", "March", "April", "May", "June",
@@ -83,13 +84,14 @@ const itemCategoryEnum = Object.freeze({
 const investmentHeaders = [
     { label: "ID", key: "id" },
     { label: "Investment Type", key: "investmentType" },
+    { label: "Description", key: "description" },
     { label: "Rate", key: "interestRate" },
-    { label: "Period (In Year)", key: "period" },
+    { label: "Period(Yr)", key: "period" },
     { label: "Investment Amount", key: "investmentAmount" },
     { label: "Investment Date", key: "investmentDate" },
     { label: "Maturity Amount", key: "maturityAmount" },
     { label: "Maturity Date", key: "maturityDate" },
-    { label: "Mature in (In Days)", key: "maturityTimeLeftInDays" },
+    { label: "Mature in(Day)", key: "maturityTimeLeftInDays" },
     { label: "Compunding Frequency", key: "compoundingFrequency" },
   ];
 
@@ -124,4 +126,5 @@ export {
     investmentHeaders,
     investmentTypeEnum,
     compoundingFrequencyEnum,
+    validationInvestmentFields,
 };
