@@ -36,6 +36,7 @@ import {
 import {
   filterMapObject,
   getCurrentYear,
+  getFormatedDate,
   getYearOption,
   isEffectivelyEmptyObject,
 } from '../../utils/functionHelper.js';
@@ -303,7 +304,7 @@ export default function BudgetPage() {
 
       if (dateFields.includes(key)) {
         if (
-          new Date(existingData[key]).toISOString().split('T')[0] !=
+          getFormatedDate(existingData[key]) !=
           newFormDataWithUpdatedKey[key]
         ) {
           return true;
