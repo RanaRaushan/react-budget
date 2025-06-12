@@ -14,26 +14,9 @@ import { SpinnerDotted } from 'spinners-react';
 
 const LOG_PREFIX = 'UpdateBudgetPage::';
 
-export default function DownloadBudgetComponent({ queryParams, auth }) {
+export default function DownloadBudgetComponent({ props }) {
+  const {callbackData} = props
   const [loading, setLoading] = useState(false);
-  const fetchBudgetData = async () => {
-    // Construct API URL with query params
-  console.log("isnie fetchBudgetData",queryParams)
-    const response =
-      (auth?.token &&
-        (await download_all_budget({data:Object.fromEntries(queryParams.entries())}, auth.token))) ||
-      [];
-    // const data = await response.json();
-    let data;
-    let fileName = 'report.xlsx';
-    if (response.empty !== true) {
-      data = response.data;
-      fileName = response.fileName;
-      return { data, fileName };
-    }
-    return { data, fileName };
-  };
-
   const savefilepicker = async (data, fileName) => {
     const cleanBase64 = data.includes(',') ? data.split(',')[1] : data;
     const byteCharacters = atob(cleanBase64);
@@ -86,7 +69,7 @@ export default function DownloadBudgetComponent({ queryParams, auth }) {
   const downloadExcelFile = async () => {
     setLoading(true);
     try {
-      const { data, fileName } = await fetchBudgetData();
+      const { data, fileName } = await callbackData();
       await savefilepicker(data, fileName);
     } catch (err) {
       console.error('Download failed:', err);

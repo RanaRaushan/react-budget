@@ -19,6 +19,7 @@ import {
   BUDGET_ADD_FE_URL,
   BUDGET_FE_URL,
   BUDGET_TRANSACTION_ENTRY_ADD_FE_URL,
+  download_all_budget,
   get_add_budget,
   get_all_budget,
   get_update_budget,
@@ -417,11 +418,24 @@ export default function BudgetPage() {
     return pages;
   };
 
+  const fetchBudgetDataToDownload = async () => {
+    console.log("isnie fetchBudgetData", searchParams)
+      const response =
+        (auth?.token &&
+          (await download_all_budget({data:Object.fromEntries(searchParams.entries())}, auth.token))) ||
+        [];
+      let data;
+      let fileName = 'report.xlsx';
+      if (response.empty !== true) {
+        data = response.data;
+        fileName = response.fileName;
+        return { data, fileName };
+      }
+      return { data, fileName };
+    };
+
   return (
     <div className="space-y-6">
-      <>
-        <DownloadBudgetComponent queryParams={searchParams} auth={auth} />
-      </>
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl shadow border border-gray-200">
         <div className="flex flex-wrap items-center gap-4">
           {/* Search Key Dropdown */}
@@ -520,24 +534,29 @@ export default function BudgetPage() {
           </button>
         </div>
 
-        {/* Year Dropdown */}
-        <select
-          value={selectedYear}
-          onChange={(e) => {
-            setSelectedYear(e.target.value),
-              handleAddParam(e, { selectedYear: e.target.value });
-          }}
-          className={`${inputddCSS}`}
-        >
-          <option className={`${ddOptionCSS}`} value="all">
-            All Year
-          </option>
-          {getYearOption().map((year) => (
-            <option className={`${ddOptionCSS}`} key={year} value={year}>
-              {year}
+        <div className='flex flex-wrap items-center gap-4'>
+          <>
+            <DownloadBudgetComponent props={{callbackData:fetchBudgetDataToDownload}} />
+          </>
+          {/* Year Dropdown */}
+          <select
+            value={selectedYear}
+            onChange={(e) => {
+              setSelectedYear(e.target.value),
+                handleAddParam(e, { selectedYear: e.target.value });
+            }}
+            className={`${inputddCSS}`}
+          >
+            <option className={`${ddOptionCSS}`} value="all">
+              All Year
             </option>
-          ))}
-        </select>
+            {getYearOption().map((year) => (
+              <option className={`${ddOptionCSS}`} key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {Object.keys(filterMapObject(globalParam, ...defaulFiltertExtraKeys))

@@ -18,6 +18,7 @@ export const BUDGET_INVESTMENT_API_URL = "/users/:userId/investments";
 export const BUDGET_ADD_INVESTMENT_API_URL = "/users/:userId/investments/add";
 export const BUDGET_UPDATE_INVESTMENT_API_URL = "/users/:userId/investments/update";
 export const BUDGET_REMOVE_INVESTMENT_API_URL = "/users/:userId/investments/remove/:id";
+export const BUDGET_INVESTMENT_DOWNLOAD_API_URL = `/users/:userId/budget/download-budgetItem`;
 
 
 export const BUDGET_HOME_FE_URL = "/";
@@ -200,6 +201,10 @@ export async function upload_budget(data = {}) {
 
 export async function download_all_budget(data = {}) {
   return postRequest(BUDGET_DOWNLOAD_API_URL, data, true, null);
+}
+
+export async function download_all_investment(data = {}) {
+  return postRequest(BUDGET_INVESTMENT_DOWNLOAD_API_URL, data, true, null);
 }
 
 export async function get_expenses(params = {}, expenseType) {
