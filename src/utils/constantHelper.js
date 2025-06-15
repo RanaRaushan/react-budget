@@ -1,7 +1,7 @@
 
 const dateFields = ['paidDate', 'spentDate', 'investmentDate', 'maturityDate']
 const enumFields = ['itemType', 'paymentType', 'spentType', 'investmentType', 'compoundingFrequency']
-const lockedFields = ['id', 'period', 'maturityAmount', 'maturityTimeLeftInDays']
+const lockedFields = ['id', 'period', 'maturityAmount', 'maturityTimeLeftInDays', 'perUnitPrice']
 const validationBudgetFields = ['id', 'itemName', 'itemQty', 'unit', 'itemPrice']
 const validationBudgetDetailEntryFields = ['id', 'paidDate', 'spentDate', 'itemType', 'paymentType', 'spentType', 'amount', 'paidAmount', 'description', 'owner']
 const validationInvestmentFields = ['id', 'investmentType', 'description', 'interestRate', 'investmentAmount', 'investmentDate', 'maturityDate', 'compoundingFrequency']
@@ -29,6 +29,7 @@ const itemDetailHeaders = [
     { label: "Item Name", key: "itemName" },
     { label: "Item Quantity", key: "itemQty" },
     { label: "Unit", key: "unit" },
+    { label: "Per Item Price", key: "perUnitPrice" },
     { label: "Item price", key: "itemPrice" },
   ];
 
