@@ -136,6 +136,9 @@ export const loader =
   async ({ request }) => {
     const url = new URL(request.url);
     const q = url.searchParams;
+    if (!q.has('selectedYear')) {
+      q.set('selectedYear', getCurrentYear());
+    }
     const response =
       (auth?.token && (await get_all_budget(q.toString(), auth.token))) || [];
     let filteredBudgetData = [];

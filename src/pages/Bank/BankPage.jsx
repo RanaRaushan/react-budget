@@ -30,11 +30,7 @@ import {
   spentTypeEnum,
 } from '../../utils/constantHelper';
 import LoadingTableComponent from '../../components/LoadingTable';
-import {
-  getCurrentYear,
-  getYearOption,
-  isEffectivelyEmptyObject,
-} from '../../utils/functionHelper';
+import { getCurrentYear, getYearOption } from '../../utils/functionHelper';
 import BankTableComponent from '../../components/BankTable';
 
 export const loader =
@@ -44,6 +40,9 @@ export const loader =
     console.log('BankBudget || auth at Expense loader', auth);
     const url = new URL(request.url);
     const q = url.searchParams;
+    if (!q.has('selectedYear')) {
+      q.set('selectedYear', getCurrentYear());
+    }
     console.log('BankBudget || auth at Expense loader params', params);
     const response =
       (auth?.token && (await get_bank_expenses(q.toString(), params.type))) ||
@@ -59,7 +58,9 @@ export const loader =
 
 export default function BankBudget() {
   const params = useParams();
-  let [searchParams, setSearchParams] = useSearchParams({selectedYear: getCurrentYear()});
+  let [searchParams, setSearchParams] = useSearchParams({
+    selectedYear: getCurrentYear(),
+  });
   const navigation = useNavigation();
   const navigate = useNavigate();
   let status = navigation.state;
@@ -83,15 +84,17 @@ export default function BankBudget() {
             <option className={`${ddOptionCSS}`} value="ALL">
               Total
             </option>
-            {Object.keys(spentTypeEnum).concat(['All Expense']).map((expType) => (
-              <option
-                className={`${ddOptionCSS}`}
-                key={`${expType}`}
-                value={expType}
-              >
-                {expType}
-              </option>
-            ))}
+            {Object.keys(spentTypeEnum)
+              .concat(['All Expense'])
+              .map((expType) => (
+                <option
+                  className={`${ddOptionCSS}`}
+                  key={`${expType}`}
+                  value={expType}
+                >
+                  {expType}
+                </option>
+              ))}
           </select>
         </div>
 
@@ -106,9 +109,6 @@ export default function BankBudget() {
           }
           className={`${inputddCSS}`}
         >
-          <option className={`${ddOptionCSS}`} value="">
-            All Year
-          </option>
           {getYearOption().map((year) => (
             <option className={`${ddOptionCSS}`} key={`${year}`} value={year}>
               {year}
@@ -116,7 +116,8 @@ export default function BankBudget() {
           ))}
         </select>
       </div>
-      {Object.keys(spentTypeEnum).concat(['ALL'])
+      {Object.keys(spentTypeEnum)
+        .concat(['ALL'])
         .filter(
           (spentKey) =>
             selectedExpense == 'All Expense' || spentKey == selectedExpense,
