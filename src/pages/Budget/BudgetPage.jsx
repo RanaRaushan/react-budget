@@ -132,11 +132,12 @@ export const loader =
       (auth?.token && (await get_all_budget(q.toString(), auth.token))) || [];
     let filteredBudgetData = [];
     const pagination = response.pagination;
+    const summary = response.summary;
     if (response.empty !== true) {
       filteredBudgetData = response.result;
-      return { filteredBudgetData, pagination };
+      return { filteredBudgetData, pagination, summary };
     }
-    return { filteredBudgetData, pagination };
+    return { filteredBudgetData, pagination, summary };
   };
 
 export default function BudgetPage() {
@@ -147,7 +148,7 @@ export default function BudgetPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const fetcher = useFetcher();
-  const { filteredBudgetData, pagination } = useLoaderData();
+  const { filteredBudgetData, pagination, summary } = useLoaderData();
   const totalPages = pagination?.totalPages;
   // const currentPage = Math.min(pagination?.page, totalPages);
 
@@ -156,7 +157,7 @@ export default function BudgetPage() {
 
   let [searchParams, setSearchParams] = useSearchParams({
     selectedYear: getCurrentYear(),
-    sort: 'spentDate-asc',
+    sort: 'spentDate-desc',
   });
   const [searchKey, setSearchKey] = useState('id');
   const [searchValue, setSearchValue] = useState('');
@@ -167,7 +168,7 @@ export default function BudgetPage() {
     searchParams.get('sort')?.split('-')[0] || 'spentDate',
   );
   const [sortDirection, setSortDirection] = useState(
-    searchParams.get('sort')?.split('-')[1] || 'asc',
+    searchParams.get('sort')?.split('-')[1] || 'desc',
   );
   const [globalParam, setGlobalParam] = useState({});
   const [expandedRow, setExpandedRow] = useState(params.entryId);
@@ -382,6 +383,11 @@ export default function BudgetPage() {
   };
 
   useEffect(() => {
+    const currentParams = Object.fromEntries(searchParams.entries());
+    const areSame =
+      JSON.stringify(currentParams) === JSON.stringify(globalParam);
+      console.log("calling", areSame, JSON.stringify(currentParams), JSON.stringify(globalParam))
+      if (!areSame) {
     setSearchParams(() => {
       const newSearchParams = new URLSearchParams();
       Object.entries(globalParam).forEach(([key, value]) => {
@@ -392,6 +398,7 @@ export default function BudgetPage() {
         return new URLSearchParams({});
       }
     });
+  }
   }, [globalParam]);
 
   useEffect(() => {
@@ -595,6 +602,7 @@ export default function BudgetPage() {
                   <th
                     key={idx}
                     className="px-4 py-4 whitespace-nowrap font-medium cursor-pointer"
+                    title={`${header.key === 'paidAmount' ? summary?.sumPaidAmount : header.key === 'amount' ? summary?.sumAmount : ''}`}
                     onClick={(e) => {
                       handleSort(header.key);
                     }}

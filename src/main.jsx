@@ -7,11 +7,11 @@ import { AuthProvider } from './hooks/AuthProvider.jsx'
 // import LogoutPage from './pages/Login/logout.jsx'
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  // <StrictMode>
     <AuthProvider>
       <App />
       {/* <LogoutPage /> */}
       {/* <Outlet /> */}
     </AuthProvider>
-  </StrictMode>,
+  // </StrictMode>,
 )
