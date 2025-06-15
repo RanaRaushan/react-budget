@@ -5,6 +5,7 @@ import { useFetcher } from "react-router-dom";
 
 export async function action({ request }) {
     const formData = await request.formData();
+    formData.append("forUserId", 'rana@gmail.com')
     if (!formData || formData.get("file") === "null" || !formData.get("file")){
       return {error:"Please select a file first."};
     }
