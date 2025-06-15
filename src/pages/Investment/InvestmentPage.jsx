@@ -71,16 +71,17 @@ export async function action({ request }) {
   const payload = {};
   let errors = {};
   let fieldValue;
-  !(intent === deleteInvestmentIntent) && investmentHeaders.map(
-    (header, idx) => (
-      (fieldValue = formData.get(intent + '-' + header.key)),
-      (payload[header.key] = fieldValue),
-      (errors = {
-        ...errors,
-        ...validateInputs(header, fieldValue, intent + '-'),
-      })
-    ),
-  );
+  !(intent === deleteInvestmentIntent) &&
+    investmentHeaders.map(
+      (header, idx) => (
+        (fieldValue = formData.get(intent + '-' + header.key)),
+        (payload[header.key] = fieldValue),
+        (errors = {
+          ...errors,
+          ...validateInputs(header, fieldValue, intent + '-'),
+        })
+      ),
+    );
   if (Object.keys(errors).length > 0) {
     return errors;
   }
@@ -93,9 +94,9 @@ export async function action({ request }) {
     await add_investments(payload);
     return redirect(redirectUrl || BUDGET_INVESTMENT_FE_URL);
   }
-  
+
   if (intent === deleteInvestmentIntent && payload) {
-    console.log("delete investment", payload)
+    console.log('delete investment', payload);
     await remove_investments({}, formData.get('deleteInvestmentId'));
     return redirect(redirectUrl || BUDGET_INVESTMENT_FE_URL);
   }
@@ -159,7 +160,7 @@ export default function InvestmentBudget() {
 
   let [searchParams, setSearchParams] = useSearchParams({
     selectedYear: 'all',
-    sort: 'investmentDate-asc',
+    sort: 'investmentDate-desc',
   });
   const [searchKey, setSearchKey] = useState('id');
   const [searchValue, setSearchValue] = useState('');
@@ -170,9 +171,12 @@ export default function InvestmentBudget() {
     searchParams.get('sort')?.split('-')[0] || 'investmentDate',
   );
   const [sortDirection, setSortDirection] = useState(
-    searchParams.get('sort')?.split('-')[1] || 'asc',
+    searchParams.get('sort')?.split('-')[1] || 'desc',
   );
-  const [globalParam, setGlobalParam] = useState({});
+  const [globalParam, setGlobalParam] = useState({
+    selectedYear: 'all',
+    sort: 'investmentDate-desc',
+  });
   const [page, setPage] = useState(searchParams.get('page') || 0);
   const [editInvestmentRowId, setEditInvestmentRowId] = useState(-1);
   const [errors, setErrors] = useState(fetcher.data || {});
@@ -283,7 +287,7 @@ export default function InvestmentBudget() {
   };
 
   const checkIfAnyFormDataUpdated = (existingData, newFormData) => {
-        const newFormDataWithUpdatedKey = Object.entries(newFormData).reduce(
+    const newFormDataWithUpdatedKey = Object.entries(newFormData).reduce(
       (acc, [key, value]) => {
         const newKey = key.split('-')[1];
         if (newKey) {
@@ -298,8 +302,7 @@ export default function InvestmentBudget() {
       const key = header.key;
       if (dateFields.includes(key)) {
         if (
-          getFormatedDate(existingData[key]) !=
-          newFormDataWithUpdatedKey[key]
+          getFormatedDate(existingData[key]) != newFormDataWithUpdatedKey[key]
         ) {
           return true;
         }
@@ -333,9 +336,9 @@ export default function InvestmentBudget() {
     setEditInvestmentRowId(-1);
   };
 
-    const deleteInvestmentRowSubmit = (e, id) => {
+  const deleteInvestmentRowSubmit = (e, id) => {
     e.preventDefault();
-    console.log("calling delete")
+    console.log('calling delete');
     let formData = new FormData(e.currentTarget.form);
     formData.append(
       'redirectTo',
@@ -344,8 +347,8 @@ export default function InvestmentBudget() {
     formData.append('intent', deleteInvestmentIntent);
     formData.append('deleteInvestmentId', id);
     fetcher.submit(formData, {
-        method: 'POST',
-      });
+      method: 'POST',
+    });
   };
 
   const handleAddSubmit = (e) => {
@@ -376,21 +379,34 @@ export default function InvestmentBudget() {
   };
 
   useEffect(() => {
-    setSearchParams(() => {
-      const newSearchParams = new URLSearchParams();
-      Object.entries(globalParam).forEach(([key, value]) => {
-        newSearchParams.set(key, value);
+    const currentParams = Object.fromEntries(searchParams.entries());
+    const areSame =
+      JSON.stringify(currentParams) === JSON.stringify(globalParam);
+    console.log(
+      'calling',
+      areSame,
+      JSON.stringify(currentParams),
+      JSON.stringify(globalParam),
+    );
+    if (!areSame) {
+      setSearchParams(() => {
+        const newSearchParams = new URLSearchParams();
+        Object.entries(globalParam).forEach(([key, value]) => {
+          newSearchParams.set(key, value);
+        });
+        if (Object.keys(globalParam).length > 0) return newSearchParams;
+        else {
+          return new URLSearchParams({});
+        }
       });
-      if (Object.keys(globalParam).length > 0) return newSearchParams;
-      else {
-        return new URLSearchParams({});
-      }
-    });
+    }
   }, [globalParam]);
 
   useEffect(() => {
     if (location.state?.scrollTo === 'addInvestment') {
-      scrollTargetAddInvestmentRef.current?.scrollIntoView({ behavior: 'smooth' });
+      scrollTargetAddInvestmentRef.current?.scrollIntoView({
+        behavior: 'smooth',
+      });
     }
   }, [location.state]);
 
@@ -408,24 +424,28 @@ export default function InvestmentBudget() {
   };
   const isInvestmentMatured = (matureLeftInDays) => {
     return matureLeftInDays <= 0;
-  }
-  const maturedCss = 'bg-green-100 text-green-600 hover:bg-inherit hover:text-inherit'
+  };
+  const maturedCss =
+    'bg-green-100 text-green-600 hover:bg-inherit hover:text-inherit';
 
   const fetchInvestmentDataToDownload = async () => {
-    console.log("isnie fetchBudgetData", searchParams)
-      const response =
-        (auth?.token &&
-          (await download_all_investment({data:Object.fromEntries(searchParams.entries())}, auth.token))) ||
-        [];
-      let data;
-      let fileName = 'report.xlsx';
-      if (response.empty !== true) {
-        data = response.data;
-        fileName = response.fileName;
-        return { data, fileName };
-      }
+    console.log('isnie fetchBudgetData', searchParams);
+    const response =
+      (auth?.token &&
+        (await download_all_investment(
+          { data: Object.fromEntries(searchParams.entries()) },
+          auth.token,
+        ))) ||
+      [];
+    let data;
+    let fileName = 'report.xlsx';
+    if (response.empty !== true) {
+      data = response.data;
+      fileName = response.fileName;
       return { data, fileName };
-    };
+    }
+    return { data, fileName };
+  };
 
   return (
     <div className="space-y-6">
@@ -524,9 +544,11 @@ export default function InvestmentBudget() {
             Add Search
           </button>
         </div>
-        <div className='flex flex-wrap items-center gap-4'>
+        <div className="flex flex-wrap items-center gap-4">
           <>
-            <DownloadBudgetComponent props={{callbackData:fetchInvestmentDataToDownload}} />
+            <DownloadBudgetComponent
+              props={{ callbackData: fetchInvestmentDataToDownload }}
+            />
           </>
           {/* Year Dropdown */}
           <select
@@ -588,6 +610,7 @@ export default function InvestmentBudget() {
                     onClick={(e) => {
                       handleSort(header.key);
                     }}
+                    title="this is header"
                   >
                     {header.label}
                     {sortColumn === header.key && (
@@ -612,13 +635,19 @@ export default function InvestmentBudget() {
                         <tr
                           key={index}
                           className={`${
-                            editInvestmentRowId && editInvestmentRowId === item['id']
+                            editInvestmentRowId &&
+                            editInvestmentRowId === item['id']
                               ? ''
-                              : isInvestmentMatured(item['maturityTimeLeftInDays']) && maturedCss || tableRowCSS
+                              : (isInvestmentMatured(
+                                  item['maturityTimeLeftInDays'],
+                                ) &&
+                                  maturedCss) ||
+                                tableRowCSS
                           }`}
                         >
                           {investmentHeaders.map((header, idx) =>
-                            editInvestmentRowId && editInvestmentRowId === item['id'] ? (
+                            editInvestmentRowId &&
+                            editInvestmentRowId === item['id'] ? (
                               <td
                                 key={`${item.id}${header.key}`}
                                 className={`${tdCSS}`}
@@ -640,12 +669,18 @@ export default function InvestmentBudget() {
                                 key={`${item.id}${header.key}`}
                                 className={`${tdCSS}`}
                               >
-                                {header.key == 'period' ? (item[header.key]/365).toFixed(1) : header.key == 'interestRate' ? item[header.key]+' %' : item[header.key]}
+                                {header.key == 'period'
+                                  ? (item[header.key] / 365).toFixed(1)
+                                  : header.key == 'interestRate'
+                                  ? item[header.key] + ' %'
+                                  : item[header.key]}
                               </td>
                             ),
                           )}
-                          {isInvestmentMatured(item['maturityTimeLeftInDays']) 
-                          ? <td className={`${tdCSS}`}>
+                          {isInvestmentMatured(
+                            item['maturityTimeLeftInDays'],
+                          ) ? (
+                            <td className={`${tdCSS}`}>
                               <button
                                 onClick={(e) => {
                                   deleteInvestmentRowSubmit(e, item['id']),
@@ -655,46 +690,47 @@ export default function InvestmentBudget() {
                               >
                                 Delete
                               </button>
-                          </td>
-                          :
-                          <td className={`${tdCSS}`}>
-                            {editInvestmentRowId && editInvestmentRowId !== item['id'] ? (
-                              <button
-                                onClick={(e) => {
-                                  setEditInvestmentRowId(item.id),
-                                    e.preventDefault();
-                                }}
-                                className="text-blue-600 hover:underline"
-                              >
-                                Update
-                              </button>
-                            ) : (
-                              <>
+                            </td>
+                          ) : (
+                            <td className={`${tdCSS}`}>
+                              {editInvestmentRowId &&
+                              editInvestmentRowId !== item['id'] ? (
                                 <button
                                   onClick={(e) => {
-                                    updateInvestmentRowSubmit(e, item);
-                                  }}
-                                  type="submit"
-                                  name="intent"
-                                  value="item-edit"
-                                  className="text-blue-600 hover:underline"
-                                >
-                                  Y
-                                </button>
-                                <button
-                                  onClick={(e) => {
-                                    resetErrorState();
-                                    setEditInvestmentRowId(-1),
+                                    setEditInvestmentRowId(item.id),
                                       e.preventDefault();
                                   }}
                                   className="text-blue-600 hover:underline"
                                 >
-                                  X
+                                  Update
                                 </button>
-                              </>
-                            )}
-                          </td>
-                          }
+                              ) : (
+                                <>
+                                  <button
+                                    onClick={(e) => {
+                                      updateInvestmentRowSubmit(e, item);
+                                    }}
+                                    type="submit"
+                                    name="intent"
+                                    value="item-edit"
+                                    className="text-blue-600 hover:underline"
+                                  >
+                                    Y
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      resetErrorState();
+                                      setEditInvestmentRowId(-1),
+                                        e.preventDefault();
+                                    }}
+                                    className="text-blue-600 hover:underline"
+                                  >
+                                    X
+                                  </button>
+                                </>
+                              )}
+                            </td>
+                          )}
                         </tr>
                       </React.Fragment>
                     ))}
@@ -724,7 +760,9 @@ export default function InvestmentBudget() {
                             onClick={(e) => {
                               resetErrorState(),
                                 navigate(
-                                  BUDGET_INVESTMENT_FE_URL + '?' + searchParams.toString(),
+                                  BUDGET_INVESTMENT_FE_URL +
+                                    '?' +
+                                    searchParams.toString(),
                                 ),
                                 e.preventDefault();
                             }}
@@ -737,29 +775,31 @@ export default function InvestmentBudget() {
                     </tr>
                   ) : (
                     <tr className={`${tableRowCSS}`}>
-                      {[...Array(investmentHeaders.length + 1)].map((_, idx) => {
-                        return idx === investmentHeaders.length ? (
-                          <td
-                            key={`${idx}${investmentHeaders.key}`}
-                            className={`${tdCSS}`}
-                          >
-                            <Link
-                              className={`${linkButtonCSS}`}
-                              state={{ scrollTo: 'addInvestment' }}
-                              to={
-                                BUDGET_ADD_INVESTMENT_FE_URL +
-                                '?' +
-                                searchParams.toString()
-                              }
-                              style={{ color: 'inherit' }}
+                      {[...Array(investmentHeaders.length + 1)].map(
+                        (_, idx) => {
+                          return idx === investmentHeaders.length ? (
+                            <td
+                              key={`${idx}${investmentHeaders.key}`}
+                              className={`${tdCSS}`}
                             >
-                              <FaPlus />
-                            </Link>
-                          </td>
-                        ) : (
-                          <td key={`${idx}${investmentHeaders.key}`}></td>
-                        );
-                      })}
+                              <Link
+                                className={`${linkButtonCSS}`}
+                                state={{ scrollTo: 'addInvestment' }}
+                                to={
+                                  BUDGET_ADD_INVESTMENT_FE_URL +
+                                  '?' +
+                                  searchParams.toString()
+                                }
+                                style={{ color: 'inherit' }}
+                              >
+                                <FaPlus />
+                              </Link>
+                            </td>
+                          ) : (
+                            <td key={`${idx}${investmentHeaders.key}`}></td>
+                          );
+                        },
+                      )}
                     </tr>
                   )}
                 </>
