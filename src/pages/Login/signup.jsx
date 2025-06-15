@@ -16,7 +16,7 @@ export async function action({ request }) {
     else {
         return {registerData:registerData, error: "Please enter data to Register"};
     }
-    if (response && response.event === "Error") {
+    if (response && response.event && response.event.startsWith("Error")) {
         error = response.message
         return {registerData:registerData, error: error};
     }

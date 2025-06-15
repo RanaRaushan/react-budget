@@ -21,7 +21,7 @@ export async function action({ request }) {
     } else {
         return {loginData:loginData, error: "Please enter data to login"};
     }
-    if (response && response.event === "Error") {
+    if (response && response.event && response.event.startsWith("Error")) {
         error = response.message
         return {loginData:loginData, error: error};
     }
@@ -44,7 +44,7 @@ const LoginPage = () => {
     const auth = useAuth();
     // const prevState = location.state;
     // const prevlocation = prevState?.redirectFrom;
-    // console.log("actionData", actionData, location)
+    console.log("actionData", actionData, location)
     useEffect(() => {
         const checkAuth = async () => {
             if (auth && auth.token && validateToken(auth.token)) {
