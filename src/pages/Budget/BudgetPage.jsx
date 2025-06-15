@@ -21,6 +21,7 @@ import {
   BUDGET_TRANSACTION_ENTRY_ADD_FE_URL,
   download_all_budget,
   get_add_budget,
+  get_add_budget_detail_entry,
   get_all_budget,
   get_update_budget,
 } from '../../utils/APIHelper.js';
@@ -33,6 +34,7 @@ import {
   enumFields,
   dateFields,
   validationBudgetFields,
+  validationBudgetDetailEntryFields,
 } from '../../utils/constantHelper.js';
 import {
   filterMapObject,
@@ -73,7 +75,7 @@ export async function action({ request }) {
   const payload = {};
   let errors = {};
   let fieldValue;
-  budgetHeaders.concat(itemDetailHeaders).map(
+  (intent === addItemDetailIntent ? itemDetailHeaders : budgetHeaders).map(
     (header, idx) => (
       (fieldValue = formData.get(intent + '-' + header.key)),
       (payload[header.key] = fieldValue),
@@ -95,6 +97,12 @@ export async function action({ request }) {
     await get_add_budget(payload);
     return redirect(redirectUrl || BUDGET_FE_URL);
   }
+
+  if (intent === addItemDetailIntent && payload) {
+    payload['item'] = formData.get('parentItemId')
+    await get_add_budget_detail_entry(payload);
+    return redirect(redirectUrl || BUDGET_FE_URL);
+  }
   return {};
 }
 
@@ -103,7 +111,7 @@ function validateInputs(input, inputValue, prefix) {
   if (
     prefix &&
     prefix !== 'null-' &&
-    validationBudgetFields.includes(input.key)
+    (prefix === addItemDetailIntent + '-' ? validationBudgetDetailEntryFields : validationBudgetFields).includes(input.key)
   ) {
     if (!inputValue || !inputValue.trim() || inputValue.trim() === '') {
       inputError[prefix + input.key] = `${input.label} is required`;
@@ -116,7 +124,7 @@ function validateInputs(input, inputValue, prefix) {
     ) {
       inputError[prefix + input.key] = `Not a valid ${input.label}`;
     }
-    if (prefix === addItemIntent + '-') {
+    if (prefix === addItemIntent + '-' || prefix === addItemDetailIntent + '-') {
       delete inputError[prefix + 'id'];
     }
   }
@@ -355,7 +363,7 @@ export default function BudgetPage() {
     // });
   };
 
-  const handleAddSubmit = (e) => {
+  const handleAddBudgetRowSubmit = (e) => {
     e.preventDefault();
     let formData = new FormData(e.currentTarget.form);
     formData.append(
@@ -363,6 +371,20 @@ export default function BudgetPage() {
       `${BUDGET_FE_URL}?${searchParams.toString()}`,
     );
     formData.append('intent', addItemIntent);
+    fetcher.submit(formData, {
+      method: 'POST',
+    });
+  };
+
+  const handleAddBudgetEntryRowSubmit = (e, parentId) => {
+    e.preventDefault();
+    let formData = new FormData(e.currentTarget.form);
+    formData.append(
+      'redirectTo',
+      `${BUDGET_FE_URL}?${searchParams.toString()}`,
+    );
+    formData.append('intent', addItemDetailIntent);
+    formData.append(`parentItemId`, parentId);
     fetcher.submit(formData, {
       method: 'POST',
     });
@@ -795,8 +817,7 @@ export default function BudgetPage() {
                                                   className={`${tdCSS}`}
                                                 >
                                                   {itemDH.key == 'unit'
-                                                    ? itemDetail[itemDH.key]
-                                                        ?.name
+                                                    ? itemDetail[itemDH.key]?.name
                                                     : itemDetail[itemDH.key]}
                                                 </td>
                                               ),
@@ -856,18 +877,18 @@ export default function BudgetPage() {
                                           name="addBudgetEntry"
                                           context={{
                                             errors,
-                                            intent: addItemIntent,
+                                            intent: addItemDetailIntent,
                                           }}
                                         />
                                         <td className={`${tdCSS} space-x-2`}>
                                           <>
                                             <button
                                               onClick={(e) => {
-                                                handleAddSubmit(e);
+                                                handleAddBudgetEntryRowSubmit(e, item['id']);
                                               }}
                                               type="submit"
                                               name="intent"
-                                              value="item-add"
+                                              value="itemEntry-add"
                                               className="text-blue-600 hover:underline"
                                             >
                                               Add
@@ -978,7 +999,7 @@ export default function BudgetPage() {
                         <>
                           <button
                             onClick={(e) => {
-                              handleAddSubmit(e);
+                              handleAddBudgetRowSubmit(e);
                             }}
                             type="submit"
                             name="intent"

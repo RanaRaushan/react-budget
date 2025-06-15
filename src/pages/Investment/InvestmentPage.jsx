@@ -25,7 +25,6 @@ import {
   update_investments,
 } from '../../utils/APIHelper.js';
 import {
-  itemDetailHeaders,
   enumFields,
   dateFields,
   validationInvestmentFields,
