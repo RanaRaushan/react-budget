@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Outlet } from 'react-router-dom';
 import {
@@ -11,7 +11,6 @@ import {
   BUDGET_INVESTMENT_FE_URL,
 } from '../utils/APIHelper';
 import LoginLogoutComponent from '../components/LoginLogout';
-import { getCurrentYear } from '../utils/functionHelper';
 
 const Header = () => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
@@ -19,6 +18,13 @@ const Header = () => {
   const headerRef = useRef(null);
   const [headerHeight, setHeaderHeight] = useState(0);
   const navigate = useNavigate();
+
+  const headerButtonLink = [
+    { label: 'Home', linkTo: BUDGET_HOME_FE_URL },
+    { label: 'Investment', linkTo: BUDGET_INVESTMENT_FE_URL },
+    { label: 'Bank', linkTo: BUDGET_BANK_FE_URL },
+    { label: 'Expenses', linkTo: BUDGET_EXPENSES_EXP_FE_URL },
+  ];
 
   useEffect(() => {
     if (headerRef.current) {
@@ -47,23 +53,27 @@ const Header = () => {
           <h1 className="text-[1.25em] font-bold flex-shrink-0 logo logo-spin">
             My App
           </h1>
-          <nav className="flex space-x-6 mx-auto">            
-            <button className="hover:text-indigo-200" onClick={()=>navigate(BUDGET_HOME_FE_URL)}>
-                Home
-            </button>
-            <button className="hover:text-indigo-200" onClick={()=>navigate(BUDGET_INVESTMENT_FE_URL)}>
-                Investment
-            </button>
-            <button className="hover:text-indigo-200" onClick={()=>navigate(`${BUDGET_BANK_FE_URL}?selectedYear=${getCurrentYear()}`)}>
-                Bank
-            </button>
+          <nav className="flex space-x-6 mx-auto">
+            {headerButtonLink.map(({label, linkTo}, idx) => (
+                <button
+                key={idx}
+                className="hover:text-indigo-200"
+                title={linkTo}
+                onClick={() => navigate(linkTo)}
+              >
+                {label}
+              </button>
+            ))}
             <div
               className="relative"
               onMouseEnter={() => setDropdownVisible(true)} // Show dropdown on hover
               onMouseLeave={() => setDropdownVisible(false)} // Hide dropdown when not hovering
             >
-              <button className="hover:text-indigo-200" onClick={()=>navigate(BUDGET_FE_URL)}>
-                  Budget
+              <button
+                className="hover:text-indigo-200"
+                onClick={() => navigate(BUDGET_FE_URL)}
+              >
+                Budget
               </button>
               {/* Dropdown Menu */}
               {dropdownVisible && (
@@ -78,12 +88,6 @@ const Header = () => {
                       buttonRef.current.getBoundingClientRect().bottom + 'px',
                   }}
                 >
-                  <Link
-                    to={BUDGET_EXPENSES_EXP_FE_URL}
-                    className="block px-4 py-2 hover:bg-indigo-100 rounded-md"
-                  >
-                    Expenses
-                  </Link>
                   <Link
                     to={BUDGET_ADD_FE_URL}
                     state={{ scrollTo: 'addBudget' }}
@@ -114,7 +118,7 @@ const Header = () => {
               >
                 A-
               </button>
-            <LoginLogoutComponent />
+              <LoginLogoutComponent />
             </div>
           </nav>
         </div>

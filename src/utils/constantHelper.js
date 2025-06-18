@@ -31,6 +31,7 @@ const itemDetailHeaders = [
     { label: "Unit", key: "unit" },
     { label: "Per Item Price", key: "perUnitPrice" },
     { label: "Item price", key: "itemPrice" },
+    { label: "Refer Transaction Id", key: "referTransactionId" },
   ];
 
 const spentTypeEnum = Object.freeze({
@@ -55,7 +56,7 @@ const paymentTypeEnum = Object.freeze({
     PNB_BANK: "PNB Bank",
     SBI_BANK: "SBI Bank",
     CASH: "Cash",
-    SLICE_BANK: "Slice"
+    SLICE_BANK: "Slice Bank"
   });
   
 const itemCategoryEnum = Object.freeze({
