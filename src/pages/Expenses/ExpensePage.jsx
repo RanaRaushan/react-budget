@@ -163,7 +163,7 @@ export default function ExpenseBudget() {
           </thead>
           <tbody>
             {isLoading ? (
-              <LoadingTableComponent />
+              <LoadingTableComponent colLen={monthNames.length + 2} rowLen={Object.keys(itemCategoryEnum).length + 1}/>
             ) : (
               <>
                 {['Total']

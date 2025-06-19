@@ -52,7 +52,7 @@ export default function BankTableComponent({
           </thead>
           <tbody>
             {isLoading ? (
-              <LoadingTableComponent />
+              <LoadingTableComponent colLen={monthNames.length + 1} rowLen={bankList.length + 1}/>
             ) : (
               <>
                 {bankList.concat([["monthlyTotalAmount", "Totals"]]).map(([bankId, bankName], bidx) => (

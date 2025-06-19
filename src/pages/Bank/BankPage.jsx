@@ -29,7 +29,6 @@ import {
   monthNames,
   spentTypeEnum,
 } from '../../utils/constantHelper';
-import LoadingTableComponent from '../../components/LoadingTable';
 import { getCurrentYear, getYearOption } from '../../utils/functionHelper';
 import BankTableComponent from '../../components/BankTable';
 

@@ -625,7 +625,7 @@ export default function InvestmentBudget() {
             </thead>
             <tbody>
               {isLoading ? (
-                <LoadingTableComponent />
+                <LoadingTableComponent colLen={investmentHeaders.length + extra_headers.length} rowLen={filteredInvestmentData.length + 1}/>
               ) : (
                 <>
                   {filteredInvestmentData &&

@@ -24,6 +24,7 @@ import {
   get_add_budget_detail_entry,
   get_all_budget,
   get_update_budget,
+  get_update_budget_detail_entry,
 } from '../../utils/APIHelper.js';
 import {
   budgetHeaders,
@@ -90,6 +91,11 @@ export async function action({ request }) {
   }
   if (intent === updateItemIntent && payload) {
     await get_update_budget(payload);
+    return redirect(redirectUrl || BUDGET_FE_URL);
+  }
+
+  if (intent === updateItemDetailIntent && payload) {
+    await get_update_budget_detail_entry(payload);
     return redirect(redirectUrl || BUDGET_FE_URL);
   }
 
@@ -352,18 +358,24 @@ export default function BudgetPage() {
     }
   };
 
-  const updateTransactionItemRowSubmit = (e) => {
+  const updateTransactionItemRowSubmit = (e, previousValue) => {
     e.preventDefault();
-
-    // let formData = new FormData(e.currentTarget.form);
-    // formData.append(
-    //   'redirectTo',
-    //   `${BUDGET_FE_URL}?${searchParams.toString()}`,
-    // );
-    // formData.append('intent', 'edit');
-    // fetcher.submit(formData, {
-    //   method: 'POST',
-    // });
+    let formData = new FormData(e.currentTarget.form);
+    formData.append(
+      'redirectTo',
+      `${BUDGET_FE_URL}?${searchParams.toString()}`,
+    );
+    formData.append('intent', updateItemDetailIntent);
+    if (
+      checkIfAnyFormDataUpdated(previousValue, Object.fromEntries(formData))
+    ) {
+      fetcher.submit(formData, {
+        method: 'POST',
+      });
+    } else {
+      resetErrorState();
+      setEditTransactionItemRowId(null);
+    }
   };
 
   const handleAddBudgetRowSubmit = (e) => {
@@ -646,7 +658,7 @@ export default function BudgetPage() {
             </thead>
             <tbody>
               {isLoading ? (
-                <LoadingTableComponent />
+                <LoadingTableComponent colLen={budgetHeaders.length + 1}/>
               ) : (
                 <>
                   {filteredBudgetData &&
@@ -844,7 +856,7 @@ export default function BudgetPage() {
                                                 <button
                                                   onClick={(e) => {
                                                     updateTransactionItemRowSubmit(
-                                                      e,
+                                                      e, item
                                                     );
                                                   }}
                                                   type="submit"

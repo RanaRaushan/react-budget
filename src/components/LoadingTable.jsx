@@ -8,14 +8,15 @@ const randomKey = Object.keys(spentTypeColorMap)[Math.floor(Math.random() * Obje
 // Get the corresponding value
 const randomValue = spentTypeColorMap[randomKey];
 
-export default function LoadingTableComponent({}) {
+export default function LoadingTableComponent({rowLen, colLen}) {
+    console.log("LoadingTableComponent",rowLen, colLen)
     return (
         <>
-        {[...Array(25)].map((_, idx) => {
+        {[...Array(rowLen)].map((_, idx) => {
                 const keys = Object.keys(spentTypeColorMap);
                 const randomKey = Object.keys(spentTypeColorMap)[Math.floor(Math.random() * Object.keys(spentTypeColorMap).length)];
                 return <tr key={idx} className={`animate-pulse ${spentTypeColorMap[randomKey]}`}>
-            {[...Array(budgetHeaders.length + 1)].map((_, idx) => {
+            {[...Array(colLen)].map((_, idx) => {
                 return <td key={idx} className={`${tdCSS}`}> </td>
             })}
         </tr>
