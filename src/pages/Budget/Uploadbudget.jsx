@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { upload_budget } from "../../utils/APIHelper";
-import { buttonCSS, errorTextCSS, inputCSS } from "../../utils/cssConstantHelper";
+import { buttonCSS, inputCSS } from "../../utils/cssConstantHelper";
 import { useFetcher } from "react-router-dom";
 
 export async function action({ request }) {

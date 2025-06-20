@@ -1,22 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
-  BUDGET_EXPENSES_FE_URL,
   get_bank_expenses,
-  get_expenses,
 } from '../../utils/APIHelper';
 import {
-  buttonCSS,
   ddOptionCSS,
-  errorTextCSS,
-  inputCSS,
   inputddCSS,
-  tableCSS,
-  tableRowCSS,
-  tdCSS,
-  theadCSS,
 } from '../../utils/cssConstantHelper';
 import {
-  useFetcher,
   useLoaderData,
   useNavigate,
   useNavigation,
@@ -24,9 +14,6 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 import {
-  budgetHeaders,
-  itemCategoryEnum,
-  monthNames,
   spentTypeEnum,
 } from '../../utils/constantHelper';
 import { getCurrentYear, getYearOption } from '../../utils/functionHelper';

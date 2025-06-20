@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { BUDGET_EXPENSES_FE_URL, get_expenses } from '../../utils/APIHelper';
+import React, {  } from 'react';
 import {
-  buttonCSS,
+  BUDGET_EXPENSES_FE_URL,
+  download_all_expenses,
+  get_expenses,
+} from '../../utils/APIHelper';
+import {
   ddOptionCSS,
-  errorTextCSS,
-  inputCSS,
   inputddCSS,
   tableCSS,
   tableRowCSS,
@@ -12,7 +13,6 @@ import {
   theadCSS,
 } from '../../utils/cssConstantHelper';
 import {
-  useFetcher,
   useLoaderData,
   useNavigate,
   useNavigation,
@@ -20,7 +20,6 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 import {
-  budgetHeaders,
   itemCategoryEnum,
   monthNames,
   spentTypeEnum,
@@ -29,17 +28,19 @@ import LoadingTableComponent from '../../components/LoadingTable';
 import {
   getCurrentYear,
   getYearOption,
-  isEffectivelyEmptyObject,
 } from '../../utils/functionHelper';
+import DownloadBudgetComponent from '../../components/DownloadBudget';
+import { useAuth } from '../../hooks/AuthProvider';
 
 export const loader =
   (auth) =>
   async ({ request, params }) => {
     // const auth = useAuth();
-    console.log('ExpenseBudget || auth at Expense loader', auth);
     const url = new URL(request.url);
     const q = url.searchParams;
-    console.log('ExpenseBudget || auth at Expense loader params', params);
+    if (!q.has('selectedYear')) {
+      q.set('selectedYear', getCurrentYear());
+    }
     const response =
       (auth?.token && (await get_expenses(q.toString(), params.type))) || [];
     let categoryTypeExpense = [];
@@ -54,7 +55,10 @@ export const loader =
 
 export default function ExpenseBudget() {
   const params = useParams();
-  let [searchParams, setSearchParams] = useSearchParams({});
+  const auth = useAuth();
+  let [searchParams, setSearchParams] = useSearchParams({
+      selectedYear: getCurrentYear(),
+    });
   const navigation = useNavigation();
   const navigate = useNavigate();
   let status = navigation.state;
@@ -66,6 +70,27 @@ export default function ExpenseBudget() {
     categoryTypeExpense,
     monthlyExpense,
   );
+
+  const fetchExpensesDataToDownload = async () => {
+    console.log('isnie fetchExpensesDataToDownload', searchParams);
+    const response =
+      (auth?.token &&
+        (await download_all_expenses(
+          {
+            data: Object.fromEntries(searchParams.entries()),
+          },
+          params.type,
+        ))) ||
+      [];
+    let data;
+    let fileName = 'report.xlsx';
+    if (response.empty !== true) {
+      data = response.data;
+      fileName = response.fileName;
+      return { data, fileName };
+    }
+    return { data, fileName };
+  };
 
   const tdBorderCSS = 'border border-gray-300';
   const tdCornerDataCSS = 'font-bold';
@@ -120,27 +145,34 @@ export default function ExpenseBudget() {
             ))}
           </select>
         </div>
+        <div className="flex flex-wrap items-center gap-4">
+          <>
+            <DownloadBudgetComponent
+              props={{ callbackData: fetchExpensesDataToDownload }}
+            />
+          </>
 
-        {/* Year Dropdown */}
-        <select
-          value={searchParams.get('selectedYear')}
-          onChange={(e) =>
-            setSearchParams((param) => {
-              param.set('selectedYear', e.target.value);
-              return searchParams;
-            })
-          }
-          className={`${inputddCSS}`}
-        >
-          <option className={`${ddOptionCSS}`} value="">
-            All Year
-          </option>
-          {getYearOption().map((year) => (
-            <option className={`${ddOptionCSS}`} key={year} value={year}>
-              {year}
+          {/* Year Dropdown */}
+          <select
+            value={searchParams.get('selectedYear')}
+            onChange={(e) =>
+              setSearchParams((param) => {
+                param.set('selectedYear', e.target.value);
+                return searchParams;
+              })
+            }
+            className={`${inputddCSS}`}
+          >
+            <option className={`${ddOptionCSS}`} value="">
+              All Year
             </option>
-          ))}
-        </select>
+            {getYearOption().map((year) => (
+              <option className={`${ddOptionCSS}`} key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Table */}
@@ -163,7 +195,10 @@ export default function ExpenseBudget() {
           </thead>
           <tbody>
             {isLoading ? (
-              <LoadingTableComponent colLen={monthNames.length + 2} rowLen={Object.keys(itemCategoryEnum).length + 1}/>
+              <LoadingTableComponent
+                colLen={monthNames.length + 2}
+                rowLen={Object.keys(itemCategoryEnum).length + 1}
+              />
             ) : (
               <>
                 {['Total']
@@ -171,13 +206,19 @@ export default function ExpenseBudget() {
                   .map((item, index) => (
                     <React.Fragment key={item + index}>
                       <tr key={index} className={`${tableRowCSS}`}>
-                        <td key={`${item + index}`} className={`${tdCSS} ${tdBorderCSS} ${tdCornerDataCSS}`}>
+                        <td
+                          key={`${item + index}`}
+                          className={`${tdCSS} ${tdBorderCSS} ${tdCornerDataCSS}`}
+                        >
                           {item}
                         </td>
 
                         {monthNames.concat(['Total']).map((month, idx) =>
                           month === 'Total' ? (
-                            <td key={`${item + index}`} className={`${tdCSS} ${tdBorderCSS} ${tdCornerDataCSS}`}>
+                            <td
+                              key={`${item + index}`}
+                              className={`${tdCSS} ${tdBorderCSS} ${tdCornerDataCSS}`}
+                            >
                               {item === 'Total'
                                 ? categoryTypeExpense?.categoryTypeExpenseTotal
                                 : categoryTypeExpense?.itemCategoryAmounts[item]

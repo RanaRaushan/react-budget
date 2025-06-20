@@ -95,7 +95,7 @@ const investmentHeaders = [
     { label: "Maturity Amount", key: "maturityAmount" },
     { label: "Maturity Date", key: "maturityDate" },
     { label: "Mature in(Day)", key: "maturityTimeLeftInDays" },
-    { label: "Compunding Frequency", key: "compoundingFrequency" },
+    { label: "Compounding Frequency", key: "compoundingFrequency" },
   ];
 
 

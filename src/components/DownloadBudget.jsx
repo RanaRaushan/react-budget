@@ -6,8 +6,9 @@ const LOG_PREFIX = 'UpdateBudgetPage::';
 export default function DownloadBudgetComponent({ props }) {
   const {callbackData} = props
   const [loading, setLoading] = useState(false);
+
   const savefilepicker = async (data, fileName) => {
-    const cleanBase64 = data.includes(',') ? data.split(',')[1] : data;
+    const cleanBase64 = data?.includes(',') ? data.split(',')[1] : data;
     const byteCharacters = atob(cleanBase64);
     const byteNumbers = new Array(byteCharacters.length)
       .fill()
@@ -55,11 +56,37 @@ export default function DownloadBudgetComponent({ props }) {
     }
   };
 
+  const createDownloadLink = async (data, fileName) => {
+  try {
+    const cleanBase64 = data?.includes(',') ? data.split(',')[1] : data;
+    const byteCharacters = atob(cleanBase64);
+    const byteNumbers = new Array(byteCharacters.length)
+      .fill()
+      .map((_, i) => byteCharacters.charCodeAt(i));
+    const byteArray = new Uint8Array(byteNumbers);
+
+    // Create a Blob with the appropriate MIME type
+    const blob = new Blob([byteArray], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error('Download failed:', err);
+  }
+};
+
   const downloadExcelFile = async () => {
     setLoading(true);
     try {
       const { data, fileName } = await callbackData();
-      await savefilepicker(data, fileName);
+      await createDownloadLink(data, fileName);
     } catch (err) {
       console.error('Download failed:', err);
       //   alert('Something went wrong.');

@@ -15,12 +15,13 @@ export const BUDGET_UPDATE_API_URL = "/users/:userId/budget/update-budgetItem";
 export const BUDGET_UPLOAD_API_URL = "/users/:userId/admin/upload-budgetItem";
 export const BUDGET_DOWNLOAD_API_URL = `/users/:userId/budget/download-budgetItem`;
 export const BUDGET_EXPENSE_API_URL = "/users/:userId/expenses/:type";
+export const BUDGET_EXPESE_DOWNLOAD_API_URL = `/users/:userId/expenses/:type/download-expenses`;
 export const BUDGET_BANK_API_URL = "/users/:userId/bank";
 export const BUDGET_INVESTMENT_API_URL = "/users/:userId/investments";
 export const BUDGET_ADD_INVESTMENT_API_URL = "/users/:userId/investments/add";
 export const BUDGET_UPDATE_INVESTMENT_API_URL = "/users/:userId/investments/update";
 export const BUDGET_REMOVE_INVESTMENT_API_URL = "/users/:userId/investments/remove/:id";
-export const BUDGET_INVESTMENT_DOWNLOAD_API_URL = `/users/:userId/budget/download-budgetItem`;
+export const BUDGET_INVESTMENT_DOWNLOAD_API_URL = `/users/:userId/investments/download-investment`;
 
 
 export const BUDGET_HOME_FE_URL = "/";
@@ -215,6 +216,12 @@ export async function download_all_budget(data = {}) {
 
 export async function download_all_investment(data = {}) {
   return postRequest(BUDGET_INVESTMENT_DOWNLOAD_API_URL, data, true, null);
+}
+
+export async function download_all_expenses(data = {}, expenseType) {
+  return postRequest(BUDGET_EXPESE_DOWNLOAD_API_URL, data, true, null, {
+    type: expenseType,
+  });
 }
 
 export async function get_expenses(params = {}, expenseType) {

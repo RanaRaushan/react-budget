@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import './InvestmentPage.css';
 import { HiChevronUp } from 'react-icons/hi';
 import { FaSkullCrossbones, FaPlus } from 'react-icons/fa';
-import { IoMdArrowDropright, IoMdArrowDropdown } from 'react-icons/io';
 import {
   useNavigate,
   useLoaderData,
@@ -34,7 +33,6 @@ import {
 } from '../../utils/constantHelper.js';
 import {
   filterMapObject,
-  getCurrentYear,
   getFormatedDate,
   getYearOption,
   isEffectivelyEmptyObject,
@@ -42,10 +40,8 @@ import {
 import {
   buttonCSS,
   ddOptionCSS,
-  errorTextCSS,
   inputddCSS,
   linkButtonCSS,
-  spentTypeColorMap,
   tableCSS,
   tableRowCSS,
   tdCSS,
@@ -132,8 +128,11 @@ export const loader =
   async ({ request }) => {
     const url = new URL(request.url);
     const q = url.searchParams;
+    if (!q.has('selectedYear')) {
+      q.set('selectedYear', 'all');
+    }
     const response =
-      (auth?.token && (await get_investments(q.toString(), auth.token))) || [];
+      (auth?.token && (await get_investments(q.toString()))) || [];
     let filteredInvestmentData = [];
     const pagination = response.pagination;
     if (response.empty !== true) {
@@ -428,13 +427,12 @@ export default function InvestmentBudget() {
     'bg-green-100 text-green-600 hover:bg-inherit hover:text-inherit';
 
   const fetchInvestmentDataToDownload = async () => {
-    console.log('isnie fetchBudgetData', searchParams);
+    console.log('isnie fetchInvestmentDataToDownload', searchParams);
     const response =
       (auth?.token &&
-        (await download_all_investment(
-          { data: Object.fromEntries(searchParams.entries()) },
-          auth.token,
-        ))) ||
+        (await download_all_investment({
+          data: Object.fromEntries(searchParams.entries()),
+        }))) ||
       [];
     let data;
     let fileName = 'report.xlsx';
@@ -625,7 +623,10 @@ export default function InvestmentBudget() {
             </thead>
             <tbody>
               {isLoading ? (
-                <LoadingTableComponent colLen={investmentHeaders.length + extra_headers.length} rowLen={filteredInvestmentData.length + 1}/>
+                <LoadingTableComponent
+                  colLen={investmentHeaders.length + extra_headers.length}
+                  rowLen={filteredInvestmentData?.length ?? 25 + 1}
+                />
               ) : (
                 <>
                   {filteredInvestmentData &&
