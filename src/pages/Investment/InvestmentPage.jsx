@@ -135,11 +135,12 @@ export const loader =
       (auth?.token && (await get_investments(q.toString()))) || [];
     let filteredInvestmentData = [];
     const pagination = response.pagination;
+    const summary = response.summary;
     if (response.empty !== true) {
       filteredInvestmentData = response.result;
-      return { filteredInvestmentData, pagination };
+      return { filteredInvestmentData, pagination, summary };
     }
-    return { filteredInvestmentData, pagination };
+    return { filteredInvestmentData, pagination, summary };
   };
 
 export default function InvestmentBudget() {
@@ -150,7 +151,7 @@ export default function InvestmentBudget() {
   const navigate = useNavigate();
   const location = useLocation();
   const fetcher = useFetcher();
-  const { filteredInvestmentData, pagination } = useLoaderData();
+  const { filteredInvestmentData, pagination, summary } = useLoaderData();
   const totalPages = pagination?.totalPages;
   // const currentPage = Math.min(pagination?.page, totalPages);
 
@@ -607,7 +608,7 @@ export default function InvestmentBudget() {
                     onClick={(e) => {
                       handleSort(header.key);
                     }}
-                    title="this is header"
+                    title={`${header.key === 'investmentAmount' ? "Total Investment is: " + summary?.sumInvestmentAmount : ''}`}
                   >
                     {header.label}
                     {sortColumn === header.key && (
