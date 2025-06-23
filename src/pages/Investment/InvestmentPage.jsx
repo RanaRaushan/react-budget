@@ -545,7 +545,7 @@ export default function InvestmentBudget() {
         <div className="flex flex-wrap items-center gap-4">
           <>
             <DownloadBudgetComponent
-              props={{ callbackData: fetchInvestmentDataToDownload }}
+              props={{ callbackData: fetchInvestmentDataToDownload, buttonText: "Dwonload" }}
             />
           </>
           {/* Year Dropdown */}

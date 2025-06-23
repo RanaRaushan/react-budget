@@ -1,22 +1,143 @@
-import { Link } from "react-router-dom";
-import { BUDGET_FE_URL } from "../utils/APIHelper";
+import { Link } from 'react-router-dom';
+import { download_all_budget_data } from '../utils/APIHelper';
+import DownloadBudgetComponent from '../components/DownloadBudget';
+import { useAuth } from '../hooks/AuthProvider';
+import { useState } from 'react';
+import { getCurrentYear, getYearOption } from '../utils/functionHelper';
+import { ddOptionCSS, inputddCSS } from '../utils/cssConstantHelper';
 
 export default function HomePage() {
-    return (
-        <>
-          <div>
-            <div className="header">
-              <h1>Welcome to my Budget App</h1>
-              <span className="author">Author@Rana</span>
-            </div>
-            <div>
-                <span>Look at your budget here&nbsp;
-                  <Link to={BUDGET_FE_URL}>
-                      Budget
-                  </Link>
-                </span>
+  const auth = useAuth();
+  const [showModal, setShowModal] = useState(false);
+  const [modalResolver, setModalResolver] = useState(null);
+  const [modalPromise, setModalPromise] = useState({
+    resolve: null,
+    reject: null,
+  });
+  const [formData, setformData] = useState({
+    selectedYear: getCurrentYear(),
+  });
+
+  const getDownloadData = () => {
+    return new Promise((resolve, reject) => {
+      setShowModal(true);
+      setModalPromise({ resolve }); // Save resolver to use after modal submit
+    });
+  };
+
+  const fetchAllBudgetDataToDownload = async () => {
+    const response =
+      (auth?.token &&
+        (await download_all_budget_data({ data: formData }, auth.token))) ||
+      [];
+    let data;
+    let fileName = 'report.xlsx';
+    if (response.empty !== true) {
+      data = response.data;
+      fileName = response.fileName;
+
+      // ✅ Resolve to custom download
+      modalPromise?.resolve?.({ data, fileName });
+      setShowModal(false);
+
+      return { data, fileName };
+    }
+    return { data, fileName };
+  };
+
+  const labelCSS = 'block mb-2.5 text-white text-[1.125em] font-bold';
+  const inputCSS =
+    'w-full min-w-80 p-2.5 rounded-3xl border-none text-[0.875em] font-inherit bg-[#3B3B3B] text-gray-300 shadow-[0_0_10px_rgba(0,0,0,0.1)]';
+  const buttonCSS = 'py-2.5 rounded cursor-pointer font-inherit';
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center text-white px-6">
+      <h1 className="text-4xl font-bold text-green-400 mb-4 text-center">
+        💰 Welcome to Budget Tracker
+      </h1>
+
+      <p className="text-lg text-gray-300 mb-6 text-center max-w-md">
+        Take control of your spending and stay on top of your finances.
+      </p>
+
+      <div className="flex flex-col sm:flex-row gap-4 mb-10">
+        <Link to="/budgets">
+          <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-md transition">
+            📄 View Your Budget
+          </button>
+        </Link>
+
+        <span title="This will download only for current year">
+          <DownloadBudgetComponent
+            props={{
+              callbackData: getDownloadData,
+              buttonText: '⬇️ Export Your all Budget Data',
+            }}
+          />
+        </span>
+      </div>
+
+      <footer className="text-sm text-gray-500">
+        Author: <span className="font-semibold text-white">@Rana</span>
+      </footer>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-indigo-600 p-6 rounded-lg max-w-md w-full text-white">
+            <h2 className="text-xl font-semibold mb-4">Before You Download</h2>
+            <label className={`${labelCSS}`}>Which year?</label>
+            {/* <input
+              type="text"
+              className={`${inputCSS}`}
+              // value={downloadReason}
+              // onChange={(e) => setDownloadReason(e.target.value)}
+              placeholder="e.g. For reporting..."
+            /> */}
+
+            <select
+              value={formData['selectedYear'] ?? getCurrentYear()}
+              onChange={(e) =>
+                setformData((param) => {
+                  return { selectedYear: e.target.value };
+                })
+              }
+              className={`bg-neutral-800 ${inputddCSS}`}
+            >
+              <option className={`${ddOptionCSS}`} value="ALL">
+                All
+              </option>
+              {getYearOption().map((year) => (
+                <option
+                  className={`${ddOptionCSS}`}
+                  key={`${year}`}
+                  value={year}
+                >
+                  {year}
+                </option>
+              ))}
+            </select>
+
+            <div className="flex justify-end gap-3 mt-5">
+              <button
+                onClick={() => {
+                  modalPromise?.reject?.(null);
+                  setShowModal(false);
+                }}
+                className={`${buttonCSS}`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={fetchAllBudgetDataToDownload}
+                className={`${buttonCSS}`}
+              >
+                {'Confirm & Download'}
+              </button>
             </div>
           </div>
-        </>
-      );
+        </div>
+      )}
+    </div>
+  );
 }

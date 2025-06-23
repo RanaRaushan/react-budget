@@ -148,7 +148,7 @@ export default function ExpenseBudget() {
         <div className="flex flex-wrap items-center gap-4">
           <>
             <DownloadBudgetComponent
-              props={{ callbackData: fetchExpensesDataToDownload }}
+              props={{ callbackData: fetchExpensesDataToDownload, buttonText: "Dwonload" }}
             />
           </>
 

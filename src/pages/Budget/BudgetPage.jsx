@@ -632,7 +632,7 @@ export default function BudgetPage() {
         <div className="flex flex-wrap items-center gap-4">
           <>
             <DownloadBudgetComponent
-              props={{ callbackData: fetchBudgetDataToDownload }}
+              props={{ callbackData: fetchBudgetDataToDownload, buttonText: "Dwonload"}}
             />
           </>
           {/* Year Dropdown */}

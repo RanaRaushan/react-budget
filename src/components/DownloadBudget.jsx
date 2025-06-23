@@ -4,7 +4,7 @@ import { SpinnerDotted } from 'spinners-react';
 const LOG_PREFIX = 'UpdateBudgetPage::';
 
 export default function DownloadBudgetComponent({ props }) {
-  const {callbackData} = props
+  const {callbackData, buttonText} = props
   const [loading, setLoading] = useState(false);
 
   const savefilepicker = async (data, fileName) => {
@@ -107,7 +107,7 @@ export default function DownloadBudgetComponent({ props }) {
             color="rgba(57, 143, 172, 1)"
           />
         ) : (
-          'Download'
+          buttonText
         )}
       </button>
     </>
