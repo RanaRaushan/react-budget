@@ -10,6 +10,7 @@ const AUTH_REFRESH_TOKEN_API_URL = "/auth/refresh-token";
 export const BUDGET_API_URL = `/users/:userId/budget`;
 export const BUDGET_ADD_API_URL = "/users/:userId/budget/add-budgetItem";
 export const BUDGET_ENTRY_ADD_API_URL = "/users/:userId/budget/transaction-detail/add-transactionEntry";
+export const BUDGET_BULK_ENTRY_ADD_API_URL = "/users/:userId/budget/transaction-detail/add-all-transactionEntry";
 export const BUDGET_ENTRY_UPDATE_API_URL = "/users/:userId/budget/transaction-detail/update-transactionEntry";
 export const BUDGET_UPDATE_API_URL = "/users/:userId/budget/update-budgetItem";
 export const BUDGET_UPLOAD_API_URL = "/users/:userId/admin/upload-budgetItem";
@@ -198,6 +199,10 @@ export async function get_add_budget_detail_entry(data = {}) {
   return postRequest(BUDGET_ENTRY_ADD_API_URL, data, true, null);
 }
 
+export async function get_add_bulk_budget_detail_entry(data = {}) {
+  return postRequest(BUDGET_BULK_ENTRY_ADD_API_URL, data, true, null);
+}
+
 export async function get_update_budget_detail_entry(data = {}) {
   return postRequest(BUDGET_ENTRY_UPDATE_API_URL, data, true, null);
 }
@@ -210,7 +215,7 @@ export async function upload_budget(data = {}) {
   return postRequest(BUDGET_UPLOAD_API_URL, data, true, true);
 }
 
-export async function download_all_budget(data = {}) {
+export async function download_budget(data = {}) {
   return postRequest(BUDGET_DOWNLOAD_API_URL, data, true, null);
 }
 

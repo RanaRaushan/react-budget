@@ -3,6 +3,8 @@ import './BudgetPage.css';
 import { HiChevronUp } from 'react-icons/hi';
 import { FaSkullCrossbones, FaPlus } from 'react-icons/fa';
 import { IoMdArrowDropright, IoMdArrowDropdown } from 'react-icons/io';
+import { MdOutlineDoubleArrow } from 'react-icons/md';
+import { TbCopyPlusFilled } from 'react-icons/tb';
 import {
   useNavigate,
   useLoaderData,
@@ -19,9 +21,10 @@ import {
   BUDGET_ADD_FE_URL,
   BUDGET_FE_URL,
   BUDGET_TRANSACTION_ENTRY_ADD_FE_URL,
-  download_all_budget,
+  download_budget,
   get_add_budget,
   get_add_budget_detail_entry,
+  get_add_bulk_budget_detail_entry,
   get_all_budget,
   get_update_budget,
   get_update_budget_detail_entry,
@@ -61,13 +64,23 @@ import UpdateItemComponent from '../../components/UpdateItem.jsx';
 import { useAuth } from '../../hooks/AuthProvider.jsx';
 import DownloadBudgetComponent from '../../components/DownloadBudget.jsx';
 import FormErrorsComponent from '../../components/FormErrors.jsx';
+import BulkddBudgetEntryPage from './Bulk-AddBudgetEntryPage.jsx';
 
 const LOG_PREFIX = 'BudgetPage::';
 
-const updateItemIntent = 'itemUpdate';
 const addItemIntent = 'itemAdd';
-const updateItemDetailIntent = 'itemDetailUpdate';
+const updateItemIntent = 'itemUpdate';
 const addItemDetailIntent = 'itemDetailAdd';
+const updateItemDetailIntent = 'itemDetailUpdate';
+const addBulkItemDetailIntent = 'bulkItemDetailAdd';
+
+const intentToValidationMap = {
+  [addItemIntent]: validationBudgetFields,
+  [updateItemIntent]: validationBudgetFields,
+  [addItemDetailIntent]: validationBudgetDetailEntryFields,
+  [updateItemDetailIntent]: validationBudgetDetailEntryFields,
+  [addBulkItemDetailIntent]: validationBudgetDetailEntryFields,
+};
 
 export async function action({ request }) {
   let formData = await request.formData();
@@ -105,7 +118,7 @@ export async function action({ request }) {
   }
 
   if (intent === addItemDetailIntent && payload) {
-    payload['item'] = formData.get('parentItemId')
+    payload['item'] = formData.get('parentItemId');
     await get_add_budget_detail_entry(payload);
     return redirect(redirectUrl || BUDGET_FE_URL);
   }
@@ -114,10 +127,11 @@ export async function action({ request }) {
 
 function validateInputs(input, inputValue, prefix) {
   let inputError = {};
+  console.log(intentToValidationMap, prefix.split('-')[0]);
   if (
     prefix &&
     prefix !== 'null-' &&
-    (prefix === addItemDetailIntent + '-' ? validationBudgetDetailEntryFields : validationBudgetFields).includes(input.key)
+    intentToValidationMap[prefix.split('-')[0]].includes(input.key)
   ) {
     if (!inputValue || !inputValue.trim() || inputValue.trim() === '') {
       inputError[prefix + input.key] = `${input.label} is required`;
@@ -130,7 +144,11 @@ function validateInputs(input, inputValue, prefix) {
     ) {
       inputError[prefix + input.key] = `Not a valid ${input.label}`;
     }
-    if (prefix === addItemIntent + '-' || prefix === addItemDetailIntent + '-') {
+    if (
+      prefix === addItemIntent + '-' ||
+      prefix === addBulkItemDetailIntent + '-' ||
+      prefix === addItemDetailIntent + '-'
+    ) {
       delete inputError[prefix + 'id'];
     }
   }
@@ -198,6 +216,10 @@ export default function BudgetPage() {
   const [isCheckedSearch, setIsCheckedSearch] = useState(false);
   const [toDate, setToDate] = useState('');
   const [fromDate, setFromDate] = useState('');
+  const [bulkDetailEntryAddCheck, setBulkDetailEntryAddCheck] = useState(false);
+  const [budgetDetailEntryInputRows, setBudgetDetailEntryInputRows] = useState(
+    [],
+  );
 
   const scrollTargetAddBudgetRef = useRef(null);
   const scrollTargetAddBudgetEntryRef = useRef(null);
@@ -242,23 +264,11 @@ export default function BudgetPage() {
     const searchKeyParm = `${searchKey}`;
     let isExactSearchKey = 'exact';
     let isExactSearchValue = isCheckedSearch;
-    console.log(
-      'BudgetPage || handleAddParam',
-      isEffectivelyEmptyObject(paramToAdd),
-      ' paramToAdd:',
-      paramToAdd,
-    );
     if (dateFields.includes(searchKey) && isCheckedSearch) {
       searchParmValue = `${fromDate}:${toDate}`;
       isExactSearchKey = 'between';
     }
     if (searchParmValue && !isEffectivelyEmptyObject(paramToAdd)) {
-      console.log(
-        'BudgetPage || handleAddParam1',
-        isEffectivelyEmptyObject(paramToAdd),
-        ' paramToAdd:',
-        paramToAdd,
-      );
       setGlobalParam((prev) => ({
         ...prev,
         [searchKeyParm]: searchParmValue,
@@ -266,24 +276,12 @@ export default function BudgetPage() {
         ...paramToAdd,
       }));
     } else if (searchParmValue) {
-      console.log(
-        'BudgetPage || handleAddParam2',
-        isEffectivelyEmptyObject(paramToAdd),
-        ' paramToAdd:',
-        paramToAdd,
-      );
       setGlobalParam((prev) => ({
         ...prev,
         [searchKeyParm]: searchParmValue,
         [isExactSearchKey]: isExactSearchValue,
       }));
     } else if (!isEffectivelyEmptyObject(paramToAdd)) {
-      console.log(
-        'BudgetPage || handleAddParam3',
-        isEffectivelyEmptyObject(paramToAdd),
-        ' paramToAdd:',
-        paramToAdd,
-      );
       setGlobalParam((prev) => ({
         ...prev,
         ...paramToAdd,
@@ -323,8 +321,7 @@ export default function BudgetPage() {
 
       if (dateFields.includes(key)) {
         if (
-          getFormatedDate(existingData[key]) !=
-          newFormDataWithUpdatedKey[key]
+          getFormatedDate(existingData[key]) != newFormDataWithUpdatedKey[key]
         ) {
           return true;
         }
@@ -405,8 +402,58 @@ export default function BudgetPage() {
     });
   };
 
-  const handleCheckboxChange = (e) => {
-    setIsCheckedSearch(e.target.checked);
+  const handleAddBudgetEntry = (e) => {
+    if (bulkDetailEntryAddCheck) {
+      e.preventDefault();
+      setBudgetDetailEntryInputRows((prev) => [...prev, ...[createRow()]]);
+    }
+  };
+  const createRow = () => {
+    return itemDetailHeaders.reduce((acc, col) => {
+      acc[col.key] = '';
+      return acc;
+    }, {});
+  };
+
+  const handleBulkEntryChange = (index, field, value) => {
+    setBudgetDetailEntryInputRows((prevRows) =>
+      prevRows.map((row, i) =>
+        i === index ? { ...row, [field]: value } : row,
+      ),
+    );
+  };
+
+  const removeFromBulkEntryRow = (indexToRemove) => {
+    const updatedInputRows = budgetDetailEntryInputRows.filter(
+      (_, idx) => idx !== indexToRemove,
+    );
+    setBudgetDetailEntryInputRows(updatedInputRows);
+  };
+
+  const handleAddBulkBudgetEntryRowSubmit = async (e, parentId) => {
+    e.preventDefault();
+    const updatedForms = budgetDetailEntryInputRows.map((row, idx) => {
+      let currentErrors = {};
+      for (const header of itemDetailHeaders) {
+        const key = header.key;
+        currentErrors = {
+          ...currentErrors,
+          ...validateInputs(header, row[key], addBulkItemDetailIntent + '-'),
+        };
+      }
+      row['item'] = parentId;
+      return { ...row, errors: currentErrors };
+    });
+    setBudgetDetailEntryInputRows(updatedForms);
+    if (
+      budgetDetailEntryInputRows?.length &&
+      (!updatedForms.errors || Object.keys(updatedForms.errors).length <= 0)
+    ) {
+      delete budgetDetailEntryInputRows[errors];
+      await get_add_bulk_budget_detail_entry(budgetDetailEntryInputRows).then(
+        (res) => navigate(BUDGET_FE_URL + '?' + searchParams.toString()),
+      );
+    }
   };
 
   useEffect(() => {
@@ -418,24 +465,26 @@ export default function BudgetPage() {
   const resetErrorState = () => {
     setErrors(null);
   };
+  const resetInputRowsState = () => {
+    setBudgetDetailEntryInputRows(null);
+  };
 
   useEffect(() => {
     const currentParams = Object.fromEntries(searchParams.entries());
     const areSame =
       JSON.stringify(currentParams) === JSON.stringify(globalParam);
-      console.log("calling", areSame, JSON.stringify(currentParams), JSON.stringify(globalParam))
-      if (!areSame) {
-    setSearchParams(() => {
-      const newSearchParams = new URLSearchParams();
-      Object.entries(globalParam).forEach(([key, value]) => {
-        newSearchParams.set(key, value);
+    if (!areSame) {
+      setSearchParams(() => {
+        const newSearchParams = new URLSearchParams();
+        Object.entries(globalParam).forEach(([key, value]) => {
+          newSearchParams.set(key, value);
+        });
+        if (Object.keys(globalParam).length > 0) return newSearchParams;
+        else {
+          return new URLSearchParams({});
+        }
       });
-      if (Object.keys(globalParam).length > 0) return newSearchParams;
-      else {
-        return new URLSearchParams({});
-      }
-    });
-  }
+    }
   }, [globalParam]);
 
   useEffect(() => {
@@ -463,20 +512,22 @@ export default function BudgetPage() {
   };
 
   const fetchBudgetDataToDownload = async () => {
-    console.log("isnie fetchBudgetData", searchParams)
-      const response =
-        (auth?.token &&
-          (await download_all_budget({data:Object.fromEntries(searchParams.entries())}, auth.token))) ||
-        [];
-      let data;
-      let fileName = 'report.xlsx';
-      if (response.empty !== true) {
-        data = response.data;
-        fileName = response.fileName;
-        return { data, fileName };
-      }
+    const response =
+      (auth?.token &&
+        (await download_budget(
+          { data: Object.fromEntries(searchParams.entries()) },
+          auth.token,
+        ))) ||
+      [];
+    let data;
+    let fileName = 'report.xlsx';
+    if (response.empty !== true) {
+      data = response.data;
+      fileName = response.fileName;
       return { data, fileName };
-    };
+    }
+    return { data, fileName };
+  };
 
   return (
     <div className="space-y-6">
@@ -563,7 +614,7 @@ export default function BudgetPage() {
             <input
               type="checkbox"
               checked={isCheckedSearch}
-              onChange={handleCheckboxChange}
+              onChange={(e) => setIsCheckedSearch(e.target.checked)}
             />
             {dateFields.includes(searchKey) ? ' between' : ' Exact Search'}
           </label>
@@ -578,9 +629,11 @@ export default function BudgetPage() {
           </button>
         </div>
 
-        <div className='flex flex-wrap items-center gap-4'>
+        <div className="flex flex-wrap items-center gap-4">
           <>
-            <DownloadBudgetComponent props={{callbackData:fetchBudgetDataToDownload}} />
+            <DownloadBudgetComponent
+              props={{ callbackData: fetchBudgetDataToDownload }}
+            />
           </>
           {/* Year Dropdown */}
           <select
@@ -639,7 +692,13 @@ export default function BudgetPage() {
                   <th
                     key={idx}
                     className="px-4 py-4 whitespace-nowrap font-medium cursor-pointer"
-                    title={`${header.key === 'paidAmount' ? summary?.sumPaidAmount : header.key === 'amount' ? summary?.sumAmount : ''}`}
+                    title={`${
+                      header.key === 'paidAmount'
+                        ? summary?.sumPaidAmount
+                        : header.key === 'amount'
+                        ? summary?.sumAmount
+                        : ''
+                    }`}
                     onClick={(e) => {
                       handleSort(header.key);
                     }}
@@ -658,7 +717,7 @@ export default function BudgetPage() {
             </thead>
             <tbody>
               {isLoading ? (
-                <LoadingTableComponent colLen={budgetHeaders.length + 1}/>
+                <LoadingTableComponent colLen={budgetHeaders.length + 1} />
               ) : (
                 <>
                   {filteredBudgetData &&
@@ -709,6 +768,8 @@ export default function BudgetPage() {
                                     {item[header.key]}
                                     {expandedRow == item.id ? (
                                       <IoMdArrowDropdown />
+                                    ) : item['transactionItems'].length ? (
+                                      <MdOutlineDoubleArrow />
                                     ) : (
                                       <IoMdArrowDropright />
                                     )}
@@ -774,7 +835,13 @@ export default function BudgetPage() {
                                 {/* Example expanded content */}
                                 <table className={`${tableCSS}`}>
                                   <thead className={`${theadCSS}`}>
-                                    <tr ref={ params.entryId == item.id ? scrollTargetAddBudgetEntryRef : null}>
+                                    <tr
+                                      ref={
+                                        params.entryId == item.id
+                                          ? scrollTargetAddBudgetEntryRef
+                                          : null
+                                      }
+                                    >
                                       {itemDetailHeaders
                                         .concat(extra_headers)
                                         .map((itemDH, idx) => (
@@ -832,7 +899,8 @@ export default function BudgetPage() {
                                                   className={`${tdCSS}`}
                                                 >
                                                   {itemDH.key == 'unit'
-                                                    ? itemDetail[itemDH.key]?.name
+                                                    ? itemDetail[itemDH.key]
+                                                        ?.name
                                                     : itemDetail[itemDH.key]}
                                                 </td>
                                               ),
@@ -856,7 +924,8 @@ export default function BudgetPage() {
                                                 <button
                                                   onClick={(e) => {
                                                     updateTransactionItemRowSubmit(
-                                                      e, item
+                                                      e,
+                                                      item,
                                                     );
                                                   }}
                                                   type="submit"
@@ -883,11 +952,21 @@ export default function BudgetPage() {
                                         </tr>
                                       ),
                                     )}
+                                    {bulkDetailEntryAddCheck && (
+                                      <BulkddBudgetEntryPage
+                                        props={{
+                                          errors,
+                                          intent: addBulkItemDetailIntent,
+                                          inputRows: budgetDetailEntryInputRows,
+                                          onChange: handleBulkEntryChange,
+                                          onRemove: removeFromBulkEntryRow,
+                                        }}
+                                      />
+                                    )}
                                     {isAddBudgetEntryPage &&
+                                    !bulkDetailEntryAddCheck &&
                                     params.entryId == item.id ? (
-                                      <tr
-                                        className={`${tableRowCSS}`}
-                                      >
+                                      <tr className={`${tableRowCSS}`}>
                                         <Outlet
                                           name="addBudgetEntry"
                                           context={{
@@ -899,7 +978,10 @@ export default function BudgetPage() {
                                           <>
                                             <button
                                               onClick={(e) => {
-                                                handleAddBudgetEntryRowSubmit(e, item['id']);
+                                                handleAddBudgetEntryRowSubmit(
+                                                  e,
+                                                  item['id'],
+                                                );
                                               }}
                                               type="submit"
                                               name="intent"
@@ -926,44 +1008,99 @@ export default function BudgetPage() {
                                         </td>
                                       </tr>
                                     ) : (
-                                      <tr className={`${tableRowCSS}`}>
-                                        {[
-                                          ...Array(
-                                            itemDetailHeaders.length + 1,
-                                          ),
-                                        ].map((_, idx) => {
-                                          return idx ===
-                                            itemDetailHeaders.length ? (
-                                            <td
-                                              key={`${idx}${itemDetailHeaders.key}`}
-                                              className={`${tdCSS}`}
-                                            >
-                                              <Link
-                                                className={`${linkButtonCSS}`}
-                                                state={{
-                                                  scrollTo: 'addBudgetEntry',
-                                                }}
-                                                to={
-                                                  BUDGET_TRANSACTION_ENTRY_ADD_FE_URL.replace(
-                                                    '{entryId}',
-                                                    item.id,
-                                                  ) +
-                                                  '?' +
-                                                  searchParams.toString()
-                                                }
-                                                style={{ color: 'inherit' }}
+                                      <>
+                                        <tr className={`${tableRowCSS}`}>
+                                          {[
+                                            ...Array(
+                                              itemDetailHeaders.length + 1,
+                                            ),
+                                          ].map((_, idx) => {
+                                            return idx ===
+                                              itemDetailHeaders.length ? (
+                                              <td
+                                                key={`${idx}${itemDetailHeaders.key}`}
+                                                className={`${tdCSS}`}
                                               >
-                                                <FaPlus />
-                                              </Link>
-                                            </td>
-                                          ) : (
-                                            <td
-                                              key={`${idx}${itemDetailHeaders.key}`}
-                                            ></td>
-                                          );
-                                        })}
-                                      </tr>
+                                                <Link
+                                                  className={`${linkButtonCSS}`}
+                                                  state={{
+                                                    scrollTo: 'addBudgetEntry',
+                                                  }}
+                                                  onClick={(e) =>
+                                                    handleAddBudgetEntry(e)
+                                                  }
+                                                  to={
+                                                    BUDGET_TRANSACTION_ENTRY_ADD_FE_URL.replace(
+                                                      '{entryId}',
+                                                      item.id,
+                                                    ) +
+                                                    '?' +
+                                                    searchParams.toString()
+                                                  }
+                                                  style={{ color: 'inherit' }}
+                                                >
+                                                  <FaPlus title="Add Entry" />
+                                                </Link>
+                                              </td>
+                                            ) : (
+                                              <td
+                                                key={`${idx}${itemDetailHeaders.key}`}
+                                              ></td>
+                                            );
+                                          })}
+                                        </tr>
+                                      </>
                                     )}
+                                    <tr>
+                                      <td
+                                        colSpan={itemDetailHeaders.length + 1}
+                                        className="text-center space-x-2"
+                                      >
+                                        <label className="inline-flex items-center gap-1">
+                                          <input
+                                            type="checkbox"
+                                            checked={bulkDetailEntryAddCheck}
+                                            onChange={(e) =>
+                                              setBulkDetailEntryAddCheck(
+                                                e.target.checked,
+                                              )
+                                            }
+                                          />
+                                          {'Bulk Add'}
+                                        </label>
+                                        {bulkDetailEntryAddCheck ? (
+                                          <Link
+                                            title="Add all entry"
+                                            className={`${linkButtonCSS}`}
+                                            state={{
+                                              scrollTo: 'addBudgetEntry',
+                                            }}
+                                            onClick={(e) =>
+                                              handleAddBulkBudgetEntryRowSubmit(
+                                                e,
+                                                item['id'],
+                                              )
+                                            }
+                                            // to={
+                                            //   BUDGET_TRANSACTION_ENTRY_ADD_FE_URL.replace(
+                                            //     '{entryId}',
+                                            //     item.id,
+                                            //   ) +
+                                            //   '?' +
+                                            //   searchParams.toString()
+                                            // }
+                                            style={{ color: 'inherit' }}
+                                          >
+                                            <span className="flex items-center gap-1">
+                                              Add all items
+                                              <TbCopyPlusFilled />
+                                            </span>
+                                          </Link>
+                                        ) : (
+                                          <></>
+                                        )}
+                                      </td>
+                                    </tr>
                                   </tbody>
                                 </table>
                               </div>
@@ -972,36 +1109,8 @@ export default function BudgetPage() {
                         )}
                       </React.Fragment>
                     ))}
-                  {!isAddBudgetPage && (
-                    <tr className={`${tableRowCSS}`}>
-                      {[...Array(budgetHeaders.length + 1)].map((_, idx) => {
-                        return idx === budgetHeaders.length ? (
-                          <td
-                            key={`${idx}${budgetHeaders.key}`}
-                            className={`${tdCSS}`}
-                          >
-                            {/* <button onClick={(e) => e.preventDefault()} className="hover:text-indigo-200" > */}
-                            <Link
-                              className={`${linkButtonCSS}`}
-                              state={{ scrollTo: 'addBudget' }}
-                              to={
-                                BUDGET_ADD_FE_URL +
-                                '?' +
-                                searchParams.toString()
-                              }
-                              style={{ color: 'inherit' }}
-                            >
-                              <FaPlus />
-                            </Link>
-                            {/* </button> */}
-                          </td>
-                        ) : (
-                          <td key={`${idx}${budgetHeaders.key}`}></td>
-                        );
-                      })}
-                    </tr>
-                  )}
-                  {isAddBudgetPage && (
+
+                  {isAddBudgetPage ? (
                     <tr
                       className={`${tableRowCSS}`}
                       ref={scrollTargetAddBudgetRef}
@@ -1037,6 +1146,34 @@ export default function BudgetPage() {
                           </button>
                         </>
                       </td>
+                    </tr>
+                  ) : (
+                    <tr className={`${tableRowCSS}`}>
+                      {[...Array(budgetHeaders.length + 1)].map((_, idx) => {
+                        return idx === budgetHeaders.length ? (
+                          <td
+                            key={`${idx}${budgetHeaders.key}`}
+                            className={`${tdCSS}`}
+                          >
+                            {/* <button onClick={(e) => e.preventDefault()} className="hover:text-indigo-200" > */}
+                            <Link
+                              className={`${linkButtonCSS}`}
+                              state={{ scrollTo: 'addBudget' }}
+                              to={
+                                BUDGET_ADD_FE_URL +
+                                '?' +
+                                searchParams.toString()
+                              }
+                              style={{ color: 'inherit' }}
+                            >
+                              <FaPlus />
+                            </Link>
+                            {/* </button> */}
+                          </td>
+                        ) : (
+                          <td key={`${idx}${budgetHeaders.key}`}></td>
+                        );
+                      })}
                     </tr>
                   )}
                 </>

@@ -3,7 +3,7 @@ const dateFields = ['paidDate', 'spentDate', 'investmentDate', 'maturityDate']
 const enumFields = ['itemType', 'paymentType', 'spentType', 'investmentType', 'compoundingFrequency']
 const lockedFields = ['id', 'period', 'maturityAmount', 'maturityTimeLeftInDays', 'perUnitPrice']
 const validationBudgetFields = ['id', 'paidDate', 'spentDate', 'itemType', 'paymentType', 'spentType', 'amount', 'paidAmount', 'description', 'owner']
-const validationBudgetDetailEntryFields = ['id', 'itemName', 'itemPrice']
+const validationBudgetDetailEntryFields = ['id', 'itemName', 'itemQty', 'itemPrice']
 const validationInvestmentFields = ['id', 'investmentType', 'description', 'interestRate', 'investmentAmount', 'investmentDate', 'maturityDate', 'compoundingFrequency']
 
 const monthNames = [
