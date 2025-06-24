@@ -16,7 +16,6 @@ const LoginLogoutComponent = () => {
     const handleLogin = () => {
       navigate('/login', {replace: true})
     };
-    console.log("LoginLogoutComponent || redirectPathCHeck loginLogout", location, location.pathname, location.state)
     return !auth.token ? 
       <div className="">
           <button

@@ -1,11 +1,10 @@
-export const validateToken = (tokenData) => {
+export const isTokenExpired = (tokenData) => {
     const currentTime = new Date().getTime();
     const expiryTime = tokenData?.expireAt;
     if (currentTime > expiryTime) {
-      console.log("APIHelper || Token expired")
-      return false;
+      console.log("validateToken || Token expired")
+      return true;
     }
-    // return false;
-    return tokenData && tokenData?.body?.token 
-            && tokenData?.expireAt;
+    return !(tokenData && tokenData?.body?.token 
+            && tokenData?.expireAt);
   }

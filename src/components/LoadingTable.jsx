@@ -9,7 +9,6 @@ const randomKey = Object.keys(spentTypeColorMap)[Math.floor(Math.random() * Obje
 const randomValue = spentTypeColorMap[randomKey];
 
 export default function LoadingTableComponent({rowLen, colLen}) {
-    console.log("LoadingTableComponent",rowLen, colLen)
     return (
         <>
         {[...Array(rowLen)].map((_, idx) => {

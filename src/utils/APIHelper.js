@@ -8,12 +8,9 @@ const AUTH_REGISTER_API_URL = '/auth/register';
 const AUTH_REFRESH_TOKEN_API_URL = '/auth/refresh-token';
 export const BUDGET_API_URL = `/users/:userId/budget`;
 export const BUDGET_ADD_API_URL = '/users/:userId/budget/add-budgetItem';
-export const BUDGET_ENTRY_ADD_API_URL =
-  '/users/:userId/budget/transaction-detail/add-transactionEntry';
-export const BUDGET_BULK_ENTRY_ADD_API_URL =
-  '/users/:userId/budget/transaction-detail/add-all-transactionEntry';
-export const BUDGET_ENTRY_UPDATE_API_URL =
-  '/users/:userId/budget/transaction-detail/update-transactionEntry';
+export const BUDGET_ENTRY_ADD_API_URL = '/users/:userId/budget/transaction-detail/add-transactionEntry';
+export const BUDGET_BULK_ENTRY_ADD_API_URL = '/users/:userId/budget/transaction-detail/add-all-transactionEntry';
+export const BUDGET_ENTRY_UPDATE_API_URL = '/users/:userId/budget/transaction-detail/update-transactionEntry';
 export const BUDGET_UPDATE_API_URL = '/users/:userId/budget/update-budgetItem';
 export const BUDGET_UPLOAD_API_URL = '/users/:userId/admin/upload-budgetItem';
 export const BUDGET_DOWNLOAD_API_URL = `/users/:userId/budget/download-budgetItem`;
@@ -22,10 +19,8 @@ export const BUDGET_EXPESE_DOWNLOAD_API_URL = `/users/:userId/expenses/:type/dow
 export const BUDGET_BANK_API_URL = '/users/:userId/bank';
 export const BUDGET_INVESTMENT_API_URL = '/users/:userId/investments';
 export const BUDGET_ADD_INVESTMENT_API_URL = '/users/:userId/investments/add';
-export const BUDGET_UPDATE_INVESTMENT_API_URL =
-  '/users/:userId/investments/update';
-export const BUDGET_REMOVE_INVESTMENT_API_URL =
-  '/users/:userId/investments/remove/:id';
+export const BUDGET_UPDATE_INVESTMENT_API_URL = '/users/:userId/investments/update';
+export const BUDGET_REMOVE_INVESTMENT_API_URL = '/users/:userId/investments/remove/:id';
 export const BUDGET_INVESTMENT_DOWNLOAD_API_URL = `/users/:userId/investments/download-investment`;
 
 export const ALL_BUDGET_DATA_DOWNLOAD_API_URL = `/users/:userId/admin/download-all-budgetData`;
@@ -68,10 +63,6 @@ function resolveUrlPath(pathTemplate, params = {}) {
     return params[key] === undefined
       ? undefined
       : encodeURIComponent(params[key]);
-    // if (params[key] === undefined) {
-    //   throw new Error(`Missing value for URL parameter: "${key}"`);
-    // }
-    // return encodeURIComponent(params[key]);
   });
 }
 
@@ -82,7 +73,8 @@ export const getRequest = async (
   sendEmptyHeader = false,
   urlValues = {},
   isRefreshToken,
-  init,
+  init = {},
+  retry = false,//not working marking false for now
 ) => {
   let tokenData = null;
   if (requireToken) {
@@ -118,6 +110,39 @@ export const getRequest = async (
             response.status,
             errorMsg,
           );
+          if (
+            retry &&
+            errorMsg &&
+            errorMsg.error === 'Unauthorized' &&
+            errorMsg.message === 'Token is Expired! Please login again'
+          ) {
+            console.log('APIHelper || calling retry getRequest');
+            try {
+              const res = await refresh_token({
+                refreshToken: tokenData?.body?.refreshToken,
+              });
+              const expireAt = new Date().getTime() + Number(res?.expires_in);
+              const newTokenData = res && {
+                body: res,
+                expireAt: expireAt,
+                user: tokenData?.user,
+              };
+              setItem('token', newTokenData);
+              // Retry original request once
+              return await getRequest(
+                path,
+                params,
+                requireToken,
+                sendEmptyHeader,
+                urlValues,
+                isRefreshToken,
+                init,
+                false,
+              );
+            } catch (err) {
+              throw new Error(err);
+            }
+          }
           return errorMsg;
         }
         return response.json();
@@ -136,6 +161,7 @@ export const postRequest = async (
   sendEmptyHeader = false,
   urlValues = {},
   init = {},
+  retry = false,//not working marking false for now
 ) => {
   let tokenData = null;
   if (requireToken) {
@@ -174,10 +200,40 @@ export const postRequest = async (
             response.status,
             errorMsg,
           );
+          if (
+            retry &&
+            errorMsg &&
+            errorMsg.error === 'Unauthorized' &&
+            errorMsg.message === 'Token is Expired! Please login again'
+          ) {
+            console.log('APIHelper || calling retry postRequest');
+            try {
+              const res = await refresh_token({
+                refreshToken: tokenData?.body?.refreshToken,
+              });
+              const expireAt = new Date().getTime() + Number(res?.expires_in);
+              const newTokenData = res && {
+                body: res,
+                expireAt: expireAt,
+                user: tokenData?.user,
+              };
+              setItem('tokenData', newTokenData);
+              // Retry original request once
+              return await postRequest(
+                path,
+                body,
+                requireToken,
+                sendEmptyHeader,
+                urlValues,
+                init,
+                false,
+              );
+            } catch (err) {
+              throw new Error('Token refresh failed', err);
+            }
+          }
           return errorMsg;
-        } 
-        console.log(
-                'APIHelper || returning response');
+        }
         return response.json();
       })
       .catch((error) => {
