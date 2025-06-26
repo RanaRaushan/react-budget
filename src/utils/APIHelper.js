@@ -7,6 +7,7 @@ const AUTH_API_URL = '/auth';
 const AUTH_REGISTER_API_URL = '/auth/register';
 const AUTH_REFRESH_TOKEN_API_URL = '/auth/refresh-token';
 export const BUDGET_API_URL = `/users/:userId/budget`;
+export const BUDGET_SUGGESTIONS_API_URL = `/users/:userId/budget/suggestions`;
 export const BUDGET_ADD_API_URL = '/users/:userId/budget/add-budgetItem';
 export const BUDGET_ENTRY_ADD_API_URL = '/users/:userId/budget/transaction-detail/add-transactionEntry';
 export const BUDGET_BULK_ENTRY_ADD_API_URL = '/users/:userId/budget/transaction-detail/add-all-transactionEntry';
@@ -257,6 +258,10 @@ export async function refresh_token(data = {}) {
 
 export async function get_all_budget(params = {}) {
   return getRequest(BUDGET_API_URL, params, true, null);
+}
+
+export async function get_budget_suggestions(params = {}) {
+  return postRequest(BUDGET_SUGGESTIONS_API_URL, params, true, null);
 }
 
 export async function get_add_budget(data = {}) {

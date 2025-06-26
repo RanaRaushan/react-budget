@@ -26,6 +26,7 @@ import {
   get_add_budget_detail_entry,
   get_add_bulk_budget_detail_entry,
   get_all_budget,
+  get_budget_suggestions,
   get_update_budget,
   get_update_budget_detail_entry,
 } from '../../utils/APIHelper.js';
@@ -65,6 +66,7 @@ import { useAuth } from '../../hooks/AuthProvider.jsx';
 import DownloadBudgetComponent from '../../components/DownloadBudget.jsx';
 import FormErrorsComponent from '../../components/FormErrors.jsx';
 import BulkddBudgetEntryPage from './Bulk-AddBudgetEntryPage.jsx';
+import DataStore from '../../utils/DataStore.js';
 
 const LOG_PREFIX = 'BudgetPage::';
 
@@ -158,21 +160,25 @@ function validateInputs(input, inputValue, prefix) {
 export const loader =
   (auth) =>
   async ({ request }) => {
+    const { getItem, setItem } = DataStore();
     const url = new URL(request.url);
     const q = url.searchParams;
     if (!q.has('selectedYear')) {
       q.set('selectedYear', getCurrentYear());
     }
     const response =
-      (auth?.token && (await get_all_budget(q.toString(), auth.token))) || [];
+      (auth?.token && (await get_all_budget(q.toString()))) || [];
     let filteredBudgetData = [];
     const pagination = response.pagination;
     const summary = response.summary;
+    let suggestions = {};
     if (response.empty !== true) {
+       suggestions = getItem("suggestions") || (auth?.token && (await get_budget_suggestions())) || {};
+       suggestions && !suggestions?.error && suggestions.length && setItem("suggestions", suggestions);
       filteredBudgetData = response.result;
-      return { filteredBudgetData, pagination, summary };
+      return { filteredBudgetData, pagination, summary, suggestions };
     }
-    return { filteredBudgetData, pagination, summary };
+    return { filteredBudgetData, pagination, summary, suggestions };
   };
 
 export default function BudgetPage() {
@@ -183,10 +189,11 @@ export default function BudgetPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const fetcher = useFetcher();
-  const { filteredBudgetData, pagination, summary } = useLoaderData();
+  const { filteredBudgetData, pagination, summary, suggestions } = useLoaderData();
   const totalPages = pagination?.totalPages;
   // const currentPage = Math.min(pagination?.page, totalPages);
 
+  console.log("suggestions 196", suggestions);
   const isAddBudgetPage = location.pathname.includes('budget/add');
   const isAddBudgetEntryPage = location.pathname.includes('budget/entry/add');
 
@@ -684,7 +691,7 @@ export default function BudgetPage() {
 
       {/* Table */}
       <fetcher.Form method="post">
-        <div className="overflow-x-auto rounded-2xl shadow-lg border border-gray-200">
+        <div className="overflow-hidden rounded-2xl shadow-lg border border-gray-200">
           <table className={`${tableCSS}`}>
             <thead className={`${theadCSS}`}>
               <tr>
@@ -694,9 +701,11 @@ export default function BudgetPage() {
                     className="px-4 py-4 whitespace-nowrap font-medium cursor-pointer"
                     title={`${
                       header.key === 'paidAmount'
-                        ? summary?.sumPaidAmount
+                        ? `Your total pay: ${summary?.sumPaidAmount}`
                         : header.key === 'amount'
-                        ? summary?.sumAmount
+                        ? `You paid: ${summary?.sumAmount}`
+                        : header.key === 'id'
+                        ? `total count is ${pagination.totalCount}`
                         : ''
                     }`}
                     onClick={(e) => {
@@ -972,6 +981,7 @@ export default function BudgetPage() {
                                           context={{
                                             errors,
                                             intent: addItemDetailIntent,
+                                            budgetSuggestions: suggestions,
                                           }}
                                         />
                                         <td className={`${tdCSS} space-x-2`}>
@@ -1117,7 +1127,7 @@ export default function BudgetPage() {
                     >
                       <Outlet
                         name="addBudget"
-                        context={{ errors, intent: addItemIntent }}
+                        context={{ errors, intent: addItemIntent, budgetSuggestions: suggestions, }}
                       />
                       <td className={`${tdCSS} space-x-2`}>
                         <>

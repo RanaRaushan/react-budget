@@ -77,7 +77,7 @@ const LoginPage = () => {
           const res = await refresh_token({
             refreshToken: auth.token?.body?.refreshToken,
           });
-          if (res.token) {
+          if (res?.token) {
             const expireAt = new Date().getTime() + Number(res?.expires_in);
             const tokenData = res && {
               body: res,
