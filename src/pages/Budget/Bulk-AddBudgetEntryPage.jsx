@@ -33,7 +33,7 @@ export default function BulkddBudgetEntryPage({ props }) {
                 header={header}
                 intent={intent}
               />
-              <>
+              <div className="relative">
                 {dateFields.includes(header.key) ? (
                   <input
                     disabled={lockedFields.includes(header.key)}
@@ -78,7 +78,22 @@ export default function BulkddBudgetEntryPage({ props }) {
                       </option>
                     ))}
                   </select>
-                ) : (
+                ) : 
+                // inputDropDownFields.includes(header.key) ? (
+                //   <InputDropdownComponent
+                //     props={{
+                //       suggestion,
+                //       disabled: lockedFields.includes(header.key),
+                //       placeholder: header.label,
+                //       name: `${intent}-${header.key}`,
+                //       value: formData[header.key],
+                //       onInputChange: (value) =>
+                //         handleInputChange(header.key)(value),
+                //       className: `${inputCSS}`,
+                //     }}
+                //   />
+                // ) : 
+                (
                   <input
                     type="text"
                     disabled={lockedFields.includes(header.key)}
@@ -91,7 +106,7 @@ export default function BulkddBudgetEntryPage({ props }) {
                     className={`${inputCSS}`}
                   />
                 )}
-              </>
+              </div>
             </td>
           ))}
           <td className={`${tdCSS}`}>

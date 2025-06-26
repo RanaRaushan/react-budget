@@ -29,7 +29,7 @@ export default function AddBudgetEntryPage() {
     }, {}),
   );
 
-  const { errors, intent } = useOutletContext();
+  const { suggestion, errors, intent } = useOutletContext();
 
   const handleInputChange = (key) => (value) => {
     console.log('handleInputChange', key, value);
@@ -39,11 +39,12 @@ export default function AddBudgetEntryPage() {
     }));
   };
 
+  // console.log("suggestion 42", suggestion)
   return itemDetailHeaders.map((header, idx) => (
     <td key={header.key} className={`${tdCSS}`}>
       <FormErrorsComponent errors={errors} header={header} intent={intent} />
 
-      <>
+      <div className="relative">
         {dateFields.includes(header.key) ? (
           <input
             disabled={lockedFields.includes(header.key)}
@@ -79,7 +80,7 @@ export default function AddBudgetEntryPage() {
         ) : inputDropDownFields.includes(header.key) ? (
           <InputDropdownComponent
             props={{
-              budgetSuggestions,
+              suggestion,
               disabled: lockedFields.includes(header.key),
               placeholder: header.label,
               name: `${intent}-${header.key}`,
@@ -99,7 +100,7 @@ export default function AddBudgetEntryPage() {
             className={`${inputCSS}`}
           />
         )}
-      </>
+      </div>
     </td>
   ));
 }

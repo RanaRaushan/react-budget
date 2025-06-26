@@ -174,7 +174,7 @@ export const loader =
     let suggestions = {};
     if (response.empty !== true) {
        suggestions = getItem("suggestions") || (auth?.token && (await get_budget_suggestions())) || {};
-       suggestions && !suggestions?.error && suggestions.length && setItem("suggestions", suggestions);
+       suggestions && !suggestions?.error && setItem("suggestions", suggestions);
       filteredBudgetData = response.result;
       return { filteredBudgetData, pagination, summary, suggestions };
     }
@@ -461,6 +461,7 @@ export default function BudgetPage() {
         (res) => navigate(BUDGET_FE_URL + '?' + searchParams.toString()),
       );
     }
+    resetInputRowsState();
   };
 
   useEffect(() => {
@@ -473,7 +474,7 @@ export default function BudgetPage() {
     setErrors(null);
   };
   const resetInputRowsState = () => {
-    setBudgetDetailEntryInputRows(null);
+    setBudgetDetailEntryInputRows([]);
   };
 
   useEffect(() => {
@@ -705,7 +706,7 @@ export default function BudgetPage() {
                         : header.key === 'amount'
                         ? `You paid: ${summary?.sumAmount}`
                         : header.key === 'id'
-                        ? `total count is ${pagination.totalCount}`
+                        ? `total count is ${pagination?.totalCount}`
                         : ''
                     }`}
                     onClick={(e) => {
@@ -981,7 +982,7 @@ export default function BudgetPage() {
                                           context={{
                                             errors,
                                             intent: addItemDetailIntent,
-                                            budgetSuggestions: suggestions,
+                                            suggestion: suggestions?.itemName ?? [],
                                           }}
                                         />
                                         <td className={`${tdCSS} space-x-2`}>
@@ -1091,14 +1092,6 @@ export default function BudgetPage() {
                                                 item['id'],
                                               )
                                             }
-                                            // to={
-                                            //   BUDGET_TRANSACTION_ENTRY_ADD_FE_URL.replace(
-                                            //     '{entryId}',
-                                            //     item.id,
-                                            //   ) +
-                                            //   '?' +
-                                            //   searchParams.toString()
-                                            // }
                                             style={{ color: 'inherit' }}
                                           >
                                             <span className="flex items-center gap-1">
@@ -1127,7 +1120,7 @@ export default function BudgetPage() {
                     >
                       <Outlet
                         name="addBudget"
-                        context={{ errors, intent: addItemIntent, budgetSuggestions: suggestions, }}
+                        context={{ errors, intent: addItemIntent, suggestion: suggestions?.description ?? [], }}
                       />
                       <td className={`${tdCSS} space-x-2`}>
                         <>

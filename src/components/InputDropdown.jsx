@@ -8,15 +8,15 @@ export default function InputDropdownComponent({ props }) {
   const [filteredSuggestionOptions, setFilteredSuggestionOptions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
-  const {budgetSuggestions, disabled, placeholder, name, value, onInputChange, className} = props
-//   console.log("suggestions 11", budgetSuggestions)
-  let descriptionSugesstion = budgetSuggestions?.description ?? [];
+  const {suggestion, disabled, placeholder, name, value, onInputChange, className} = props
+  // console.log("suggestions 11", suggestion, filteredSuggestionOptions, showDropdown && filteredSuggestionOptions.length > 0)
+  // let descriptionSugesstion = suggestion ?? [];
   const handleChange = (e) => {
     const value = e.target.value;
     // setInputValue(value);
 
     if (value) {
-      const filtered = descriptionSugesstion.filter((option) =>
+      const filtered = suggestion.filter((option) =>
         option.toLowerCase().includes(value.toLowerCase()),
       );
       setFilteredSuggestionOptions(filtered);
@@ -37,6 +37,7 @@ export default function InputDropdownComponent({ props }) {
     <>
       <input
         type="text"
+        name={name}
         value={value}
         disabled={disabled}
         onChange={handleChange}
@@ -46,12 +47,12 @@ export default function InputDropdownComponent({ props }) {
         className={className}
       />
       {showDropdown && filteredSuggestionOptions.length > 0 && (
-        <ul className={`absolute bottom-full left-0 border max-h-60 overflow-auto z-50 shadow ${ddOptionCSS}`}>
+        <ul className={`absolute bottom-full left-0 border max-h-60 overflow-auto rounded-2xl z-50 shadow ${ddOptionCSS}`}>
           {filteredSuggestionOptions.slice(0, 10).map((option, index) => (
             <li
               key={index}
               onMouseDown={() => handleSelect(option)}
-              className="px-4 py-2 hover:bg-blue-100 cursor-pointer"
+              className="px-4 py-2 hover:bg-blue-100 hover:text-black cursor-pointer"
             >
               {option}
             </li>
