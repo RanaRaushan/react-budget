@@ -41,7 +41,7 @@ export const BUDGET_ADD_INVESTMENT_FE_URL = '/investment/add';
 const CONTENT_TYPE = 'Content-Type';
 const APPLICATION_JSON = 'application/json';
 
-const { getItem, setItem } = DataStore();
+const { getItem, setItem, removeItem } = DataStore();
 
 const createHeaders = (tokenData, sendEmptyHeader = false) => {
   let headers = {};
@@ -265,26 +265,32 @@ export async function get_budget_suggestions(params = {}) {
 }
 
 export async function get_add_budget(data = {}) {
+  removeItem('suggestions')
   return postRequest(BUDGET_ADD_API_URL, data, true, null);
 }
 
 export async function get_add_budget_detail_entry(data = {}) {
+  removeItem('suggestions')
   return postRequest(BUDGET_ENTRY_ADD_API_URL, data, true, null);
 }
 
 export async function get_add_bulk_budget_detail_entry(data = {}) {
+  removeItem('suggestions')
   return postRequest(BUDGET_BULK_ENTRY_ADD_API_URL, data, true, null);
 }
 
 export async function get_update_budget_detail_entry(data = {}) {
+  removeItem('suggestions')
   return postRequest(BUDGET_ENTRY_UPDATE_API_URL, data, true, null);
 }
 
 export async function get_update_budget(data = {}) {
+  removeItem('suggestions')
   return postRequest(BUDGET_UPDATE_API_URL, data, true, null);
 }
 
 export async function upload_budget(data = {}) {
+  removeItem('suggestions')
   return postRequest(BUDGET_UPLOAD_API_URL, data, true, true);
 }
 
@@ -338,10 +344,10 @@ export async function remove_investments(data = {}, investmentId) {
   });
 }
 
-export default {
-  get_all_budget,
-  BUDGET_API_URL,
-  BUDGET_ADD_API_URL,
-  BUDGET_UPDATE_API_URL,
-  BUDGET_FE_URL,
-};
+// export default {
+//   get_all_budget,
+//   BUDGET_API_URL,
+//   BUDGET_ADD_API_URL,
+//   BUDGET_UPDATE_API_URL,
+//   BUDGET_FE_URL,
+// };

@@ -26,10 +26,10 @@ import {
 import {
   enumFields,
   dateFields,
-  validationInvestmentFields,
   investmentHeaders,
   investmentTypeEnum,
   compoundingFrequencyEnum,
+  validationUpdateBudgetFields,
 } from '../../utils/constantHelper.js';
 import {
   filterMapObject,
@@ -103,7 +103,7 @@ function validateInputs(input, inputValue, prefix) {
   if (
     prefix &&
     prefix !== 'null-' &&
-    validationInvestmentFields.includes(input.key)
+    validationUpdateBudgetFields.includes(input.key)
   ) {
     if (!inputValue || !inputValue.trim() || inputValue.trim() === '') {
       inputError[prefix + input.key] = `${input.label} is required`;

@@ -38,8 +38,10 @@ import {
   itemCategoryEnum,
   enumFields,
   dateFields,
-  validationBudgetFields,
-  validationBudgetDetailEntryFields,
+  validationUpdateBudgetFields,
+  validationAddBudgetFields,
+  validationAddBudgetDetailEntryFields,
+  validationUpdateBudgetDetailEntryFields,
 } from '../../utils/constantHelper.js';
 import {
   filterMapObject,
@@ -67,6 +69,7 @@ import DownloadBudgetComponent from '../../components/DownloadBudget.jsx';
 import FormErrorsComponent from '../../components/FormErrors.jsx';
 import BulkddBudgetEntryPage from './Bulk-AddBudgetEntryPage.jsx';
 import DataStore from '../../utils/DataStore.js';
+import { validateGenericInput } from '../../utils/InputValidationHelper.js';
 
 const LOG_PREFIX = 'BudgetPage::';
 
@@ -77,11 +80,18 @@ const updateItemDetailIntent = 'itemDetailUpdate';
 const addBulkItemDetailIntent = 'bulkItemDetailAdd';
 
 const intentToValidationMap = {
-  [addItemIntent]: validationBudgetFields,
-  [updateItemIntent]: validationBudgetFields,
-  [addItemDetailIntent]: validationBudgetDetailEntryFields,
-  [updateItemDetailIntent]: validationBudgetDetailEntryFields,
-  [addBulkItemDetailIntent]: validationBudgetDetailEntryFields,
+  [addItemIntent]: validationAddBudgetFields,
+  [updateItemIntent]: validationUpdateBudgetFields,
+  [addItemDetailIntent]: validationAddBudgetDetailEntryFields,
+  [updateItemDetailIntent]: validationUpdateBudgetDetailEntryFields,
+  [addBulkItemDetailIntent]: validationAddBudgetDetailEntryFields,
+};
+
+const intentToHeadersMap = {
+  [addItemIntent]: budgetHeaders,
+  [updateItemIntent]: budgetHeaders,
+  [addItemDetailIntent]: itemDetailHeaders,
+  [updateItemDetailIntent]: itemDetailHeaders,
 };
 
 export async function action({ request }) {
@@ -91,13 +101,18 @@ export async function action({ request }) {
   const payload = {};
   let errors = {};
   let fieldValue;
-  (intent === addItemDetailIntent ? itemDetailHeaders : budgetHeaders).map(
+  intentToHeadersMap[intent].map(
     (header, idx) => (
       (fieldValue = formData.get(intent + '-' + header.key)),
       (payload[header.key] = fieldValue),
       (errors = {
         ...errors,
-        ...validateInputs(header, fieldValue, intent + '-'),
+        ...validateGenericInput(
+          header,
+          fieldValue,
+          intent + '-',
+          intentToValidationMap[intent + '-'.split('-')[0]],
+        ),
       })
     ),
   );
@@ -110,6 +125,7 @@ export async function action({ request }) {
   }
 
   if (intent === updateItemDetailIntent && payload) {
+    payload['item'] = formData.get('parentItemId');
     await get_update_budget_detail_entry(payload);
     return redirect(redirectUrl || BUDGET_FE_URL);
   }
@@ -129,7 +145,6 @@ export async function action({ request }) {
 
 function validateInputs(input, inputValue, prefix) {
   let inputError = {};
-  console.log(intentToValidationMap, prefix.split('-')[0]);
   if (
     prefix &&
     prefix !== 'null-' &&
@@ -173,8 +188,11 @@ export const loader =
     const summary = response.summary;
     let suggestions = {};
     if (response.empty !== true) {
-       suggestions = getItem("suggestions") || (auth?.token && (await get_budget_suggestions())) || {};
-       suggestions && !suggestions?.error && setItem("suggestions", suggestions);
+      suggestions =
+        getItem('suggestions') ||
+        (auth?.token && (await get_budget_suggestions())) ||
+        {};
+      suggestions && !suggestions?.error && setItem('suggestions', suggestions);
       filteredBudgetData = response.result;
       return { filteredBudgetData, pagination, summary, suggestions };
     }
@@ -189,11 +207,11 @@ export default function BudgetPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const fetcher = useFetcher();
-  const { filteredBudgetData, pagination, summary, suggestions } = useLoaderData();
+  const { filteredBudgetData, pagination, summary, suggestions } =
+    useLoaderData();
   const totalPages = pagination?.totalPages;
   // const currentPage = Math.min(pagination?.page, totalPages);
 
-  console.log("suggestions 196", suggestions);
   const isAddBudgetPage = location.pathname.includes('budget/add');
   const isAddBudgetEntryPage = location.pathname.includes('budget/entry/add');
 
@@ -358,11 +376,11 @@ export default function BudgetPage() {
       });
     } else {
       resetErrorState();
-      setEditBudgetRowId(null);
     }
+      setEditBudgetRowId(null);
   };
 
-  const updateTransactionItemRowSubmit = (e, previousValue) => {
+  const updateTransactionItemRowSubmit = (e, previousValue, parentId) => {
     e.preventDefault();
     let formData = new FormData(e.currentTarget.form);
     formData.append(
@@ -370,6 +388,7 @@ export default function BudgetPage() {
       `${BUDGET_FE_URL}?${searchParams.toString()}`,
     );
     formData.append('intent', updateItemDetailIntent);
+    formData.append(`parentItemId`, parentId);
     if (
       checkIfAnyFormDataUpdated(previousValue, Object.fromEntries(formData))
     ) {
@@ -378,8 +397,8 @@ export default function BudgetPage() {
       });
     } else {
       resetErrorState();
-      setEditTransactionItemRowId(null);
     }
+    setEditTransactionItemRowId(null);
   };
 
   const handleAddBudgetRowSubmit = (e) => {
@@ -445,23 +464,34 @@ export default function BudgetPage() {
         const key = header.key;
         currentErrors = {
           ...currentErrors,
-          ...validateInputs(header, row[key], addBulkItemDetailIntent + '-'),
+          ...validateGenericInput(
+            header,
+            row[key],
+            addBulkItemDetailIntent + '-',
+            intentToValidationMap[addBulkItemDetailIntent + '-'.split('-')[0]],
+          ),
         };
       }
       row['item'] = parentId;
       return { ...row, errors: currentErrors };
     });
     setBudgetDetailEntryInputRows(updatedForms);
-    if (
-      budgetDetailEntryInputRows?.length &&
-      (!updatedForms.errors || Object.keys(updatedForms.errors).length <= 0)
-    ) {
+    const key = 'errors';
+    const hasNoErrors = updatedForms.every((obj) => {
+      return (
+        obj.hasOwnProperty(key) &&
+        obj[key] !== '' &&
+        obj[key] !== null &&
+        obj[key] !== undefined
+      );
+    });
+    if (budgetDetailEntryInputRows?.length && hasNoErrors) {
       delete budgetDetailEntryInputRows[errors];
       await get_add_bulk_budget_detail_entry(budgetDetailEntryInputRows).then(
         (res) => navigate(BUDGET_FE_URL + '?' + searchParams.toString()),
       );
     }
-    resetInputRowsState();
+    if (hasNoErrors) resetInputRowsState();
   };
 
   useEffect(() => {
@@ -614,6 +644,9 @@ export default function BudgetPage() {
               placeholder="Search value"
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleAddParam(e);
+              }}
               className={`${inputddCSS}`}
             />
           )}
@@ -640,7 +673,10 @@ export default function BudgetPage() {
         <div className="flex flex-wrap items-center gap-4">
           <>
             <DownloadBudgetComponent
-              props={{ callbackData: fetchBudgetDataToDownload, buttonText: "Dwonload"}}
+              props={{
+                callbackData: fetchBudgetDataToDownload,
+                buttonText: 'Dwonload',
+              }}
             />
           </>
           {/* Year Dropdown */}
@@ -876,30 +912,25 @@ export default function BudgetPage() {
                                                   key={`${itemDetail.id}${itemDH.key}`}
                                                   className={`${tdCSS}`}
                                                 >
-                                                  {errors &&
-                                                    errors[
-                                                      updateItemDetailIntent +
-                                                        itemDH.key
-                                                    ] && (
-                                                      <p
-                                                        className={`${errorTextCSS}`}
-                                                      >
-                                                        {
-                                                          errors[
-                                                            updateItemDetailIntent +
-                                                              itemDH.key
-                                                          ]
-                                                        }
-                                                      </p>
-                                                    )}
+                                                  <FormErrorsComponent
+                                                    errors={errors}
+                                                    header={itemDH}
+                                                    intent={
+                                                      updateItemDetailIntent
+                                                    }
+                                                  />
+
                                                   <UpdateItemComponent
                                                     header={itemDH}
                                                     item={itemDetail}
                                                     intent={
                                                       updateItemDetailIntent
                                                     }
-                                                    formInputs={
-                                                      itemDetailHeaders
+                                                    hasError={
+                                                      updateItemIntent +
+                                                        '-' +
+                                                        itemDH.key in
+                                                      errors
                                                     }
                                                   />
                                                 </td>
@@ -935,7 +966,8 @@ export default function BudgetPage() {
                                                   onClick={(e) => {
                                                     updateTransactionItemRowSubmit(
                                                       e,
-                                                      item,
+                                                      itemDetail,
+                                                      item['id'],
                                                     );
                                                   }}
                                                   type="submit"
@@ -982,7 +1014,8 @@ export default function BudgetPage() {
                                           context={{
                                             errors,
                                             intent: addItemDetailIntent,
-                                            suggestion: suggestions?.itemName ?? [],
+                                            suggestion:
+                                              suggestions?.itemName ?? [],
                                           }}
                                         />
                                         <td className={`${tdCSS} space-x-2`}>
@@ -1120,7 +1153,11 @@ export default function BudgetPage() {
                     >
                       <Outlet
                         name="addBudget"
-                        context={{ errors, intent: addItemIntent, suggestion: suggestions?.description ?? [], }}
+                        context={{
+                          errors,
+                          intent: addItemIntent,
+                          suggestion: suggestions?.description ?? [],
+                        }}
                       />
                       <td className={`${tdCSS} space-x-2`}>
                         <>

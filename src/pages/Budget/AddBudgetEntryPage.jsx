@@ -53,14 +53,14 @@ export default function AddBudgetEntryPage() {
             name={`${intent}-${header.key}`}
             value={formData[header.key]}
             onChange={(e) => handleInputChange(header.key)(e.target.value)}
-            className={`${inputCSS}`}
+            className={`${inputCSS} ${intent + "-" + header.key in (errors??{}) ? 'border border-red-500' : ''}`}
           />
         ) : enumFields.includes(header.key) ? (
           <select
             name={`${intent}-${header.key}`}
             value={formData[header.key]}
             onChange={(e) => handleInputChange(header.key)(e.target.value)}
-            className={`${inputddCSS}`}
+            className={`${inputddCSS} ${intent + "-" + header.key in (errors??{}) ? 'border border-red-500' : ''}`}
           >
             <option className={`${ddOptionCSS}`} value="">
               {header.label}
@@ -72,7 +72,7 @@ export default function AddBudgetEntryPage() {
                 ? itemCategoryEnum
                 : paymentTypeEnum,
             ).map(([ddKey, ddLabel]) => (
-              <option className={`${ddOptionCSS}`} key={ddKey} value={ddKey}>
+              <option className={`${ddOptionCSS} ${intent + "-" + header.key in (errors??{}) ? 'border border-red-500' : ''}`} key={ddKey} value={ddKey}>
                 {ddLabel}
               </option>
             ))}
@@ -86,7 +86,7 @@ export default function AddBudgetEntryPage() {
               name: `${intent}-${header.key}`,
               value: formData[header.key],
               onInputChange: (value) => handleInputChange(header.key)(value),
-              className: `${inputCSS}`,
+              className: `${inputCSS} ${intent + "-" + header.key in (errors??{}) ? 'border border-red-500' : ''}`,
             }}
           />
         ) : (
@@ -97,7 +97,7 @@ export default function AddBudgetEntryPage() {
             name={`${intent}-${header.key}`}
             value={formData[header.key]}
             onChange={(e) => handleInputChange(header.key)(e.target.value)}
-            className={`${inputCSS}`}
+            className={`${inputCSS} ${intent + "-" + header.key in (errors??{}) ? 'border border-red-500' : ''}`}
           />
         )}
       </div>

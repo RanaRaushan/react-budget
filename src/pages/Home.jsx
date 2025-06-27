@@ -87,14 +87,6 @@ export default function HomePage() {
           <div className="bg-indigo-600 p-6 rounded-lg max-w-md w-full text-white">
             <h2 className="text-xl font-semibold mb-4">Before You Download</h2>
             <label className={`${labelCSS}`}>Which year?</label>
-            {/* <input
-              type="text"
-              className={`${inputCSS}`}
-              // value={downloadReason}
-              // onChange={(e) => setDownloadReason(e.target.value)}
-              placeholder="e.g. For reporting..."
-            /> */}
-
             <select
               value={formData['selectedYear'] ?? getCurrentYear()}
               onChange={(e) =>

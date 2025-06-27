@@ -5,7 +5,7 @@ import { getFormatedDate } from '../utils/functionHelper';
 
 const LOG_PREFIX = "UpdateBudgetPage::"
 
-export default function UpdateItemComponent({header, item, intent, formInputs}) {
+export default function UpdateItemComponent({header, item, intent, hasError}) {
 
   return (
     <>
@@ -17,7 +17,7 @@ export default function UpdateItemComponent({header, item, intent, formInputs}) 
                 name={`${intent}-${header.key}`}
                 defaultValue={getFormatedDate(item[header.key])}
                 onChange={(e) => e.target.value}
-                className={`${inputCSS}`}
+                className={`${inputCSS} ${hasError? 'border border-red-500' : ''}`}
             />
             : enumFields.includes(header.key) 
                 ? <select

@@ -48,7 +48,7 @@ export default function BulkddBudgetEntryPage({ props }) {
                     onChange={(e) =>
                       onChange(rowIndex, header.key, e.target.value)
                     }
-                    className={`${inputCSS}`}
+                    className={`${inputCSS} ${intent + "-" + header.key in (row.errors??{}) ? 'border border-red-500' : ''}`}
                   />
                 ) : enumFields.includes(header.key) ? (
                   <select
@@ -57,7 +57,7 @@ export default function BulkddBudgetEntryPage({ props }) {
                     onChange={(e) =>
                       onChange(rowIndex, header.key, e.target.value)
                     }
-                    className={`${inputddCSS}`}
+                    className={`${inputddCSS} ${intent + "-" + header.key in (row.errors??{}) ? 'border border-red-500' : ''}`}
                   >
                     <option className={`${ddOptionCSS}`} value="">
                       {header.label}
@@ -70,7 +70,7 @@ export default function BulkddBudgetEntryPage({ props }) {
                         : paymentTypeEnum,
                     ).map(([ddKey, ddLabel]) => (
                       <option
-                        className={`${ddOptionCSS}`}
+                        className={`${ddOptionCSS} ${intent + "-" + header.key in (row.errors??{}) ? 'border border-red-500' : ''}`}
                         key={ddKey}
                         value={ddKey}
                       >
@@ -103,7 +103,7 @@ export default function BulkddBudgetEntryPage({ props }) {
                     onChange={(e) =>
                       onChange(rowIndex, header.key, e.target.value)
                     }
-                    className={`${inputCSS}`}
+                    className={`${inputCSS} ${intent + "-" + header.key in (row.errors??{}) ? 'border border-red-500' : ''}`}
                   />
                 )}
               </div>

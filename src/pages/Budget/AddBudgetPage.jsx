@@ -38,7 +38,7 @@ export default function AddBudgetItemPage() {
       [key]: value,
     }));
   };
-  // console.log("suggestion 39", suggestion)
+
   return budgetHeaders.map((header, idx) => (
     <td key={header.key} className={`${tdCSS} relative`}>
       <FormErrorsComponent errors={errors} header={header} intent={intent} />
@@ -52,14 +52,14 @@ export default function AddBudgetItemPage() {
             name={`${intent}-${header.key}`}
             value={formData[header.key]}
             onChange={(e) => handleInputChange(header.key)(e.target.value)}
-            className={`${inputCSS}`}
+            className={`${inputCSS} ${intent + "-" + header.key in (errors??{}) ? 'border border-red-500' : ''}`}
           />
         ) : enumFields.includes(header.key) ? (
           <select
             name={`${intent}-${header.key}`}
             value={formData[header.key]}
             onChange={(e) => handleInputChange(header.key)(e.target.value)}
-            className={`${inputddCSS}`}
+            className={`${inputddCSS} ${intent + "-" + header.key in (errors??{}) ? 'border border-red-500' : ''}`}
           >
             <option className={`${ddOptionCSS}`} value="">
               {header.label}
@@ -85,7 +85,7 @@ export default function AddBudgetItemPage() {
               name: `${intent}-${header.key}`,
               value: formData[header.key],
               onInputChange: (value) => handleInputChange(header.key)(value),
-              className: `${inputCSS}`,
+              className: `${inputCSS} ${intent + "-" + header.key in (errors??{}) ? 'border border-red-500' : ''}`,
             }}
           />
         ) : (
@@ -96,7 +96,7 @@ export default function AddBudgetItemPage() {
             name={`${intent}-${header.key}`}
             value={formData[header.key]}
             onChange={(e) => handleInputChange(header.key)(e.target.value)}
-            className={`${inputCSS}`}
+            className={`${inputCSS} ${intent + "-" + header.key in (errors??{}) ? 'border border-red-500' : ''}`}
           />
         )}
       </div>

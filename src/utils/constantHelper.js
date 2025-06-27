@@ -3,9 +3,12 @@ const dateFields = ['paidDate', 'spentDate', 'investmentDate', 'maturityDate']
 const enumFields = ['itemType', 'paymentType', 'spentType', 'investmentType', 'compoundingFrequency']
 const lockedFields = ['id', 'period', 'maturityAmount', 'maturityTimeLeftInDays', 'perUnitPrice']
 const inputDropDownFields = ['description', 'itemName']
-const validationBudgetFields = ['id', 'paidDate', 'spentDate', 'itemType', 'paymentType', 'spentType', 'amount', 'paidAmount', 'description', 'owner']
-const validationBudgetDetailEntryFields = ['id', 'itemName', 'itemQty', 'itemPrice']
-const validationInvestmentFields = ['id', 'investmentType', 'description', 'interestRate', 'investmentAmount', 'investmentDate', 'maturityDate', 'compoundingFrequency']
+const validationAddBudgetFields = ['paidDate', 'spentDate', 'itemType', 'paymentType', 'spentType', 'amount', 'paidAmount', 'description', 'owner']
+const validationUpdateBudgetFields = ['id', 'paidDate', 'spentDate', 'itemType', 'paymentType', 'spentType', 'amount', 'paidAmount', 'description', 'owner']
+const validationAddBudgetDetailEntryFields = ['itemName', 'itemQty', 'unit', 'itemPrice']
+const validationUpdateBudgetDetailEntryFields = ['id', 'itemName', 'itemQty', 'unit', 'itemPrice']
+const validationAddInvestmentFields = ['id', 'investmentType', 'description', 'interestRate', 'investmentAmount', 'investmentDate', 'maturityDate', 'compoundingFrequency']
+const validationUpdateInvestmentFields = ['investmentType', 'description', 'interestRate', 'investmentAmount', 'investmentDate', 'maturityDate', 'compoundingFrequency']
 
 const monthNames = [
   "January", "February", "March", "April", "May", "June",
@@ -126,11 +129,14 @@ export {
     dateFields,
     lockedFields,
     inputDropDownFields,
-    validationBudgetFields,
-    validationBudgetDetailEntryFields,
+    validationAddBudgetFields,
+    validationUpdateBudgetFields,
+    validationAddBudgetDetailEntryFields,
+    validationUpdateBudgetDetailEntryFields,
+    validationAddInvestmentFields,
+    validationUpdateInvestmentFields,
     monthNames,
     investmentHeaders,
     investmentTypeEnum,
     compoundingFrequencyEnum,
-    validationInvestmentFields,
 };
