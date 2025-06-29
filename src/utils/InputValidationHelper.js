@@ -6,13 +6,10 @@ export function validateGenericInput(
 ) {
   let inputError = {};
 
-    console.log("validateGenericInput start", keyInput, value, prefix, validationFields);
   if (validationFields.includes(keyInput.key)) {
     const trimmed = value && typeof value === 'string' ? value.trim() : value;
-    console.log("validateGenericInput trimmed", trimmed, !trimmed || trimmed === '');
     if (!trimmed || trimmed === '') {
       inputError[prefix + keyInput.key] = `Please enter ${keyInput.label}`;
-    console.log("validateGenericInput error 15", inputError);
       return inputError;
     }
 
@@ -51,7 +48,6 @@ export function validateGenericInput(
         }
         break;
     }
-    console.log("validateGenericInput error", inputError);
     return inputError;
   }
 

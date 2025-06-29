@@ -1,6 +1,7 @@
 import {
   dateFields,
   enumFields,
+  inputDropDownFields,
   itemCategoryEnum,
   itemDetailHeaders,
   lockedFields,
@@ -15,11 +16,12 @@ import {
   tdCSS,
 } from '../../utils/cssConstantHelper';
 import FormErrorsComponent from '../../components/FormErrors';
+import InputDropdownComponent from '../../components/InputDropdown';
 
 const LOG_PREFIX = 'BulkddBudgetEntryPage::';
 
 export default function BulkddBudgetEntryPage({ props }) {
-  const { intent, inputRows, onChange, onRemove } = props;
+  const { intent, inputRows, onChange, onRemove, suggestion } = props;
 
   //   console.log('inputRows', inputRows);
   return inputRows.map((row, rowIndex) => {
@@ -79,20 +81,20 @@ export default function BulkddBudgetEntryPage({ props }) {
                     ))}
                   </select>
                 ) : 
-                // inputDropDownFields.includes(header.key) ? (
-                //   <InputDropdownComponent
-                //     props={{
-                //       suggestion,
-                //       disabled: lockedFields.includes(header.key),
-                //       placeholder: header.label,
-                //       name: `${intent}-${header.key}`,
-                //       value: formData[header.key],
-                //       onInputChange: (value) =>
-                //         handleInputChange(header.key)(value),
-                //       className: `${inputCSS}`,
-                //     }}
-                //   />
-                // ) : 
+                inputDropDownFields.includes(header.key) ? (
+                  <InputDropdownComponent
+                    props={{
+                      suggestion,
+                      disabled: lockedFields.includes(header.key),
+                      placeholder: header.label,
+                      name: `${intent}[${rowIndex}]-${header.key}`,
+                      value: row[header.key],
+                      onInputChange: (value) =>
+                        onChange(rowIndex, header.key, value),
+                      className: `${inputCSS} ${intent + "-" + header.key in (row.errors??{}) ? 'border border-red-500' : ''}`,
+                    }}
+                  />
+                ) : 
                 (
                   <input
                     type="text"

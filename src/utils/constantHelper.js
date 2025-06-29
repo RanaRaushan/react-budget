@@ -2,7 +2,7 @@
 const dateFields = ['paidDate', 'spentDate', 'investmentDate', 'maturityDate']
 const enumFields = ['itemType', 'paymentType', 'spentType', 'investmentType', 'compoundingFrequency']
 const lockedFields = ['id', 'period', 'maturityAmount', 'maturityTimeLeftInDays', 'perUnitPrice']
-const inputDropDownFields = ['description', 'itemName']
+const inputDropDownFields = ['description', 'itemName', 'itemDescription']
 const validationAddBudgetFields = ['paidDate', 'spentDate', 'itemType', 'paymentType', 'spentType', 'amount', 'paidAmount', 'description', 'owner']
 const validationUpdateBudgetFields = ['id', 'paidDate', 'spentDate', 'itemType', 'paymentType', 'spentType', 'amount', 'paidAmount', 'description', 'owner']
 const validationAddBudgetDetailEntryFields = ['itemName', 'itemQty', 'unit', 'itemPrice']
@@ -30,11 +30,13 @@ const budgetHeaders = [
   
 const itemDetailHeaders = [
     { label: "ID", key: "id" },
-    { label: "Item Name", key: "itemName" },
-    { label: "Item Quantity", key: "itemQty" },
+    { label: "Name", key: "itemName" },
+    // { label: "Descriptiom", key: "itemDescription" },
+    { label: "Weight", key: "itemWeight" },
+    { label: "Quantity", key: "itemQty" },
     { label: "Unit", key: "unit" },
     { label: "Per Item Price", key: "perUnitPrice" },
-    { label: "Item price", key: "itemPrice" },
+    { label: "Price", key: "itemPrice" },
     { label: "Refer Transaction Id", key: "referTransactionId" },
   ];
 
@@ -61,6 +63,16 @@ const paymentTypeEnum = Object.freeze({
     SBI_BANK: "SBI Bank",
     CASH: "Cash",
     SLICE_BANK: "Slice Bank"
+  });  
+
+const accountTypeEnum = Object.freeze({
+    HDFC: "HDFC Bank",
+    IDFC : "IDFC Bank",
+    PNB : "PNB Bank",
+    SBI : "SBI Bank",
+    SLICE : "Slice Bank",
+    BB_WALLET : "BB Wallet",
+    AMAZON_WALLET : "Amazon Wallet",
   });
   
 const itemCategoryEnum = Object.freeze({
@@ -125,6 +137,7 @@ export {
     spentTypeEnum,
     paymentTypeEnum,
     itemCategoryEnum,
+    accountTypeEnum,
     enumFields,
     dateFields,
     lockedFields,

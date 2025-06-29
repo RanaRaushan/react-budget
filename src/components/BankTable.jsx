@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  accountTypeEnum,
   budgetHeaders,
   itemCategoryEnum,
   monthNames,
@@ -30,9 +31,7 @@ export default function BankTableComponent({
   const tdBorderCSS = 'border border-gray-300';
   const tdCornerDataCSS = 'font-bold';
 
-  const bankList = Object.entries(paymentTypeEnum).filter(([key, value]) =>
-    key.endsWith('BANK'),
-  );
+  const bankList = Object.entries(accountTypeEnum).concat([["monthlyTotalAmount", "Totals"]])
   return (
     <>
       {/* Table */}
@@ -55,7 +54,7 @@ export default function BankTableComponent({
               <LoadingTableComponent colLen={monthNames.length + 1} rowLen={bankList.length + 1}/>
             ) : (
               <>
-                {bankList.concat([["monthlyTotalAmount", "Totals"]]).map(([bankId, bankName], bidx) => (
+                {bankList.map(([bankId, bankName], bidx) => (
                   <React.Fragment key={`${bankId}${bidx}${expType}`}>
                     <tr key={`${bankId}${expType}`} className={`${tableRowCSS}`}>
                       <td
@@ -76,7 +75,7 @@ export default function BankTableComponent({
                           key={`${bankId}${month}${midx}${expType}`}
                           className={`${tdCSS} ${tdBorderCSS} ${tdCornerDataCSS} ${month.toUpperCase()} ${bankId} ${bankExpenses?.monthlyRecords[month.toUpperCase()]?.bankData[bankId]}`}
                         >
-                          {bankExpenses?.monthlyRecords[month.toUpperCase()]?.bankData[bankId.split('_')[0]] ?? 0}
+                          {bankExpenses?.monthlyRecords[month.toUpperCase()]?.bankData[bankId] ?? 0}
                         </td>
                       ))}
                     </tr>

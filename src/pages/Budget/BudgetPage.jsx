@@ -245,6 +245,8 @@ export default function BudgetPage() {
   const [budgetDetailEntryInputRows, setBudgetDetailEntryInputRows] = useState(
     [],
   );
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const scrollTargetAddBudgetRef = useRef(null);
   const scrollTargetAddBudgetEntryRef = useRef(null);
@@ -362,6 +364,8 @@ export default function BudgetPage() {
 
   const updateBudgetRowSubmit = (e, previousValue) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     let formData = new FormData(e.currentTarget.form);
     formData.append(
       'redirectTo',
@@ -378,10 +382,13 @@ export default function BudgetPage() {
       resetErrorState();
     }
       setEditBudgetRowId(null);
+      setIsSubmitting(false);
   };
 
   const updateTransactionItemRowSubmit = (e, previousValue, parentId) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     let formData = new FormData(e.currentTarget.form);
     formData.append(
       'redirectTo',
@@ -399,10 +406,13 @@ export default function BudgetPage() {
       resetErrorState();
     }
     setEditTransactionItemRowId(null);
+    setIsSubmitting(false);
   };
 
   const handleAddBudgetRowSubmit = (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     let formData = new FormData(e.currentTarget.form);
     formData.append(
       'redirectTo',
@@ -412,10 +422,13 @@ export default function BudgetPage() {
     fetcher.submit(formData, {
       method: 'POST',
     });
+    setIsSubmitting(false);
   };
 
   const handleAddBudgetEntryRowSubmit = (e, parentId) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     let formData = new FormData(e.currentTarget.form);
     formData.append(
       'redirectTo',
@@ -426,6 +439,7 @@ export default function BudgetPage() {
     fetcher.submit(formData, {
       method: 'POST',
     });
+    setIsSubmitting(false);
   };
 
   const handleAddBudgetEntry = (e) => {
@@ -458,6 +472,8 @@ export default function BudgetPage() {
 
   const handleAddBulkBudgetEntryRowSubmit = async (e, parentId) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     const updatedForms = budgetDetailEntryInputRows.map((row, idx) => {
       let currentErrors = {};
       for (const header of itemDetailHeaders) {
@@ -492,6 +508,7 @@ export default function BudgetPage() {
       );
     }
     if (hasNoErrors) resetInputRowsState();
+    setIsSubmitting(false);
   };
 
   useEffect(() => {
@@ -1002,6 +1019,7 @@ export default function BudgetPage() {
                                           inputRows: budgetDetailEntryInputRows,
                                           onChange: handleBulkEntryChange,
                                           onRemove: removeFromBulkEntryRow,
+                                          suggestion: suggestions?.itemName ?? [],
                                         }}
                                       />
                                     )}
