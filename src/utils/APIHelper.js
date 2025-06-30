@@ -1,8 +1,8 @@
 import DataStore from './DataStore';
 
-const SERVER_HOST = import.meta.env.VITE_SERVER_HOST;
-const API_BASE_URL = SERVER_HOST + import.meta.env.VITE_API_PREFIX;
-const PYHTON_API_BASE_URL = 'http://localhost:8081';
+const SERVER_HOST = import.meta.env.VITE_BE_SERVER_HOST;
+const API_BASE_URL = SERVER_HOST + import.meta.env.VITE_BE_API_PREFIX;
+const OCR_API_BASE_URL = import.meta.env.VITE_OCR_SERVER_HOST;
 
 const AUTH_API_URL = '/auth';
 const AUTH_REGISTER_API_URL = '/auth/register';
@@ -174,7 +174,7 @@ export const postRequest = async ({
   init = {},
   retry = false, //not working marking false for now
   apiBaseUrl = API_BASE_URL,
-  params = {},
+  params = undefined,
 }) => {
   let tokenData = null;
   if (requireToken) {
@@ -190,12 +190,13 @@ export const postRequest = async ({
     tokenData,
     sendEmptyHeader,
     urlValues,
-    params.toString(),
+    params,
+    params?.toString(),
   );
 
   return (
     (!requireToken || tokenData?.body) &&
-    fetch(apiBaseUrl + path + `?${params.toString()}`, {
+    fetch(apiBaseUrl + path + `?${params??''}`, {
       method: 'POST',
       ...(bodyData && {
         body: sendEmptyHeader ? bodyData : JSON.stringify(bodyData),
@@ -298,7 +299,7 @@ export async function get_add_budget(data = {}) {
 export async function get_add_budget_detail_entry(data = {}) {
   removeItem('suggestions');
   return postRequest({
-    pathBUDGET_ENTRY_ADD_API_URL,
+    path:BUDGET_ENTRY_ADD_API_URL,
     bodyData: data,
     requireToken: true,
   });
@@ -445,7 +446,7 @@ export async function get_data_by_ocr(data = {}, params = {}) {
     bodyData: data,
     requireToken: true,
     sendEmptyHeader: true,
-    apiBaseUrl: PYHTON_API_BASE_URL,
+    apiBaseUrl: OCR_API_BASE_URL,
     params: params,
   });
 }

@@ -145,35 +145,6 @@ export async function action({ request }) {
   return {};
 }
 
-function validateInputs(input, inputValue, prefix) {
-  let inputError = {};
-  if (
-    prefix &&
-    prefix !== 'null-' &&
-    intentToValidationMap[prefix.split('-')[0]].includes(input.key)
-  ) {
-    if (!inputValue || !inputValue.trim() || inputValue.trim() === '') {
-      inputError[prefix + input.key] = `${input.label} is required`;
-    }
-    if (
-      prefix === updateItemIntent + '-' &&
-      inputValue?.trim() &&
-      input.key === 'id' &&
-      isNaN(Number(inputValue))
-    ) {
-      inputError[prefix + input.key] = `Not a valid ${input.label}`;
-    }
-    if (
-      prefix === addItemIntent + '-' ||
-      prefix === addBulkItemDetailIntent + '-' ||
-      prefix === addItemDetailIntent + '-'
-    ) {
-      delete inputError[prefix + 'id'];
-    }
-  }
-  return inputError;
-}
-
 export const loader =
   (auth) =>
   async ({ request }) => {
@@ -247,7 +218,7 @@ export default function BudgetPage() {
   const [budgetDetailEntryInputRows, setBudgetDetailEntryInputRows] = useState(
     [],
   );
-  
+  console.log("searchParams", searchParams)
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const scrollTargetAddBudgetRef = useRef(null);
@@ -910,7 +881,14 @@ export default function BudgetPage() {
                                       {itemDetailHeaders
                                         .concat(extra_headers)
                                         .map((itemDH, idx) => (
-                                          <th key={idx} className={`${tdCSS}`}>
+                                          <th key={idx} className={`${tdCSS}`} 
+
+                                            title={`${
+                      itemDH.key === 'id'
+                        ? `Total Entry count for this order is: ${item['transactionItems']?.length}`
+                        : ''
+                    }`}
+                                          >
                                             {itemDH.label}
                                           </th>
                                         ))}

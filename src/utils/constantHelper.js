@@ -5,8 +5,8 @@ const lockedFields = ['id', 'period', 'maturityAmount', 'maturityTimeLeftInDays'
 const inputDropDownFields = ['description', 'itemName', 'itemDescription']
 const validationAddBudgetFields = ['paidDate', 'spentDate', 'itemType', 'paymentType', 'spentType', 'amount', 'paidAmount', 'description', 'owner']
 const validationUpdateBudgetFields = ['id', 'paidDate', 'spentDate', 'itemType', 'paymentType', 'spentType', 'amount', 'paidAmount', 'description', 'owner']
-const validationAddBudgetDetailEntryFields = ['itemName', 'itemQty', 'unit', 'itemPrice']
-const validationUpdateBudgetDetailEntryFields = ['id', 'itemName', 'itemQty', 'unit', 'itemPrice']
+const validationAddBudgetDetailEntryFields = ['itemName', 'itemQty', 'itemPrice']
+const validationUpdateBudgetDetailEntryFields = ['id', 'itemName', 'itemQty', 'itemPrice']
 const validationAddInvestmentFields = ['id', 'investmentType', 'description', 'interestRate', 'investmentAmount', 'investmentDate', 'maturityDate', 'compoundingFrequency']
 const validationUpdateInvestmentFields = ['investmentType', 'description', 'interestRate', 'investmentAmount', 'investmentDate', 'maturityDate', 'compoundingFrequency']
 
