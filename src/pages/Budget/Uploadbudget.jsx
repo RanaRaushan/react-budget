@@ -64,7 +64,6 @@ export default function Uploadbudget() {
         });
         return obj;
       });
-      console.log('json', json);
       setFileData(json.slice(0, 5)); // show only 5 rows for preview
     };
     reader.readAsArrayBuffer(file);

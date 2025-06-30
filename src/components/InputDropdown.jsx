@@ -4,16 +4,12 @@ import { ddOptionCSS } from '../utils/cssConstantHelper';
 // const options = ['Apple', 'Banana', 'Cherry', 'Date', 'Grapes', 'Mango'];
 
 export default function InputDropdownComponent({ props }) {
-  const [inputValue, setInputValue] = useState('');
   const [filteredSuggestionOptions, setFilteredSuggestionOptions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
   const {suggestion, disabled, placeholder, name, value, onInputChange, className} = props
-  // console.log("suggestions 11", suggestion, filteredSuggestionOptions, showDropdown && filteredSuggestionOptions.length > 0)
-  // let descriptionSugesstion = suggestion ?? [];
   const handleChange = (e) => {
     const value = e.target.value;
-    // setInputValue(value);
 
     if (value) {
       const filtered = suggestion.filter((option) =>

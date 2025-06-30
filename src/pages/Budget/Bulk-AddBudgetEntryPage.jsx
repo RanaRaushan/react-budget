@@ -23,8 +23,7 @@ const LOG_PREFIX = 'BulkddBudgetEntryPage::';
 export default function BulkddBudgetEntryPage({ props }) {
   const { intent, inputRows, onChange, onRemove, suggestion } = props;
 
-  //   console.log('inputRows', inputRows);
-  return inputRows.map((row, rowIndex) => {
+  return inputRows?.map((row, rowIndex) => {
     return (
       row && (
         <tr key={rowIndex} className={tableRowCSS}>

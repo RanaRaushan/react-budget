@@ -32,14 +32,11 @@ export default function AddBudgetEntryPage() {
   const { suggestion, errors, intent } = useOutletContext();
 
   const handleInputChange = (key) => (value) => {
-    console.log('handleInputChange', key, value);
     setFormData((prev) => ({
       ...prev,
       [key]: value,
     }));
   };
-
-  // console.log("suggestion 42", suggestion)
   return itemDetailHeaders.map((header, idx) => (
     <td key={header.key} className={`${tdCSS}`}>
       <FormErrorsComponent errors={errors} header={header} intent={intent} />

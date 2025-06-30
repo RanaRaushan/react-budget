@@ -12,7 +12,6 @@ import HomePage from "./pages/Home"
 import Header from "./pages/Header";
 import ErrorPage from "./error-page";
 import Uploadbudget, {action as uploadAction} from "./pages/Budget/Uploadbudget";
-// import LogoutPage from "./components/LoginLogout";
 import LoginPage, {action as loginAction} from "./pages/Login/login";
 import { RequireAuth } from "./components/RequireAuth";
 import { useAuth } from "./hooks/AuthProvider";
@@ -26,13 +25,6 @@ import InvestmentBudget, {loader as investmentLoader, action as investmentAction
 import AddInvestmentPage from "./pages/Investment/AddInvestmentpage";
 
 function App() { 
-
-  // const AuthProviderLayout = () => (
-  //   <AuthProvider>
-  //     <LogoutPage />
-  //     <Outlet />
-  //   </AuthProvider>
-  // );
   const auth = useAuth();
   console.log("App || auth at app", auth)
   const router = React.useMemo(() => {

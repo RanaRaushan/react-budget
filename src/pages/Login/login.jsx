@@ -17,7 +17,6 @@ import { isTokenExpired } from '../../utils/ValidateToken';
 let REDIRECT_URL = '/auth/callback';
 
 export async function action({ request }) {
-  console.log('LoginPage || login action | start');
   const loginFormData = await request.formData();
   const loginData = Object.fromEntries(loginFormData);
   let response;
@@ -40,7 +39,6 @@ export async function action({ request }) {
       error: 'Something went wrong! Please try again after some time...',
     };
   }
-  console.log('LoginPage || login action | response', response);
   const expireAt = new Date().getTime() + Number(response.expires_in);
   return {
     loginData: loginData,
@@ -49,21 +47,15 @@ export async function action({ request }) {
 }
 
 const LoginPage = () => {
-  console.log('LoginPage || calling LoginPage');
   const navigation = useNavigation();
   const actionData = useActionData();
   const navigate = useNavigate();
-  // const location = useLocation();
   const [queryParams] = useSearchParams();
   const auth = useAuth();
-  // const prevState = location.state;
-  // const prevlocation = prevState?.redirectFrom;
-  console.log('actionData', actionData, location);
   useEffect(() => {
     const checkAuth = async () => {
       if (auth && auth.token && !isTokenExpired(auth.token)) {
         // Redirect to login or home page
-        console.log('LoginPage || valid token found', auth);
         navigate('/', { replace: true });
       } else if (
         auth &&
@@ -72,7 +64,6 @@ const LoginPage = () => {
         isTokenExpired(auth.token) &&
         auth.token.body.refreshToken
       ) {
-        console.log('LoginPage || token expired or invalid', auth);
         try {
           const res = await refresh_token({
             refreshToken: auth.token?.body?.refreshToken,
@@ -102,7 +93,6 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (actionData && actionData.tokenData) {
-      console.log('LoginPage || Inside usesubmit');
       const { tokenData } = actionData;
 
       navigate(`${REDIRECT_URL}?redirectTo=${queryParams.get('redirectTo')}`, {

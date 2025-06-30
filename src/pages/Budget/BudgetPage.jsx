@@ -27,6 +27,7 @@ import {
   get_add_bulk_budget_detail_entry,
   get_all_budget,
   get_budget_suggestions,
+  get_data_by_ocr,
   get_update_budget,
   get_update_budget_detail_entry,
 } from '../../utils/APIHelper.js';
@@ -70,6 +71,7 @@ import FormErrorsComponent from '../../components/FormErrors.jsx';
 import BulkddBudgetEntryPage from './Bulk-AddBudgetEntryPage.jsx';
 import DataStore from '../../utils/DataStore.js';
 import { validateGenericInput } from '../../utils/InputValidationHelper.js';
+import UploadDataByOCRComponent from '../../components/DataFromOCR.jsx';
 
 const LOG_PREFIX = 'BudgetPage::';
 
@@ -101,7 +103,7 @@ export async function action({ request }) {
   const payload = {};
   let errors = {};
   let fieldValue;
-  intentToHeadersMap[intent].map(
+  intentToHeadersMap[intent]?.map(
     (header, idx) => (
       (fieldValue = formData.get(intent + '-' + header.key)),
       (payload[header.key] = fieldValue),
@@ -1131,6 +1133,7 @@ export default function BudgetPage() {
                                           {'Bulk Add'}
                                         </label>
                                         {bulkDetailEntryAddCheck ? (
+                                          <div className='flex flex-col items-center gap-2'>
                                           <Link
                                             title="Add all entry"
                                             className={`${linkButtonCSS}`}
@@ -1150,6 +1153,8 @@ export default function BudgetPage() {
                                               <TbCopyPlusFilled />
                                             </span>
                                           </Link>
+                                          <UploadDataByOCRComponent onDataFetched={setBudgetDetailEntryInputRows}/>
+                                          </div>
                                         ) : (
                                           <></>
                                         )}

@@ -23,18 +23,15 @@ export const loader =
   (auth) =>
   async ({ request, params }) => {
     // const auth = useAuth();
-    console.log('BankBudget || auth at Expense loader', auth);
     const url = new URL(request.url);
     const q = url.searchParams;
     if (!q.has('selectedYear')) {
       q.set('selectedYear', getCurrentYear());
     }
-    console.log('BankBudget || auth at Expense loader params', params);
     const response =
       (auth?.token && (await get_bank_expenses(q.toString(), params.type))) ||
       [];
     let bankExpenses = [];
-    console.log('BankBudget || repsonse', response);
     if (response.empty !== true && response.bankExpenses) {
       bankExpenses = response.bankExpenses;
       return { bankExpenses };
@@ -53,11 +50,9 @@ export default function BankBudget() {
   let isLoading = status !== 'idle';
   const { bankExpenses } = useLoaderData();
   const [selectedExpense, setSelectedExpense] = useState('ALL');
-  console.log('BankBudget || params', params, bankExpenses);
 
   const tdBorderCSS = 'border border-gray-300';
   const tdCornerDataCSS = 'font-bold';
-  console.log('selectedExpense', selectedExpense);
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl shadow border border-gray-200">

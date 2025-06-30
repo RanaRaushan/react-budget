@@ -64,15 +64,8 @@ export default function ExpenseBudget() {
   let status = navigation.state;
   let isLoading = status !== 'idle';
   const { categoryTypeExpense, monthlyExpense } = useLoaderData();
-  console.log(
-    'ExpenseBudget || params',
-    params,
-    categoryTypeExpense,
-    monthlyExpense,
-  );
 
   const fetchExpensesDataToDownload = async () => {
-    console.log('isnie fetchExpensesDataToDownload', searchParams);
     const response =
       (auth?.token &&
         (await download_all_expenses(

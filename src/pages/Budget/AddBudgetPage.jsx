@@ -32,7 +32,6 @@ export default function AddBudgetItemPage() {
   const { errors, intent, suggestion } = useOutletContext();
 
   const handleInputChange = (key) => (value) => {
-    console.log('handleInputChange', key, value);
     setFormData((prev) => ({
       ...prev,
       [key]: value,

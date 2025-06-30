@@ -91,7 +91,6 @@ export async function action({ request }) {
   }
 
   if (intent === deleteInvestmentIntent && payload) {
-    console.log('delete investment', payload);
     await remove_investments({}, formData.get('deleteInvestmentId'));
     return redirect(redirectUrl || BUDGET_INVESTMENT_FE_URL);
   }
@@ -222,23 +221,11 @@ export default function InvestmentBudget() {
     const searchKeyParm = `${searchKey}`;
     let isExactSearchKey = 'exact';
     let isExactSearchValue = isCheckedSearch;
-    console.log(
-      'InvestmentPage ||  handleAddParam',
-      isEffectivelyEmptyObject(paramToAdd),
-      ' paramToAdd:',
-      paramToAdd,
-    );
     if (dateFields.includes(searchKey) && isCheckedSearch) {
       searchParmValue = `${fromDate}:${toDate}`;
       isExactSearchKey = 'between';
     }
     if (searchParmValue && !isEffectivelyEmptyObject(paramToAdd)) {
-      console.log(
-        'InvestmentPage ||  handleAddParam1',
-        isEffectivelyEmptyObject(paramToAdd),
-        ' paramToAdd:',
-        paramToAdd,
-      );
       setGlobalParam((prev) => ({
         ...prev,
         [searchKeyParm]: searchParmValue,
@@ -246,24 +233,12 @@ export default function InvestmentBudget() {
         ...paramToAdd,
       }));
     } else if (searchParmValue) {
-      console.log(
-        'InvestmentPage ||  handleAddParam2',
-        isEffectivelyEmptyObject(paramToAdd),
-        ' paramToAdd:',
-        paramToAdd,
-      );
       setGlobalParam((prev) => ({
         ...prev,
         [searchKeyParm]: searchParmValue,
         [isExactSearchKey]: isExactSearchValue,
       }));
     } else if (!isEffectivelyEmptyObject(paramToAdd)) {
-      console.log(
-        'InvestmentPage ||  handleAddParam3',
-        isEffectivelyEmptyObject(paramToAdd),
-        ' paramToAdd:',
-        paramToAdd,
-      );
       setGlobalParam((prev) => ({
         ...prev,
         ...paramToAdd,
@@ -337,7 +312,6 @@ export default function InvestmentBudget() {
 
   const deleteInvestmentRowSubmit = (e, id) => {
     e.preventDefault();
-    console.log('calling delete');
     let formData = new FormData(e.currentTarget.form);
     formData.append(
       'redirectTo',
@@ -381,12 +355,6 @@ export default function InvestmentBudget() {
     const currentParams = Object.fromEntries(searchParams.entries());
     const areSame =
       JSON.stringify(currentParams) === JSON.stringify(globalParam);
-    console.log(
-      'calling',
-      areSame,
-      JSON.stringify(currentParams),
-      JSON.stringify(globalParam),
-    );
     if (!areSame) {
       setSearchParams(() => {
         const newSearchParams = new URLSearchParams();
@@ -428,7 +396,6 @@ export default function InvestmentBudget() {
     'bg-green-100 text-green-600 hover:bg-inherit hover:text-inherit';
 
   const fetchInvestmentDataToDownload = async () => {
-    console.log('isnie fetchInvestmentDataToDownload', searchParams);
     const response =
       (auth?.token &&
         (await download_all_investment({
