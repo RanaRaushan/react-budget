@@ -11,7 +11,7 @@ export async function action({ request }) {
   if (!formData || formData.get('file') === 'null' || !formData.get('file')) {
     return { error: 'Please select a file first.' };
   }
-  const res = await upload_budget(formData, formData.get("type"));
+  const res = await upload_budget(formData, formData.get('type'));
   return { error: res?.error, message: res?.message };
 }
 
@@ -22,6 +22,15 @@ export default function Uploadbudget() {
   const [uploadType, setUploadType] = useState('');
   const [loading, setLoading] = useState(false);
   const fetcher = useFetcher();
+  const [message, setMessage] = useState(
+    fetcher.data?.error || fetcher.data?.message || '',
+  );
+
+  useEffect(() => {
+    if (fetcher.data) {
+      setMessage(fetcher.data?.error || fetcher.data?.message);
+    }
+  }, [fetcher.data]);
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
@@ -145,6 +154,7 @@ export default function Uploadbudget() {
             </div>
           </div>
         </div>
+
         <div className=" border border-gray-200 rounded-md p-4 mb-4">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-semibold">{`Sample Format ${
@@ -187,7 +197,10 @@ export default function Uploadbudget() {
             </table>
           </div>
         </div>
-        {fileData.length > 0 && (
+        {message && (
+          <p className={`mt-4 text-center text-red-500 text-l`}>{message}</p>
+        )}
+        {!message && fileData.length > 0 && (
           <div>
             <h3 className="text-sm font-medium mb-2">
               Sample Preview Uploaded data:

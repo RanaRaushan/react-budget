@@ -33,8 +33,8 @@ const itemDetailHeaders = [
     { label: "Name", key: "itemName" },
     // { label: "Descriptiom", key: "itemDescription" },
     { label: "Weight", key: "itemWeight" },
-    { label: "Quantity", key: "itemQty" },
     { label: "Unit", key: "unit" },
+    { label: "Quantity", key: "itemQty" },
     { label: "Per Item Price", key: "perUnitPrice" },
     { label: "Price", key: "itemPrice" },
     { label: "Refer Transaction Id", key: "referTransactionId" },
@@ -71,8 +71,8 @@ const accountTypeEnum = Object.freeze({
     PNB : "PNB Bank",
     SBI : "SBI Bank",
     SLICE : "Slice Bank",
-    BB_WALLET : "BB Wallet",
-    AMAZON_WALLET : "Amazon Wallet",
+    BB_NOW_BAL : "BB Now Wallet",
+    AMAZON_BAL : "Amazon Wallet",
   });
   
 const itemCategoryEnum = Object.freeze({
