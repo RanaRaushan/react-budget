@@ -72,6 +72,7 @@ import BulkddBudgetEntryPage from './Bulk-AddBudgetEntryPage.jsx';
 import DataStore from '../../utils/DataStore.js';
 import { validateGenericInput } from '../../utils/InputValidationHelper.js';
 import UploadDataByOCRComponent from '../../components/DataFromOCR.jsx';
+import TooltipIconComponent from '../../components/TooltipIcon.jsx';
 
 const LOG_PREFIX = 'BudgetPage::';
 
@@ -218,7 +219,7 @@ export default function BudgetPage() {
   const [budgetDetailEntryInputRows, setBudgetDetailEntryInputRows] = useState(
     [],
   );
-  console.log("searchParams", searchParams)
+  // console.log("searchParams", searchParams)
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const scrollTargetAddBudgetRef = useRef(null);
@@ -491,7 +492,7 @@ export default function BudgetPage() {
   }, [fetcher.data]);
 
   const resetErrorState = () => {
-    setErrors(null);
+    setErrors({});
   };
   const resetInputRowsState = () => {
     setBudgetDetailEntryInputRows([]);
@@ -718,7 +719,7 @@ export default function BudgetPage() {
 
       {/* Table */}
       <fetcher.Form method="post">
-        <div className="overflow-hidden rounded-2xl shadow-lg border border-gray-200">
+        <div className="overflow-visible rounded-2xl shadow-lg border border-gray-200">
           <table className={`${tableCSS}`}>
             <thead className={`${theadCSS}`}>
               <tr>
@@ -812,7 +813,18 @@ export default function BudgetPage() {
                                   </span>
                                 </label>
                               </td>
-                            ) : (
+                            ) : header.key == 'paidAmount'? 
+                            (
+                              <td
+                                key={`${item.id}${header.key}`}
+                                className={`${tdCSS}`}
+                              >
+                                <span className='flex flex-row gap-2 items-center justify-center'>{item[header.key]}<TooltipIconComponent message={item.errors?.[header.key]}/></span>
+                              </td>
+                            )
+                            
+                            :
+                            (
                               <td
                                 key={`${item.id}${header.key}`}
                                 className={`${tdCSS}`}

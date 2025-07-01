@@ -47,7 +47,7 @@ export default function UploadDataByOCRComponent({ onDataFetched }) {
         disabled={loading}
       />
       <button onClick={handleUpload} disabled={loading} className={buttonCSS}>
-        {loading ? 'Uploading...' : 'Upload & Extract'}
+        {loading ? 'Extracting...' : 'Upload & Extract'}
       </button>
       {message && (
         <p className={`text-center text-red-600 text-2xl font-bold`}>

@@ -1,21 +1,27 @@
 import { useEffect, useState } from 'react';
 import { upload_budget } from '../../utils/APIHelper';
-import { buttonCSS, inputCSS, theadCSS } from '../../utils/cssConstantHelper';
+import {
+  buttonCSS,
+  ddOptionCSS,
+  inputCSS,
+  theadCSS,
+} from '../../utils/cssConstantHelper';
 import { useFetcher } from 'react-router-dom';
 import SamplePreviewTableComponent from '../../components/SamplePreviewTable';
 import * as XLSX from 'xlsx';
+import { useAuth } from '../../hooks/AuthProvider';
 
 export async function action({ request }) {
   const formData = await request.formData();
-  formData.append('forUserId', 'rana@gmail.com');
   if (!formData || formData.get('file') === 'null' || !formData.get('file')) {
     return { error: 'Please select a file first.' };
   }
-  const res = await upload_budget(formData, formData.get('type'));
+  const res = formData.get('forUserId') && await upload_budget(formData, formData.get('type'));
   return { error: res?.error, message: res?.message };
 }
 
 export default function Uploadbudget() {
+  const auth = useAuth();
   const [fileName, setFileName] = useState('');
   const [fileData, setFileData] = useState([]);
   const [file, setFile] = useState([]);
@@ -81,6 +87,7 @@ export default function Uploadbudget() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('type', uploadType);
+      formData.append('forUserId', auth?.token?.user);
       fetcher.submit(formData, {
         method: 'POST',
         encType: 'multipart/form-data',
@@ -94,8 +101,12 @@ export default function Uploadbudget() {
   };
 
   let status = fetcher.state;
-
   let isLoading = status !== 'idle';
+
+  const uploadTypeOption = [
+    { key: 'budget', label: 'Budget Transaction' },
+    { key: 'budgetEntry', label: 'Budget Item Entry' },
+  ];
 
   return (
     <div className="flex flex-col items-center justify-center bg-indigo-600 p-6 rounded-xl shadow border border-gray-200">
@@ -127,9 +138,14 @@ export default function Uploadbudget() {
               onChange={(e) => setUploadType(e.target.value)}
               className="w-full border border-gray-300 rounded px-3 py-2"
             >
-              <option value="">Select upload type</option>
-              <option value="budget">Budget Transaction</option>
-              <option value="budgetEntry">Budget Item Entry</option>
+              <option value="" className={`${ddOptionCSS}`}>
+                Select upload type
+              </option>
+              {uploadTypeOption.map(({ key, label }) => (
+                <option className={`${ddOptionCSS}`} key={key} value={key}>
+                  {label.charAt(0).toUpperCase() + label.slice(1)}
+                </option>
+              ))}
             </select>
 
             <div className="flex gap-3 pt-4">
