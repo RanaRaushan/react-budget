@@ -17,6 +17,7 @@ export default function InputDropdownComponent({ props }) {
     value,
     onInputChange,
     className,
+    showBtm = false,
   } = props;
   const handleChange = (e) => {
     const value = e.target.value;
@@ -54,7 +55,7 @@ export default function InputDropdownComponent({ props }) {
       />
       {showDropdown && filteredSuggestionOptions?.length > 0 && (
         <ul
-          className={`absolute bottom-full left-0 border max-h-60 overflow-auto rounded-2xl z-50 shadow ${ddOptionCSS}`}
+          className={`absolute ${showBtm ? '' : 'bottom-full'} left-0 border max-h-60 overflow-auto rounded-2xl z-50 shadow ${ddOptionCSS}`}
         >
           {filteredSuggestionOptions.slice(0, 10).map((option, index) => (
             <li

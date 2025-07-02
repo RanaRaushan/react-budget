@@ -1187,7 +1187,7 @@ export default function BudgetPage() {
                           errors,
                           intent: addItemIntent,
                           suggestion: {
-                            description: suggestions?.itemEntryName ?? [],
+                            description: suggestions?.description ?? [],
                           },
                         }}
                       />

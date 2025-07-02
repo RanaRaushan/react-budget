@@ -1,4 +1,4 @@
-import React, {  } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   BUDGET_EXPENSES_FE_URL,
   download_all_expenses,
@@ -6,6 +6,7 @@ import {
 } from '../../utils/APIHelper';
 import {
   ddOptionCSS,
+  inputCSS,
   inputddCSS,
   tableCSS,
   tableRowCSS,
@@ -22,15 +23,15 @@ import {
 import {
   itemCategoryEnum,
   monthNames,
+  paymentTypeEnum,
   spentTypeEnum,
 } from '../../utils/constantHelper';
 import LoadingTableComponent from '../../components/LoadingTable';
-import {
-  getCurrentYear,
-  getYearOption,
-} from '../../utils/functionHelper';
+import { getCurrentYear, getYearOption } from '../../utils/functionHelper';
 import DownloadBudgetComponent from '../../components/DownloadBudget';
 import { useAuth } from '../../hooks/AuthProvider';
+import DataStore from '../../utils/DataStore';
+import InputDropdownComponent from '../../components/InputDropdown';
 
 export const loader =
   (auth) =>
@@ -54,16 +55,20 @@ export const loader =
   };
 
 export default function ExpenseBudget() {
+  const { getItem } = DataStore();
   const params = useParams();
   const auth = useAuth();
   let [searchParams, setSearchParams] = useSearchParams({
-      selectedYear: getCurrentYear(),
-    });
+    selectedYear: getCurrentYear(),
+  });
   const navigation = useNavigation();
   const navigate = useNavigate();
   let status = navigation.state;
   let isLoading = status !== 'idle';
   const { categoryTypeExpense, monthlyExpense } = useLoaderData();
+  const suggestions = getItem('suggestions');
+  const [input, setInput] = useState(searchParams.get('description') || '');
+  const [debounced, setDebounced] = useState(input);
 
   const fetchExpensesDataToDownload = async () => {
     const response =
@@ -85,12 +90,33 @@ export default function ExpenseBudget() {
     return { data, fileName };
   };
 
+    // Debounce logic
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebounced(input);
+    }, 500); // Adjust debounce delay here
+
+    return () => clearTimeout(timer);
+  }, [input]);
+
+    // Update searchParams after debounce
+  useEffect(() => {
+    setSearchParams((params) => {
+      const newParams = new URLSearchParams(params);
+      if (debounced) {
+        newParams.set('description', debounced);
+      } else {
+        newParams.delete('description');
+      }
+      return newParams;
+    });
+  }, [debounced, setSearchParams]);
   const tdBorderCSS = 'border border-gray-300';
   const tdCornerDataCSS = 'font-bold';
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl shadow border border-gray-200">
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4 ">
           {/* Add a checkbox */}
           <label>
             <input
@@ -124,9 +150,6 @@ export default function ExpenseBudget() {
             }
             className={`${inputddCSS}`}
           >
-            {/* <option className={`${ddOptionCSS}`} value="income">
-              All Expense
-            </option> */}
             {Object.keys(spentTypeEnum).map((expType) => (
               <option
                 className={`${ddOptionCSS}`}
@@ -137,11 +160,43 @@ export default function ExpenseBudget() {
               </option>
             ))}
           </select>
+
+          <select
+            value={searchParams.get('paymentType')}
+            onChange={(e) =>
+              setSearchParams((param) => {
+                param.set('paymentType', e.target.value);
+                return searchParams;
+              })
+            }
+            className={`${inputddCSS}`}
+          >
+            {Object.entries(paymentTypeEnum).map(([ddKey, ddLabel]) => (
+              <option className={`${ddOptionCSS}`} key={ddKey} value={ddKey}>
+                {ddLabel}
+              </option>
+            ))}
+          </select>
+            <div className='relative'>
+          <InputDropdownComponent
+            props={{
+              suggestion: suggestions['description'],
+              placeholder: 'Description',
+              name: `description`,
+              value: input,
+              onInputChange: (value) => setInput(value),
+              className: `${inputCSS} relative`,
+              showBtm: true
+            }}
+          /></div>
         </div>
         <div className="flex flex-wrap items-center gap-4">
           <>
             <DownloadBudgetComponent
-              props={{ callbackData: fetchExpensesDataToDownload, buttonText: "Dwonload" }}
+              props={{
+                callbackData: fetchExpensesDataToDownload,
+                buttonText: 'Dwonload',
+              }}
             />
           </>
 
