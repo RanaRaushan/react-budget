@@ -22,7 +22,6 @@ const LOG_PREFIX = 'BulkddBudgetEntryPage::';
 
 export default function BulkddBudgetEntryPage({ props }) {
   const { intent, inputRows, onChange, onRemove, suggestion } = props;
-
   return inputRows?.map((row, rowIndex) => {
     return (
       row && (
@@ -49,7 +48,11 @@ export default function BulkddBudgetEntryPage({ props }) {
                     onChange={(e) =>
                       onChange(rowIndex, header.key, e.target.value)
                     }
-                    className={`${inputCSS} ${intent + "-" + header.key in (row.errors??{}) ? 'border border-red-500' : ''}`}
+                    className={`${inputCSS} ${
+                      intent + '-' + header.key in (row.errors ?? {})
+                        ? 'border border-red-500'
+                        : ''
+                    }`}
                   />
                 ) : enumFields.includes(header.key) ? (
                   <select
@@ -58,7 +61,11 @@ export default function BulkddBudgetEntryPage({ props }) {
                     onChange={(e) =>
                       onChange(rowIndex, header.key, e.target.value)
                     }
-                    className={`${inputddCSS} ${intent + "-" + header.key in (row.errors??{}) ? 'border border-red-500' : ''}`}
+                    className={`${inputddCSS} ${
+                      intent + '-' + header.key in (row.errors ?? {})
+                        ? 'border border-red-500'
+                        : ''
+                    }`}
                   >
                     <option className={`${ddOptionCSS}`} value="">
                       {header.label}
@@ -71,7 +78,11 @@ export default function BulkddBudgetEntryPage({ props }) {
                         : paymentTypeEnum,
                     ).map(([ddKey, ddLabel]) => (
                       <option
-                        className={`${ddOptionCSS} ${intent + "-" + header.key in (row.errors??{}) ? 'border border-red-500' : ''}`}
+                        className={`${ddOptionCSS} ${
+                          intent + '-' + header.key in (row.errors ?? {})
+                            ? 'border border-red-500'
+                            : ''
+                        }`}
                         key={ddKey}
                         value={ddKey}
                       >
@@ -79,22 +90,24 @@ export default function BulkddBudgetEntryPage({ props }) {
                       </option>
                     ))}
                   </select>
-                ) : 
-                inputDropDownFields.includes(header.key) ? (
+                ) : inputDropDownFields.includes(header.key) ? (
                   <InputDropdownComponent
                     props={{
-                      suggestion,
+                      suggestion: suggestion[header.key],
                       disabled: lockedFields.includes(header.key),
                       placeholder: header.label,
                       name: `${intent}[${rowIndex}]-${header.key}`,
                       value: row[header.key],
                       onInputChange: (value) =>
                         onChange(rowIndex, header.key, value),
-                      className: `${inputCSS} ${intent + "-" + header.key in (row.errors??{}) ? 'border border-red-500' : ''}`,
+                      className: `${inputCSS} ${
+                        intent + '-' + header.key in (row.errors ?? {})
+                          ? 'border border-red-500'
+                          : ''
+                      }`,
                     }}
                   />
-                ) : 
-                (
+                ) : (
                   <input
                     type="text"
                     disabled={lockedFields.includes(header.key)}
@@ -104,7 +117,11 @@ export default function BulkddBudgetEntryPage({ props }) {
                     onChange={(e) =>
                       onChange(rowIndex, header.key, e.target.value)
                     }
-                    className={`${inputCSS} ${intent + "-" + header.key in (row.errors??{}) ? 'border border-red-500' : ''}`}
+                    className={`${inputCSS} ${
+                      intent + '-' + header.key in (row.errors ?? {})
+                        ? 'border border-red-500'
+                        : ''
+                    }`}
                   />
                 )}
               </div>

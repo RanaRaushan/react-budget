@@ -4,15 +4,25 @@ import { ddOptionCSS } from '../utils/cssConstantHelper';
 // const options = ['Apple', 'Banana', 'Cherry', 'Date', 'Grapes', 'Mango'];
 
 export default function InputDropdownComponent({ props }) {
-  const [filteredSuggestionOptions, setFilteredSuggestionOptions] = useState([]);
+  const [filteredSuggestionOptions, setFilteredSuggestionOptions] = useState(
+    [],
+  );
   const [showDropdown, setShowDropdown] = useState(false);
 
-  const {suggestion, disabled, placeholder, name, value, onInputChange, className} = props
+  const {
+    suggestion,
+    disabled,
+    placeholder,
+    name,
+    value,
+    onInputChange,
+    className,
+  } = props;
   const handleChange = (e) => {
     const value = e.target.value;
 
     if (value) {
-      const filtered = suggestion.filter((option) =>
+      const filtered = suggestion?.filter((option) =>
         option.toLowerCase().includes(value.toLowerCase()),
       );
       setFilteredSuggestionOptions(filtered);
@@ -21,7 +31,7 @@ export default function InputDropdownComponent({ props }) {
       setFilteredSuggestionOptions([]);
       setShowDropdown(false);
     }
-    onInputChange(value)
+    onInputChange(value);
   };
 
   const handleSelect = (option) => {
@@ -42,8 +52,10 @@ export default function InputDropdownComponent({ props }) {
         placeholder={placeholder}
         className={className}
       />
-      {showDropdown && filteredSuggestionOptions.length > 0 && (
-        <ul className={`absolute bottom-full left-0 border max-h-60 overflow-auto rounded-2xl z-50 shadow ${ddOptionCSS}`}>
+      {showDropdown && filteredSuggestionOptions?.length > 0 && (
+        <ul
+          className={`absolute bottom-full left-0 border max-h-60 overflow-auto rounded-2xl z-50 shadow ${ddOptionCSS}`}
+        >
           {filteredSuggestionOptions.slice(0, 10).map((option, index) => (
             <li
               key={index}

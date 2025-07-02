@@ -355,8 +355,8 @@ export default function BudgetPage() {
     } else {
       resetErrorState();
     }
-      setEditBudgetRowId(null);
-      setIsSubmitting(false);
+    setEditBudgetRowId(null);
+    setIsSubmitting(false);
   };
 
   const updateTransactionItemRowSubmit = (e, previousValue, parentId) => {
@@ -813,18 +813,19 @@ export default function BudgetPage() {
                                   </span>
                                 </label>
                               </td>
-                            ) : header.key == 'paidAmount'? 
-                            (
+                            ) : header.key == 'paidAmount' ? (
                               <td
                                 key={`${item.id}${header.key}`}
                                 className={`${tdCSS}`}
                               >
-                                <span className='flex flex-row gap-2 items-center justify-center'>{item[header.key]}<TooltipIconComponent message={item.errors?.[header.key]}/></span>
+                                <span className="flex flex-row gap-2 items-center justify-center">
+                                  {item[header.key]}
+                                  <TooltipIconComponent
+                                    message={item.errors?.[header.key]}
+                                  />
+                                </span>
                               </td>
-                            )
-                            
-                            :
-                            (
+                            ) : (
                               <td
                                 key={`${item.id}${header.key}`}
                                 className={`${tdCSS}`}
@@ -893,13 +894,14 @@ export default function BudgetPage() {
                                       {itemDetailHeaders
                                         .concat(extra_headers)
                                         .map((itemDH, idx) => (
-                                          <th key={idx} className={`${tdCSS}`} 
-
+                                          <th
+                                            key={idx}
+                                            className={`${tdCSS}`}
                                             title={`${
-                      itemDH.key === 'id'
-                        ? `Total Entry count for this order is: ${item['transactionItems']?.length}`
-                        : ''
-                    }`}
+                                              itemDH.key === 'id'
+                                                ? `Total Entry count for this order is: ${item['transactionItems']?.length}`
+                                                : ''
+                                            }`}
                                           >
                                             {itemDH.label}
                                           </th>
@@ -1011,7 +1013,12 @@ export default function BudgetPage() {
                                           inputRows: budgetDetailEntryInputRows,
                                           onChange: handleBulkEntryChange,
                                           onRemove: removeFromBulkEntryRow,
-                                          suggestion: suggestions?.itemName ?? [],
+                                          suggestion: {
+                                            itemName:
+                                              suggestions?.itemEntryName ?? [],
+                                            category:
+                                              suggestions?.entryCategory ?? [],
+                                          },
                                         }}
                                       />
                                     )}
@@ -1024,8 +1031,14 @@ export default function BudgetPage() {
                                           context={{
                                             errors,
                                             intent: addItemDetailIntent,
-                                            suggestion:
-                                              suggestions?.itemName ?? [],
+                                            suggestion: {
+                                              itemName:
+                                                suggestions?.itemEntryName ??
+                                                [],
+                                              category:
+                                                suggestions?.entryCategory ??
+                                                [],
+                                            },
                                           }}
                                         />
                                         <td className={`${tdCSS} space-x-2`}>
@@ -1123,27 +1136,31 @@ export default function BudgetPage() {
                                           {'Bulk Add'}
                                         </label>
                                         {bulkDetailEntryAddCheck ? (
-                                          <div className='flex flex-col items-center gap-2'>
-                                          <Link
-                                            title="Add all entry"
-                                            className={`${linkButtonCSS}`}
-                                            state={{
-                                              scrollTo: 'addBudgetEntry',
-                                            }}
-                                            onClick={(e) =>
-                                              handleAddBulkBudgetEntryRowSubmit(
-                                                e,
-                                                item['id'],
-                                              )
-                                            }
-                                            style={{ color: 'inherit' }}
-                                          >
-                                            <span className="flex items-center gap-1">
-                                              Add all items
-                                              <TbCopyPlusFilled />
-                                            </span>
-                                          </Link>
-                                          <UploadDataByOCRComponent onDataFetched={setBudgetDetailEntryInputRows}/>
+                                          <div className="flex flex-col items-center gap-2">
+                                            <Link
+                                              title="Add all entry"
+                                              className={`${linkButtonCSS}`}
+                                              state={{
+                                                scrollTo: 'addBudgetEntry',
+                                              }}
+                                              onClick={(e) =>
+                                                handleAddBulkBudgetEntryRowSubmit(
+                                                  e,
+                                                  item['id'],
+                                                )
+                                              }
+                                              style={{ color: 'inherit' }}
+                                            >
+                                              <span className="flex items-center gap-1">
+                                                Add all items
+                                                <TbCopyPlusFilled />
+                                              </span>
+                                            </Link>
+                                            <UploadDataByOCRComponent
+                                              onDataFetched={
+                                                setBudgetDetailEntryInputRows
+                                              }
+                                            />
                                           </div>
                                         ) : (
                                           <></>
@@ -1169,7 +1186,9 @@ export default function BudgetPage() {
                         context={{
                           errors,
                           intent: addItemIntent,
-                          suggestion: suggestions?.description ?? [],
+                          suggestion: {
+                            description: suggestions?.itemEntryName ?? [],
+                          },
                         }}
                       />
                       <td className={`${tdCSS} space-x-2`}>

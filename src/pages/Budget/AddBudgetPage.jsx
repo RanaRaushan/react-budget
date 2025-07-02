@@ -78,7 +78,7 @@ export default function AddBudgetItemPage() {
         ) : inputDropDownFields.includes(header.key) ? (
           <InputDropdownComponent
             props={{
-              suggestion,
+              suggestion: suggestion[header.key],
               disabled: lockedFields.includes(header.key),
               placeholder: header.label,
               name: `${intent}-${header.key}`,
