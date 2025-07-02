@@ -37,7 +37,7 @@ function App() {
         //   >
 
               <Route path="/" element={<Header />}  errorElement={<ErrorPage />} >
-                <Route index path="/" element={<HomePage /> } errorElement={<ErrorPage />} />
+                <Route index path="/" element={<RequireAuth><HomePage /></RequireAuth>} errorElement={<ErrorPage />} />
                 <Route id="login" path="/login" element={<LoginPage />} action={loginAction} errorElement={<ErrorPage />} />
                 <Route path="auth/callback" element={<Authorize />} errorElement={<ErrorPage />} />
                 <Route path="signup" element={<SingupPage />} action={singupAction} errorElement={<ErrorPage />} />,

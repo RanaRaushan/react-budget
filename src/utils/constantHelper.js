@@ -2,11 +2,11 @@
 const dateFields = ['paidDate', 'spentDate', 'investmentDate', 'maturityDate']
 const enumFields = ['itemType', 'paymentType', 'spentType', 'investmentType', 'compoundingFrequency']
 const lockedFields = ['id', 'period', 'maturityAmount', 'maturityTimeLeftInDays', 'perUnitPrice']
-const inputDropDownFields = ['description', 'itemName', 'itemDescription']
+const inputDropDownFields = ['description', 'category', 'itemName', 'itemDescription']
 const validationAddBudgetFields = ['paidDate', 'spentDate', 'itemType', 'paymentType', 'spentType', 'amount', 'paidAmount', 'description', 'owner']
 const validationUpdateBudgetFields = ['id', 'paidDate', 'spentDate', 'itemType', 'paymentType', 'spentType', 'amount', 'paidAmount', 'description', 'owner']
-const validationAddBudgetDetailEntryFields = ['itemName', 'itemQty', 'itemPrice']
-const validationUpdateBudgetDetailEntryFields = ['id', 'itemName', 'itemQty', 'itemPrice']
+const validationAddBudgetDetailEntryFields = ['itemName', 'category', 'itemQty', 'itemPrice']
+const validationUpdateBudgetDetailEntryFields = ['id', 'category', 'itemName', 'itemQty', 'itemPrice']
 const validationAddInvestmentFields = ['id', 'investmentType', 'description', 'interestRate', 'investmentAmount', 'investmentDate', 'maturityDate', 'compoundingFrequency']
 const validationUpdateInvestmentFields = ['investmentType', 'description', 'interestRate', 'investmentAmount', 'investmentDate', 'maturityDate', 'compoundingFrequency']
 
@@ -31,7 +31,7 @@ const budgetHeaders = [
 const itemDetailHeaders = [
     { label: "ID", key: "id" },
     { label: "Name", key: "itemName" },
-    // { label: "Descriptiom", key: "itemDescription" },
+    { label: "Category", key: "category" },
     { label: "Weight", key: "itemWeight" },
     { label: "Unit", key: "unit" },
     { label: "Quantity", key: "itemQty" },

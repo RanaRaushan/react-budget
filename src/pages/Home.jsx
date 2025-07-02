@@ -1,15 +1,19 @@
 import { Link } from 'react-router-dom';
-import { download_all_budget_data } from '../utils/APIHelper';
+import {
+  download_all_budget_data,
+  get_analysis_report_data,
+} from '../utils/APIHelper';
 import DownloadBudgetComponent from '../components/DownloadBudget';
 import { useAuth } from '../hooks/AuthProvider';
 import { useState } from 'react';
 import { getCurrentYear, getYearOption } from '../utils/functionHelper';
 import { ddOptionCSS, inputddCSS } from '../utils/cssConstantHelper';
+import ReportChartComponent from '../components/ReportChart';
 
 export default function HomePage() {
   const auth = useAuth();
   const [showModal, setShowModal] = useState(false);
-  const [modalResolver, setModalResolver] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [modalPromise, setModalPromise] = useState({
     resolve: null,
     reject: null,
@@ -26,9 +30,9 @@ export default function HomePage() {
   };
 
   const fetchAllBudgetDataToDownload = async () => {
+    setLoading(true);
     const response =
-      (auth?.token &&
-        (await download_all_budget_data({ data: formData }, auth.token))) ||
+      (auth?.token && (await download_all_budget_data({ data: formData }))) ||
       [];
     let data;
     let fileName = 'report.xlsx';
@@ -39,10 +43,24 @@ export default function HomePage() {
       // ✅ Resolve to custom download
       modalPromise?.resolve?.({ data, fileName });
       setShowModal(false);
-
+      setLoading(false);
       return { data, fileName };
     }
+    setLoading(false);
     return { data, fileName };
+  };
+
+  const fetchReportAnalysis = async () => {
+    const response =
+      (auth?.token &&
+        (await get_analysis_report_data(
+          new URLSearchParams({
+            betweenDate: '2025-06-01:2025-06-30',
+          }).toString(),
+        ))) ||
+      [];
+    let data;
+    return response;
   };
 
   const labelCSS = 'block mb-2.5 text-white text-[1.125em] font-bold';
@@ -60,14 +78,14 @@ export default function HomePage() {
         Take control of your spending and stay on top of your finances.
       </p>
 
-      <div className="flex flex-col sm:flex-row gap-4 mb-10">
+      <div className="flex flex-wrap justify-center gap-4 mb-10 max-w-6xl">
         <Link to="/budgets">
           <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-md transition">
             📄 View Your Budget
           </button>
         </Link>
 
-        <span title="This will download only for current year">
+        <span title="Download your all budget">
           <DownloadBudgetComponent
             props={{
               callbackData: getDownloadData,
@@ -75,6 +93,13 @@ export default function HomePage() {
             }}
           />
         </span>
+
+        {/* <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-md transition"
+            onClick={fetchReportAnalysis}
+          >
+            📄 Get Analysis of your report
+          </button> */}
+        <ReportChartComponent props={{ callbackData: fetchReportAnalysis }} />
       </div>
 
       <footer className="text-sm text-gray-500">
@@ -111,20 +136,22 @@ export default function HomePage() {
             </select>
 
             <div className="flex justify-end gap-3 mt-5">
-              <button
-                onClick={() => {
-                  modalPromise?.reject?.(null);
-                  setShowModal(false);
-                }}
-                className={`${buttonCSS}`}
-              >
-                Cancel
-              </button>
+              {!loading && (
+                <button
+                  onClick={() => {
+                    modalPromise?.reject?.(null);
+                    setShowModal(false);
+                  }}
+                  className={`${buttonCSS}`}
+                >
+                  Cancel
+                </button>
+              )}
               <button
                 onClick={fetchAllBudgetDataToDownload}
                 className={`${buttonCSS}`}
               >
-                {'Confirm & Download'}
+                {loading ? 'Downloading...' : 'Confirm & Download'}
               </button>
             </div>
           </div>

@@ -31,6 +31,7 @@ export const BUDGET_REMOVE_INVESTMENT_API_URL =
 export const BUDGET_INVESTMENT_DOWNLOAD_API_URL = `/users/:userId/investments/download-investment`;
 
 export const ALL_BUDGET_DATA_DOWNLOAD_API_URL = `/users/:userId/report/download-all-budgetData`;
+export const ALL_BUDGET_REPORT_ANALYSIS_API_URL = `/users/:userId/report/analysis`;
 
 export const BUDGET_HOME_FE_URL = '/';
 export const BUDGET_FE_URL = '/budget';
@@ -196,7 +197,7 @@ export const postRequest = async ({
 
   return (
     (!requireToken || tokenData?.body) &&
-    fetch(apiBaseUrl + path + `?${params??''}`, {
+    fetch(apiBaseUrl + path + `?${params ?? ''}`, {
       method: 'POST',
       ...(bodyData && {
         body: sendEmptyHeader ? bodyData : JSON.stringify(bodyData),
@@ -299,7 +300,7 @@ export async function get_add_budget(data = {}) {
 export async function get_add_budget_detail_entry(data = {}) {
   removeItem('suggestions');
   return postRequest({
-    path:BUDGET_ENTRY_ADD_API_URL,
+    path: BUDGET_ENTRY_ADD_API_URL,
     bodyData: data,
     requireToken: true,
   });
@@ -447,6 +448,14 @@ export async function get_data_by_ocr(data = {}, params = {}) {
     requireToken: true,
     sendEmptyHeader: true,
     apiBaseUrl: OCR_API_BASE_URL,
+    params: params,
+  });
+}
+
+export async function get_analysis_report_data(params = {}) {
+  return getRequest({
+    path: ALL_BUDGET_REPORT_ANALYSIS_API_URL,
+    requireToken: true,
     params: params,
   });
 }

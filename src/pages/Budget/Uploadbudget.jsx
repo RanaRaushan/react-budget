@@ -83,7 +83,6 @@ export default function Uploadbudget() {
     }
     setLoading(true);
     try {
-      // Replace with real API
       const formData = new FormData();
       formData.append('file', file);
       formData.append('type', uploadType);
