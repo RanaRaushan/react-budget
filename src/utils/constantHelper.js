@@ -50,7 +50,7 @@ const spentTypeEnum = Object.freeze({
   
 const paymentTypeEnum = Object.freeze({
     AMAZON_ICICI_CC: "Amazon ICICI Credit Card",
-    AMAZON_BALANCE: "Amazon Balance",
+    AMAZON_BAL_WALLET: "Amazon Balance",
     HDFC_BANK: "HDFC Bank",
     HSBC_CC: "HSBC Credit Card",
     IDFC_CC: "IDFC Credit Card",
@@ -62,7 +62,8 @@ const paymentTypeEnum = Object.freeze({
     PNB_BANK: "PNB Bank",
     SBI_BANK: "SBI Bank",
     CASH: "Cash",
-    SLICE_BANK: "Slice Bank"
+    SLICE_BANK: "Slice Bank",
+    BB_NOW_BAL_WALLET: "BB Now Wallet"
   });  
 
 const accountTypeEnum = Object.freeze({
@@ -98,6 +99,7 @@ const itemCategoryEnum = Object.freeze({
     OTHER: "Other",
     UDHAAR: "Udhaar",
     SALARY: "Salary",
+    MONEY_TRANSFERS_AND_WITHDRAWALS: "Money Transfers & Withdrawals",
   });  
 
 const investmentHeaders = [

@@ -15,6 +15,7 @@ export default function InputDropdownComponent({ props }) {
     placeholder,
     name,
     value,
+    defaultValue,
     onInputChange,
     className,
     showBtm = false,
@@ -42,6 +43,17 @@ export default function InputDropdownComponent({ props }) {
 
   return (
     <>
+      {defaultValue ? <input
+        type="text"
+        name={name}
+        defaultValue={value}
+        disabled={disabled}
+        onChange={handleChange}
+        onFocus={() => value && setShowDropdown(true)}
+        onBlur={() => setTimeout(() => setShowDropdown(false), 100)} // Delay to allow click
+        placeholder={placeholder}
+        className={className}
+      /> :
       <input
         type="text"
         name={name}
@@ -52,7 +64,8 @@ export default function InputDropdownComponent({ props }) {
         onBlur={() => setTimeout(() => setShowDropdown(false), 100)} // Delay to allow click
         placeholder={placeholder}
         className={className}
-      />
+      /> 
+      }
       {showDropdown && filteredSuggestionOptions?.length > 0 && (
         <ul
           className={`absolute ${showBtm ? '' : 'bottom-full'} left-0 border max-h-60 overflow-auto rounded-2xl z-50 shadow ${ddOptionCSS}`}

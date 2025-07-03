@@ -193,7 +193,7 @@ export default function BudgetPage() {
     selectedYear: getCurrentYear(),
     sort: 'spentDate-desc',
   });
-  const [searchKey, setSearchKey] = useState('id');
+  const [searchKey, setSearchKey] = useState('description');
   const [searchValue, setSearchValue] = useState('');
   const [selectedYear, setSelectedYear] = useState(
     searchParams.get('selectedYear') || getCurrentYear(),
@@ -774,22 +774,22 @@ export default function BudgetPage() {
                                 key={`${item.id}${header.key}`}
                                 className={`${tdCSS}`}
                               >
-                                {/* {errors &&
-                                  errors[updateItemIntent + "-" + header.key] && (
-                                    <p className={`${errorTextCSS}`}>
-                                      {errors[updateItemIntent + "-" + header.key]}
-                                    </p>
-                                  )} */}
                                 <FormErrorsComponent
                                   errors={errors}
                                   header={header}
                                   intent={updateItemIntent}
                                 />
                                 <UpdateItemComponent
-                                  header={header}
-                                  item={item}
-                                  intent={updateItemIntent}
-                                  formInputs={budgetHeaders}
+                                  props={{
+                                    header: header,
+                                    item: item,
+                                    intent: updateItemIntent,
+                                    errors: errors,
+                                    suggestion: {
+                                      description:
+                                        suggestions?.description ?? [],
+                                    },
+                                  }}
                                 />
                               </td>
                             ) : header.key == 'id' ? (
@@ -932,17 +932,18 @@ export default function BudgetPage() {
                                                   />
 
                                                   <UpdateItemComponent
-                                                    header={itemDH}
-                                                    item={itemDetail}
-                                                    intent={
-                                                      updateItemDetailIntent
-                                                    }
-                                                    hasError={
-                                                      updateItemIntent +
-                                                        '-' +
-                                                        itemDH.key in
-                                                      errors
-                                                    }
+                                                    props={{
+                                                      header: itemDH,
+                                                      item: itemDetail,
+                                                      intent:
+                                                        updateItemDetailIntent,
+                                                        errors: errors,
+                                                      suggestion: {
+                                                        description:
+                                                          suggestions?.description ??
+                                                          [],
+                                                      },
+                                                    }}
                                                   />
                                                 </td>
                                               ) : (
