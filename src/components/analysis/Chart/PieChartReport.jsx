@@ -1,4 +1,3 @@
-import { LineChart } from '@mui/x-charts';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -6,27 +5,25 @@ import {
   tableRowCSS,
   tdCSS,
   theadCSS,
-} from '../../utils/cssConstantHelper';
+} from '../../../utils/cssConstantHelper';
 import {
   budgetHeaders,
   dateFields,
   itemDetailHeaders,
-} from '../../utils/constantHelper';
-import { getFormatedDateFromString } from '../../utils/functionHelper';
+} from '../../../utils/constantHelper';
+import { getFormatedDateFromString } from '../../../utils/functionHelper';
 
-export default function ReportChartComponent({ props }) {
+export default function PieChartReportComponent({ props }) {
   const { callbackData } = props;
   const [selected, setSelected] = useState(null);
   const [activeReport, setActiveReport] = useState(null);
-  const [loading, setLoading] = useState(false);
 
-  const fetchReportData = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    callbackData() // your real API
-      .then((res) => openChart(res))
+  useEffect(() => {
+    console.log('calling fetchData in useEffect');
+    callbackData()
+      .then((res) => setActiveReport(res))
       .catch((err) => console.error('Failed to fetch reports', err));
-  };
+  }, []);
 
   // ✅ Group pieData by key
   const activeReportGrouped = useMemo(() => {
@@ -37,50 +34,18 @@ export default function ReportChartComponent({ props }) {
     }, {});
   }, [activeReport]);
 
-  const openChart = (report) => {
-    setLoading(false);
-    setActiveReport(report);
-  };
-  const closeChart = () => setActiveReport(null);
-  console.log('selected', selected, JSON.stringify(selected));
   return (
     <div>
-      <button
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        onClick={(e) => fetchReportData(e)}
-      >
-        {loading ? 'Analyzing...' : 'View Chart'}
-      </button>
-
-      {/* Parent Modal */}
-      {(
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          </div>
-        )
-      }
-
-      {/* Chart Modal */}
-      {!activeReport && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-indigo-600 rounded-lg shadow-lg p-6  relative">
-            <button
-              className="absolute top-2 right-2 text-white-500 hover:text-red-500 text-xl font-bold"
-              onClick={closeChart}
-            >
-              X
-            </button>
-
-            <h2 className="text-xl font-bold mb-4">
-              {'Budget'} - Grouped Data Chart
-            </h2>
-
+      {
+        <>
+          {activeReport && (
             <PieChart
               series={[
                 {
                   arcLabel: (item) => `${item.value}`,
                   //   paddingAngle: 5,
                   arcLabelMinAngle: 10,
-                  data: activeReport.map((data, idx) => {
+                  data: activeReport?.map((data, idx) => {
                     return {
                       id: idx,
                       label: `${data.name} cost: ${data.totalCost} for count`,
@@ -94,47 +59,38 @@ export default function ReportChartComponent({ props }) {
               height={400}
               hideLegend={true}
             />
-            {/* ✅ Custom Legend Grid */}
-            <div className="gap-x-6 gap-y-2 mt-4 max-w-3xl">
-              {Object.entries(activeReportGrouped).map(([groupKey, items]) => (
+          )}
+
+          <div className="gap-x-6 gap-y-2 mt-4 max-w-3xl">
+            {activeReportGrouped &&
+              Object.entries(activeReportGrouped).map(([groupKey, items]) => (
                 <div key={groupKey}>
                   <h3 className="font-bold text-xl mb-2 uppercase underline">
                     {groupKey}
                   </h3>
                   <ul className="space-y-1 text-sm">
                     <div className="flex flex-wrap gap-4 mb-4">
-                      {items.map((item) => (
-                        <li
-                          key={item.id}
-                          className="cursor-pointer hover:underline"
-                          onClick={() => setSelected(item)}
-                        >
-                          <span className="font-medium capitalize">
-                            {item.name}:
-                          </span>{' '}
-                          {item.groupedData.length}
-                        </li>
-                      ))}
+                      {items &&
+                        items.map((item, idx) => (
+                          <li
+                            key={idx}
+                            className="cursor-pointer hover:underline"
+                            onClick={() => setSelected(item)}
+                          >
+                            <span className="font-medium capitalize">
+                              {item.name}:
+                            </span>{' '}
+                            {item.groupedData.length}
+                          </li>
+                        ))}
                     </div>
                   </ul>
                 </div>
               ))}
-
-              {/* {activeReport.map((item) => (
-                <div
-                  key={item.id}
-                  className="text-sm cursor-pointer hover:underline"
-                  onClick={() => setSelected(item)}
-                >
-                  <span className="font-medium">{item.name}:</span>{' '}
-                  {item.groupedData.length}
-                </div>
-              ))} */}
-            </div>
           </div>
-        </div>
-      )}
-      {/* Modal for selected item */}
+        </>
+      }
+
       {selected && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
           <div className="bg-indigo-500 p-6 rounded shadow-lg w-[90%] max-w-3xl relative">

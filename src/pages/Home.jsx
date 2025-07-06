@@ -8,7 +8,7 @@ import { useAuth } from '../hooks/AuthProvider';
 import { useState } from 'react';
 import { getCurrentYear, getYearOption } from '../utils/functionHelper';
 import { ddOptionCSS, inputddCSS } from '../utils/cssConstantHelper';
-import ReportChartComponent from '../components/analysis/ReportChart';
+import ReportAnalysisComponent from '../components/analysis/AnalysisReport';
 
 export default function HomePage() {
   const auth = useAuth();
@@ -59,7 +59,6 @@ export default function HomePage() {
           }).toString(),
         ))) ||
       [];
-    let data;
     return response;
   };
 
@@ -94,7 +93,7 @@ export default function HomePage() {
           />
         </span>
         
-        <ReportChartComponent props={{ callbackData: fetchReportAnalysis }} />
+        <ReportAnalysisComponent props={{ callbackData: fetchReportAnalysis, auth: auth }} />
       </div>
 
       <footer className="text-sm text-gray-500">
