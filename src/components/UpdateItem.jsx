@@ -11,7 +11,7 @@ import {
   spentTypeEnum,
 } from '../utils/constantHelper';
 import { ddOptionCSS, inputCSS, inputddCSS } from '../utils/cssConstantHelper';
-import { getFormatedDate } from '../utils/functionHelper';
+import { getFormatedDateFromString } from '../utils/functionHelper';
 import InputDropdownComponent from './InputDropdown';
 
 const LOG_PREFIX = 'UpdateBudgetPage::';
@@ -27,7 +27,7 @@ export default function UpdateItemComponent({ props }) {
           type="date"
           placeholder={header.key}
           name={`${intent}-${header.key}`}
-          defaultValue={getFormatedDate(item[header.key])}
+          defaultValue={getFormatedDateFromString(item[header.key])}
           onChange={(e) => e.target.value}
           className={`${inputCSS} ${
             intent + '-' + header.key in (errors ?? {})

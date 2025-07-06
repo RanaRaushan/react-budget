@@ -48,7 +48,7 @@ import {
 import {
   filterMapObject,
   getCurrentYear,
-  getFormatedDate,
+  getFormatedDateFromString,
   getYearOption,
   isEffectivelyEmptyObject,
 } from '../../utils/functionHelper.js';
@@ -321,7 +321,7 @@ export default function BudgetPage() {
 
       if (dateFields.includes(key)) {
         if (
-          getFormatedDate(existingData[key]) != newFormDataWithUpdatedKey[key]
+          getFormatedDateFromString(existingData[key]) != newFormDataWithUpdatedKey[key]
         ) {
           return true;
         }
@@ -436,7 +436,7 @@ export default function BudgetPage() {
     const transformed = {
       ...rest,
       unit: item.unit?.name || '',
-    }
+    };
     return transformed;
   };
 
@@ -446,9 +446,11 @@ export default function BudgetPage() {
     value,
     rowSummaryId = undefined,
   ) => {
-    const existingRowData = undefined && rowSummaryId && { // RANA:TODO:: need to check as it is not user friendly yet
-      ...(await getBudgetEntryForId(rowSummaryId)),
-    };
+    const existingRowData = undefined &&
+      rowSummaryId && {
+        // RANA:TODO:: need to check as it is not user friendly yet
+        ...(await getBudgetEntryForId(rowSummaryId)),
+      };
     setBudgetDetailEntryInputRows((prevRows) =>
       prevRows.map((row, i) => {
         const data = existingRowData ?? { ...row, [field]: value };
@@ -537,14 +539,28 @@ export default function BudgetPage() {
     }
   }, [globalParam]);
 
+  const scrollToRefWithOffset = (ref, offset = 0) => {
+  if (!ref.current) return;
+
+  const elementTop = ref.current.getBoundingClientRect().top + window.pageYOffset;
+  const headerOffset = offset; // height of your sticky header in px
+  const scrollPosition = elementTop - headerOffset;
+
+  window.scrollTo({
+    top: scrollPosition,
+    behavior: 'smooth',
+  });
+};
+
   useEffect(() => {
     if (location.state?.scrollTo === 'addBudget') {
-      scrollTargetAddBudgetRef.current?.scrollIntoView({ behavior: 'smooth' });
+      scrollToRefWithOffset(scrollTargetAddBudgetRef, 108)
     }
     if (location.state?.scrollTo === 'addBudgetEntry' || isAddBudgetEntryPage) {
-      scrollTargetAddBudgetEntryRef.current?.scrollIntoView({
-        behavior: 'smooth',
-      });
+      // scrollTargetAddBudgetEntryRef.current?.scrollIntoView({
+      //   behavior: 'smooth',
+      // });
+      scrollToRefWithOffset(scrollTargetAddBudgetEntryRef, 108)
     }
   }, [location.state]);
 
@@ -747,6 +763,7 @@ export default function BudgetPage() {
                 {budgetHeaders.concat(extra_headers).map((header, idx) => (
                   <th
                     key={idx}
+                    ref={scrollTargetAddBudgetRef}
                     className="px-4 py-4 whitespace-nowrap font-medium cursor-pointer"
                     title={`${
                       header.key === 'paidAmount'
@@ -778,6 +795,76 @@ export default function BudgetPage() {
                 <LoadingTableComponent colLen={budgetHeaders.length + 1} />
               ) : (
                 <>
+                  {isAddBudgetPage ? (
+                    <tr
+                      className={`${tableRowCSS}`}
+                      ref={scrollTargetAddBudgetRef}
+                    >
+                      <Outlet
+                        name="addBudget"
+                        context={{
+                          errors,
+                          intent: addItemIntent,
+                          suggestion: {
+                            description: suggestions?.description ?? [],
+                          },
+                        }}
+                      />
+                      <td className={`${tdCSS} space-x-2`}>
+                        <>
+                          <button
+                            onClick={(e) => {
+                              handleAddBudgetRowSubmit(e);
+                            }}
+                            type="submit"
+                            name="intent"
+                            value="item-add"
+                            className="text-blue-600 hover:underline"
+                          >
+                            Add
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              resetErrorState(),
+                                navigate(
+                                  BUDGET_FE_URL + '?' + searchParams.toString(),
+                                ),
+                                e.preventDefault();
+                            }}
+                            className="text-blue-600 hover:underline"
+                          >
+                            X
+                          </button>
+                        </>
+                      </td>
+                    </tr>
+                  ) : (
+                    <tr className={`${tableRowCSS}`}>
+                      {[...Array(budgetHeaders.length + 1)].map((_, idx) => {
+                        return idx === budgetHeaders.length ? (
+                          <td
+                            key={`${idx}${budgetHeaders.key}`}
+                            className={`${tdCSS}`}
+                          >
+                            <Link
+                              className={`${linkButtonCSS}`}
+                              state={{ scrollTo: 'addBudget' }}
+                              to={
+                                BUDGET_ADD_FE_URL +
+                                '?' +
+                                searchParams.toString()
+                              }
+                              style={{ color: 'inherit' }}
+                            >
+                              <FaPlus />
+                            </Link>
+                          </td>
+                        ) : (
+                          <td key={`${idx}${budgetHeaders.key}`}></td>
+                        );
+                      })}
+                    </tr>
+                  )}
                   {filteredBudgetData &&
                     filteredBudgetData.map((item, index) => (
                       <React.Fragment key={item.id}>
@@ -1197,79 +1284,6 @@ export default function BudgetPage() {
                         )}
                       </React.Fragment>
                     ))}
-
-                  {isAddBudgetPage ? (
-                    <tr
-                      className={`${tableRowCSS}`}
-                      ref={scrollTargetAddBudgetRef}
-                    >
-                      <Outlet
-                        name="addBudget"
-                        context={{
-                          errors,
-                          intent: addItemIntent,
-                          suggestion: {
-                            description: suggestions?.description ?? [],
-                          },
-                        }}
-                      />
-                      <td className={`${tdCSS} space-x-2`}>
-                        <>
-                          <button
-                            onClick={(e) => {
-                              handleAddBudgetRowSubmit(e);
-                            }}
-                            type="submit"
-                            name="intent"
-                            value="item-add"
-                            className="text-blue-600 hover:underline"
-                          >
-                            Add
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              resetErrorState(),
-                                navigate(
-                                  BUDGET_FE_URL + '?' + searchParams.toString(),
-                                ),
-                                e.preventDefault();
-                            }}
-                            className="text-blue-600 hover:underline"
-                          >
-                            X
-                          </button>
-                        </>
-                      </td>
-                    </tr>
-                  ) : (
-                    <tr className={`${tableRowCSS}`}>
-                      {[...Array(budgetHeaders.length + 1)].map((_, idx) => {
-                        return idx === budgetHeaders.length ? (
-                          <td
-                            key={`${idx}${budgetHeaders.key}`}
-                            className={`${tdCSS}`}
-                          >
-                            {/* <button onClick={(e) => e.preventDefault()} className="hover:text-indigo-200" > */}
-                            <Link
-                              className={`${linkButtonCSS}`}
-                              state={{ scrollTo: 'addBudget' }}
-                              to={
-                                BUDGET_ADD_FE_URL +
-                                '?' +
-                                searchParams.toString()
-                              }
-                              style={{ color: 'inherit' }}
-                            >
-                              <FaPlus />
-                            </Link>
-                            {/* </button> */}
-                          </td>
-                        ) : (
-                          <td key={`${idx}${budgetHeaders.key}`}></td>
-                        );
-                      })}
-                    </tr>
-                  )}
                 </>
               )}
             </tbody>

@@ -33,7 +33,7 @@ import {
 } from '../../utils/constantHelper.js';
 import {
   filterMapObject,
-  getFormatedDate,
+  getFormatedDateFromString,
   getYearOption,
   isEffectivelyEmptyObject,
 } from '../../utils/functionHelper.js';
@@ -276,7 +276,7 @@ export default function InvestmentBudget() {
       const key = header.key;
       if (dateFields.includes(key)) {
         if (
-          getFormatedDate(existingData[key]) != newFormDataWithUpdatedKey[key]
+          getFormatedDateFromString(existingData[key]) != newFormDataWithUpdatedKey[key]
         ) {
           return true;
         }

@@ -12,7 +12,7 @@ import {
   dateFields,
   itemDetailHeaders,
 } from '../utils/constantHelper';
-import { getFormatedDate } from '../utils/functionHelper';
+import { getFormatedDateFromString } from '../utils/functionHelper';
 
 export default function ReportChartComponent({ props }) {
   const { callbackData } = props;
@@ -173,7 +173,7 @@ export default function ReportChartComponent({ props }) {
                         ).map((header, idx) => (
                           <td className={tdCSS}>
                             {dateFields.includes(header.key)
-                              ? getFormatedDate(item[header.key])
+                              ? getFormatedDateFromString(item[header.key])
                               : header.key == 'unit'
                               ? item[header.key]?.name
                               : item[header.key]}

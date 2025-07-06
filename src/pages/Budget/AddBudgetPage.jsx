@@ -18,6 +18,7 @@ import {
 } from '../../utils/cssConstantHelper';
 import FormErrorsComponent from '../../components/FormErrors';
 import InputDropdownComponent from '../../components/InputDropdown';
+import QuickDateInputComponent from '../../components/QuickDateInput';
 
 const LOG_PREFIX = 'AddBudgetPage::';
 
@@ -44,21 +45,33 @@ export default function AddBudgetItemPage() {
 
       <div className="relative">
         {dateFields.includes(header.key) ? (
-          <input
-            disabled={lockedFields.includes(header.key)}
-            type={lockedFields.includes(header.key) ? 'datetime-local' : 'date'}
-            placeholder={header.key}
-            name={`${intent}-${header.key}`}
-            value={formData[header.key]}
-            onChange={(e) => handleInputChange(header.key)(e.target.value)}
-            className={`${inputCSS} ${intent + "-" + header.key in (errors??{}) ? 'border border-red-500' : ''}`}
+          // <input
+          //   disabled={lockedFields.includes(header.key)}
+          //   type={lockedFields.includes(header.key) ? 'datetime-local' : 'date'}
+          //   placeholder={header.key}
+          //   name={`${intent}-${header.key}`}
+          //   value={formData[header.key]}
+          //   onChange={(e) => handleInputChange(header.key)(e.target.value)}
+          //   className={`${inputCSS} ${intent + "-" + header.key in (errors??{}) ? 'border border-red-500' : ''}`}
+          // />
+          <QuickDateInputComponent
+            props={{
+              key: header.key,
+              name: `${intent}-${header.key}`,
+              value: formData[header.key],
+              onInputChange: (val) => handleInputChange(header.key)(val),
+            }}
           />
         ) : enumFields.includes(header.key) ? (
           <select
             name={`${intent}-${header.key}`}
             value={formData[header.key]}
             onChange={(e) => handleInputChange(header.key)(e.target.value)}
-            className={`${inputddCSS} ${intent + "-" + header.key in (errors??{}) ? 'border border-red-500' : ''}`}
+            className={`${inputddCSS} ${
+              intent + '-' + header.key in (errors ?? {})
+                ? 'border border-red-500'
+                : ''
+            }`}
           >
             <option className={`${ddOptionCSS}`} value="">
               {header.label}
@@ -83,8 +96,13 @@ export default function AddBudgetItemPage() {
               placeholder: header.label,
               name: `${intent}-${header.key}`,
               value: formData[header.key],
-              onInputChange: ({id, summary}) => handleInputChange(header.key)(summary),
-              className: `${inputCSS} ${intent + "-" + header.key in (errors??{}) ? 'border border-red-500' : ''}`,
+              onInputChange: ({ id, summary }) =>
+                handleInputChange(header.key)(summary),
+              className: `${inputCSS} ${
+                intent + '-' + header.key in (errors ?? {})
+                  ? 'border border-red-500'
+                  : ''
+              }`,
             }}
           />
         ) : (
@@ -95,7 +113,11 @@ export default function AddBudgetItemPage() {
             name={`${intent}-${header.key}`}
             value={formData[header.key]}
             onChange={(e) => handleInputChange(header.key)(e.target.value)}
-            className={`${inputCSS} ${intent + "-" + header.key in (errors??{}) ? 'border border-red-500' : ''}`}
+            className={`${inputCSS} ${
+              intent + '-' + header.key in (errors ?? {})
+                ? 'border border-red-500'
+                : ''
+            }`}
           />
         )}
       </div>
