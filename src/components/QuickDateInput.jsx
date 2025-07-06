@@ -27,7 +27,7 @@ export default function QuickDateInputComponent({ props }) {
 
   const handleDateChange = (e) => {
     setDate(e.target.value);
-    onInputChange(date);
+    onInputChange(e.target.value);
   };
 
   const handleSelectOption = async (e) => {
@@ -45,8 +45,8 @@ export default function QuickDateInputComponent({ props }) {
   };
 
   const dateOption = [
-    { key: 'today', label: 'Today' },
     { key: 'yesterday', label: 'Yesterday' },
+    { key: 'today', label: 'Today' },
     { key: 'tomorrow', label: 'Tomorrow' },
   ];
 

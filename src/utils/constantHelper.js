@@ -63,7 +63,8 @@ const paymentTypeEnum = Object.freeze({
     SBI_BANK: "SBI Bank",
     CASH: "Cash",
     SLICE_BANK: "Slice Bank",
-    BB_NOW_BAL_WALLET: "BB Now Wallet"
+    BB_NOW_BAL_WALLET: "BB Now Wallet",
+    TOLL_SMART_CARD_WALLET: "Toll Smart Card",
   });  
 
 const accountTypeEnum = Object.freeze({
@@ -74,6 +75,7 @@ const accountTypeEnum = Object.freeze({
     SLICE : "Slice Bank",
     BB_NOW_BAL : "BB Now Wallet",
     AMAZON_BAL : "Amazon Wallet",
+    TOLL_SMART_CARD: "Toll Smart Card",
   });
   
 const itemCategoryEnum = Object.freeze({
