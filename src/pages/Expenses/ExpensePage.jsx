@@ -31,7 +31,7 @@ import { getCurrentYear, getYearOption } from '../../utils/functionHelper';
 import DownloadBudgetComponent from '../../components/exporting/DownloadBudget';
 import { useAuth } from '../../hooks/AuthProvider';
 import DataStore from '../../utils/DataStore';
-import InputDropdownComponent from '../../components/CustomInput/InputDropdown';
+import InputDropdownComponent from '../../components/customInput/InputDropdown';
 
 export const loader =
   (auth) =>

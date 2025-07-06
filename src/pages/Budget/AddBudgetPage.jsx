@@ -17,8 +17,8 @@ import {
   tdCSS,
 } from '../../utils/cssConstantHelper';
 import FormErrorsComponent from '../../components/FormErrors';
-import InputDropdownComponent from '../../components/CustomInput/InputDropdown';
-import QuickDateInputComponent from '../../components/CustomInput/QuickDateInput';
+import InputDropdownComponent from '../../components/customInput/InputDropdown';
+import QuickDateInputComponent from '../../components/customInput/QuickDateInput';
 
 const LOG_PREFIX = 'AddBudgetPage::';
 

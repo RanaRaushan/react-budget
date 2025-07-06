@@ -8,7 +8,7 @@ import { useAuth } from '../hooks/AuthProvider';
 import { useState } from 'react';
 import { getCurrentYear, getYearOption } from '../utils/functionHelper';
 import { ddOptionCSS, inputddCSS } from '../utils/cssConstantHelper';
-import ReportChartComponent from '../components/Analysis/ReportChart';
+import ReportChartComponent from '../components/analysis/ReportChart';
 
 export default function HomePage() {
   const auth = useAuth();

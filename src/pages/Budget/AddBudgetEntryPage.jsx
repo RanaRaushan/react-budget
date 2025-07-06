@@ -18,7 +18,7 @@ import {
 } from '../../utils/cssConstantHelper';
 import FormErrorsComponent from '../../components/FormErrors';
 import { get_budget_detail_entry_byId } from '../../utils/APIHelper';
-import InputDropdownComponent from '../../components/CustomInput/InputDropdown';
+import InputDropdownComponent from '../../components/customInput/InputDropdown';
 
 const LOG_PREFIX = 'AddBudgetEntryPage::';
 
