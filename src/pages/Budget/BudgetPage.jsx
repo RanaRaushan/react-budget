@@ -26,6 +26,7 @@ import {
   get_add_budget_detail_entry,
   get_add_bulk_budget_detail_entry,
   get_all_budget,
+  get_budget_detail_entry_byId,
   get_budget_suggestions,
   get_data_by_ocr,
   get_update_budget,
@@ -185,10 +186,8 @@ export default function BudgetPage() {
     useLoaderData();
   const totalPages = pagination?.totalPages;
   // const currentPage = Math.min(pagination?.page, totalPages);
-
   const isAddBudgetPage = location.pathname.includes('budget/add');
   const isAddBudgetEntryPage = location.pathname.includes('budget/entry/add');
-
   let [searchParams, setSearchParams] = useSearchParams({
     selectedYear: getCurrentYear(),
     sort: 'spentDate-desc',
@@ -346,6 +345,8 @@ export default function BudgetPage() {
       `${BUDGET_FE_URL}?${searchParams.toString()}`,
     );
     formData.append('intent', updateItemIntent);
+
+    console.log('smae', previousValue, Object.fromEntries(formData));
     if (
       checkIfAnyFormDataUpdated(previousValue, Object.fromEntries(formData))
     ) {
@@ -429,11 +430,31 @@ export default function BudgetPage() {
     }, {});
   };
 
-  const handleBulkEntryChange = (index, field, value) => {
+  const getBudgetEntryForId = async (existingId) => {
+    let item = await get_budget_detail_entry_byId({}, existingId);
+    const { id, perUnitPrice, referTransactionId, ...rest } = item;
+    const transformed = {
+      ...rest,
+      unit: item.unit?.name || '',
+    }
+    return transformed;
+  };
+
+  const handleBulkEntryChange = async (
+    index,
+    field,
+    value,
+    rowSummaryId = undefined,
+  ) => {
+    const existingRowData = undefined && rowSummaryId && { // RANA:TODO:: need to check as it is not user friendly yet
+      ...(await getBudgetEntryForId(rowSummaryId)),
+    };
     setBudgetDetailEntryInputRows((prevRows) =>
-      prevRows.map((row, i) =>
-        i === index ? { ...row, [field]: value } : row,
-      ),
+      prevRows.map((row, i) => {
+        const data = existingRowData ?? { ...row, [field]: value };
+        console.log('row', row, value, rowSummaryId, data);
+        return i === index ? data : row;
+      }),
     );
   };
 
@@ -937,7 +958,7 @@ export default function BudgetPage() {
                                                       item: itemDetail,
                                                       intent:
                                                         updateItemDetailIntent,
-                                                        errors: errors,
+                                                      errors: errors,
                                                       suggestion: {
                                                         description:
                                                           suggestions?.description ??

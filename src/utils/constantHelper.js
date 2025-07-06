@@ -99,6 +99,7 @@ const itemCategoryEnum = Object.freeze({
     OTHER: "Other",
     UDHAAR: "Udhaar",
     SALARY: "Salary",
+    CC_PAY: "Credit Payment",
     MONEY_TRANSFERS_AND_WITHDRAWALS: "Money Transfers & Withdrawals",
   });  
 

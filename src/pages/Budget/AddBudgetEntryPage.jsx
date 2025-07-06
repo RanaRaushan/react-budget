@@ -18,6 +18,7 @@ import {
 } from '../../utils/cssConstantHelper';
 import FormErrorsComponent from '../../components/FormErrors';
 import InputDropdownComponent from '../../components/InputDropdown';
+import { get_budget_detail_entry_byId } from '../../utils/APIHelper';
 
 const LOG_PREFIX = 'AddBudgetEntryPage::';
 
@@ -30,12 +31,32 @@ export default function AddBudgetEntryPage() {
   );
 
   const { suggestion, errors, intent } = useOutletContext();
-  const handleInputChange = (key) => (value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+
+  const getBudgetEntryForId = async (existingId) => {
+    let item = await get_budget_detail_entry_byId({}, existingId);
+    const { id, perUnitPrice, referTransactionId, ...rest } = item;
+    const transformed = {
+      ...rest,
+      unit: item.unit?.name || '',
+    };
+    console.log('data', transformed);
+    return transformed;
   };
+
+  const handleInputChange =
+    (key) =>
+    async (value, rowSummaryId = undefined) => {
+      const existingRowData = undefined && rowSummaryId && { // RANA:TODO:: need to check as it is not user friendly yet
+        ...(await getBudgetEntryForId(rowSummaryId)),
+      };
+      setFormData((prev) => {
+        const data = existingRowData ?? {
+          ...prev,
+          [key]: value,
+        };
+        return data;
+      });
+    };
   return itemDetailHeaders.map((header, idx) => (
     <td key={header.key} className={`${tdCSS}`}>
       <FormErrorsComponent errors={errors} header={header} intent={intent} />
@@ -97,7 +118,8 @@ export default function AddBudgetEntryPage() {
               placeholder: header.label,
               name: `${intent}-${header.key}`,
               value: formData[header.key],
-              onInputChange: (value) => handleInputChange(header.key)(value),
+              onInputChange: ({ id, summary }) =>
+                handleInputChange(header.key)(summary, id),
               className: `${inputCSS} ${
                 intent + '-' + header.key in (errors ?? {})
                   ? 'border border-red-500'
@@ -111,7 +133,7 @@ export default function AddBudgetEntryPage() {
             disabled={lockedFields.includes(header.key)}
             placeholder={header.label}
             name={`${intent}-${header.key}`}
-            value={formData[header.key]}
+            value={formData[header.key]?? ''}
             onChange={(e) => handleInputChange(header.key)(e.target.value)}
             className={`${inputCSS} ${
               intent + '-' + header.key in (errors ?? {})

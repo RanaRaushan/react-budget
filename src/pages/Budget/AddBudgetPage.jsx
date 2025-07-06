@@ -83,7 +83,7 @@ export default function AddBudgetItemPage() {
               placeholder: header.label,
               name: `${intent}-${header.key}`,
               value: formData[header.key],
-              onInputChange: (value) => handleInputChange(header.key)(value),
+              onInputChange: ({id, summary}) => handleInputChange(header.key)(summary),
               className: `${inputCSS} ${intent + "-" + header.key in (errors??{}) ? 'border border-red-500' : ''}`,
             }}
           />

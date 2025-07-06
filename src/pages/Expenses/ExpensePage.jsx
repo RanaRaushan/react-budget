@@ -184,7 +184,7 @@ export default function ExpenseBudget() {
               placeholder: 'Description',
               name: `description`,
               value: input,
-              onInputChange: (value) => setInput(value),
+              onInputChange: ({id, summary}) => setInput(summary),
               className: `${inputCSS} relative`,
               showBtm: true
             }}

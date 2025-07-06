@@ -10,6 +10,8 @@ const AUTH_REFRESH_TOKEN_API_URL = '/auth/refresh-token';
 export const BUDGET_API_URL = `/users/:userId/budget`;
 export const BUDGET_SUGGESTIONS_API_URL = `/users/:userId/budget/suggestions`;
 export const BUDGET_ADD_API_URL = '/users/:userId/budget/add-budgetItem';
+export const BUDGET_GET_ENTRY_API_URL =
+  '/users/:userId/budget/transaction-detail/:transactionEntry';
 export const BUDGET_ENTRY_ADD_API_URL =
   '/users/:userId/budget/transaction-detail/add-transactionEntry';
 export const BUDGET_BULK_ENTRY_ADD_API_URL =
@@ -106,7 +108,7 @@ export const getRequest = async ({
 
   return (
     (!requireToken || tokenData?.body) &&
-    fetch(apiBaseUrl + path + `?${params.toString()}`, {
+    fetch(apiBaseUrl + path + `?${Object.keys(params).length ? params.toString() : ''}`, {
       method: 'GET',
       headers: {
         ...createHeaders(tokenData, sendEmptyHeader),
@@ -294,6 +296,16 @@ export async function get_add_budget(data = {}) {
     path: BUDGET_ADD_API_URL,
     bodyData: data,
     requireToken: true,
+  });
+}
+export async function get_budget_detail_entry_byId(params = {}, id) {
+  return getRequest({
+    path: BUDGET_GET_ENTRY_API_URL,
+    params: params,
+    requireToken: true,
+    urlValues: {
+      transactionEntry: id,
+    },
   });
 }
 

@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { ddOptionCSS } from '../utils/cssConstantHelper';
 
-// const options = ['Apple', 'Banana', 'Cherry', 'Date', 'Grapes', 'Mango'];
-
 export default function InputDropdownComponent({ props }) {
   const [filteredSuggestionOptions, setFilteredSuggestionOptions] = useState(
     [],
@@ -24,8 +22,9 @@ export default function InputDropdownComponent({ props }) {
     const value = e.target.value;
 
     if (value) {
-      const filtered = suggestion?.filter((option) =>
-        option.toLowerCase().includes(value.toLowerCase()),
+      const filtered = suggestion.filter(({ summary }) =>
+        {
+        return summary.toLowerCase().includes(value.toLowerCase())}
       );
       setFilteredSuggestionOptions(filtered);
       setShowDropdown(true);
@@ -33,7 +32,7 @@ export default function InputDropdownComponent({ props }) {
       setFilteredSuggestionOptions([]);
       setShowDropdown(false);
     }
-    onInputChange(value);
+    onInputChange({summary:value});
   };
 
   const handleSelect = (option) => {
@@ -46,7 +45,7 @@ export default function InputDropdownComponent({ props }) {
       {defaultValue ? <input
         type="text"
         name={name}
-        defaultValue={value}
+        defaultValue={value?? ''}
         disabled={disabled}
         onChange={handleChange}
         onFocus={() => value && setShowDropdown(true)}
@@ -57,7 +56,7 @@ export default function InputDropdownComponent({ props }) {
       <input
         type="text"
         name={name}
-        value={value}
+        value={value?? ''}
         disabled={disabled}
         onChange={handleChange}
         onFocus={() => value && setShowDropdown(true)}
@@ -76,7 +75,7 @@ export default function InputDropdownComponent({ props }) {
               onMouseDown={() => handleSelect(option)}
               className="px-4 py-2 hover:bg-blue-100 hover:text-black cursor-pointer"
             >
-              {option}
+              {option.summary}
             </li>
           ))}
         </ul>

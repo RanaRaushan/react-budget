@@ -98,8 +98,8 @@ export default function BulkddBudgetEntryPage({ props }) {
                       placeholder: header.label,
                       name: `${intent}[${rowIndex}]-${header.key}`,
                       value: row[header.key],
-                      onInputChange: (value) =>
-                        onChange(rowIndex, header.key, value),
+                      onInputChange: ({id, summary}) =>
+                        onChange(rowIndex, header.key, summary, id),
                       className: `${inputCSS} ${
                         intent + '-' + header.key in (row.errors ?? {})
                           ? 'border border-red-500'
@@ -113,7 +113,7 @@ export default function BulkddBudgetEntryPage({ props }) {
                     disabled={lockedFields.includes(header.key)}
                     placeholder={header.label}
                     name={`${intent}[${rowIndex}]-${header.key}`}
-                    value={row[header.key]}
+                    value={row[header.key]?? ''}
                     onChange={(e) =>
                       onChange(rowIndex, header.key, e.target.value)
                     }
