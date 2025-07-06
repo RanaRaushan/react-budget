@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ddOptionCSS } from '../utils/cssConstantHelper';
+import { ddOptionCSS } from '../../utils/cssConstantHelper';
 
 export default function InputDropdownComponent({ props }) {
   const [filteredSuggestionOptions, setFilteredSuggestionOptions] = useState(

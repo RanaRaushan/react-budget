@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { compoundingFrequencyEnum, dateFields, enumFields, investmentTypeEnum, itemCategoryEnum, lockedFields, paymentTypeEnum, spentTypeEnum } from '../utils/constantHelper';
-import { ddOptionCSS, inputCSS, inputddCSS, theadCSS } from '../utils/cssConstantHelper';
-import { getFormatedDate } from '../utils/functionHelper';
+import { compoundingFrequencyEnum, dateFields, enumFields, investmentTypeEnum, itemCategoryEnum, lockedFields, paymentTypeEnum, spentTypeEnum } from '../../utils/constantHelper';
+import { ddOptionCSS, inputCSS, inputddCSS, theadCSS } from '../../utils/cssConstantHelper';
+import { getFormatedDate } from '../../utils/functionHelper';
 
 const LOG_PREFIX = "SamplePreviewTable::"
 

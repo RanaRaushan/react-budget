@@ -3,12 +3,12 @@ import {
   download_all_budget_data,
   get_analysis_report_data,
 } from '../utils/APIHelper';
-import DownloadBudgetComponent from '../components/DownloadBudget';
+import DownloadBudgetComponent from '../components/Exporting/DownloadBudget';
 import { useAuth } from '../hooks/AuthProvider';
 import { useState } from 'react';
 import { getCurrentYear, getYearOption } from '../utils/functionHelper';
 import { ddOptionCSS, inputddCSS } from '../utils/cssConstantHelper';
-import ReportChartComponent from '../components/ReportChart';
+import ReportChartComponent from '../components/Analysis/ReportChart';
 
 export default function HomePage() {
   const auth = useAuth();
@@ -93,12 +93,7 @@ export default function HomePage() {
             }}
           />
         </span>
-
-        {/* <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-md transition"
-            onClick={fetchReportAnalysis}
-          >
-            📄 Get Analysis of your report
-          </button> */}
+        
         <ReportChartComponent props={{ callbackData: fetchReportAnalysis }} />
       </div>
 
