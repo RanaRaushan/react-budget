@@ -48,9 +48,9 @@ import {
   theadCSS,
 } from '../../utils/cssConstantHelper.js';
 import LoadingTableComponent from '../../components/LoadingTable.jsx';
-import UpdateItemComponent from '../../components/UpdateItem.jsx';
+import UpdateItemComponent from '../../components//UpdateItem.jsx';
 import { useAuth } from '../../hooks/AuthProvider.jsx';
-import DownloadBudgetComponent from '../../components/DownloadBudget.jsx';
+import DownloadBudgetComponent from '../../components/exporting/DownloadBudget.jsx';
 import FormErrorsComponent from '../../components/FormErrors.jsx';
 
 const LOG_PREFIX = 'InvestmentPage::';

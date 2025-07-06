@@ -16,7 +16,7 @@ import {
   tdCSS,
 } from '../../utils/cssConstantHelper';
 import FormErrorsComponent from '../../components/FormErrors';
-import InputDropdownComponent from '../../components/InputDropdown';
+import InputDropdownComponent from '../../components/CustomInput/InputDropdown';
 
 const LOG_PREFIX = 'BulkddBudgetEntryPage::';
 

@@ -7,7 +7,7 @@ import {
   theadCSS,
 } from '../../utils/cssConstantHelper';
 import { useFetcher } from 'react-router-dom';
-import SamplePreviewTableComponent from '../../components/SamplePreviewTable';
+import SamplePreviewTableComponent from '../../components/Exporting/SamplePreviewTable';
 import * as XLSX from 'xlsx';
 import { useAuth } from '../../hooks/AuthProvider';
 

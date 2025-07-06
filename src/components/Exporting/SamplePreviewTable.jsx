@@ -1,7 +1,4 @@
-import { useState } from 'react';
-import { compoundingFrequencyEnum, dateFields, enumFields, investmentTypeEnum, itemCategoryEnum, lockedFields, paymentTypeEnum, spentTypeEnum } from '../../utils/constantHelper';
-import { ddOptionCSS, inputCSS, inputddCSS, theadCSS } from '../../utils/cssConstantHelper';
-import { getFormatedDate } from '../../utils/functionHelper';
+import { theadCSS } from '../../utils/cssConstantHelper';
 
 const LOG_PREFIX = "SamplePreviewTable::"
 

@@ -3,7 +3,7 @@ import {
   download_all_budget_data,
   get_analysis_report_data,
 } from '../utils/APIHelper';
-import DownloadBudgetComponent from '../components/Exporting/DownloadBudget';
+import DownloadBudgetComponent from '../components/exporting/DownloadBudget';
 import { useAuth } from '../hooks/AuthProvider';
 import { useState } from 'react';
 import { getCurrentYear, getYearOption } from '../utils/functionHelper';

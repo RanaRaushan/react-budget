@@ -17,8 +17,8 @@ import {
   tdCSS,
 } from '../../utils/cssConstantHelper';
 import FormErrorsComponent from '../../components/FormErrors';
-import InputDropdownComponent from '../../components/InputDropdown';
 import { get_budget_detail_entry_byId } from '../../utils/APIHelper';
+import InputDropdownComponent from '../../components/CustomInput/InputDropdown';
 
 const LOG_PREFIX = 'AddBudgetEntryPage::';
 
