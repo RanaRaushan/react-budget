@@ -12,22 +12,36 @@ import {
   itemDetailHeaders,
 } from '../../../utils/constantHelper';
 import { getFormatedDateFromString } from '../../../utils/functionHelper';
+import { SpinnerDotted } from 'spinners-react';
 
 export default function PieChartReportComponent({ props }) {
   const { callbackData } = props;
   const [selected, setSelected] = useState(null);
   const [activeReport, setActiveReport] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     console.log('calling fetchData in useEffect');
-    callbackData()
-      .then((res) => setActiveReport(res))
-      .catch((err) => console.error('Failed to fetch reports', err));
+    // callbackData()
+    //   .then((res) => setActiveReport(res))
+    //   .catch((err) => console.error('Failed to fetch reports', err));
+
+    const fetchData = async () => {
+      try {
+        const res = await callbackData();
+        setActiveReport(res);
+      } catch (error) {
+        console.error('Failed to fetch reports:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
   // ✅ Group pieData by key
   const activeReportGrouped = useMemo(() => {
-    return activeReport?.reduce((acc, item) => {
+    return activeReport && activeReport?.reduce((acc, item) => {
       acc[item.key] = acc[item.key] || [];
       acc[item.key].push(item);
       return acc;
@@ -36,7 +50,16 @@ export default function PieChartReportComponent({ props }) {
 
   return (
     <div>
-      {
+      {loading ? (
+        <div className='flex justify-center items-center min-h-96 w-full'>
+        <SpinnerDotted
+          size={50}
+          thickness={150}
+          speed={100}
+          color="rgba(255, 255, 255, 1)"
+        />
+        </div>
+      ) : (
         <>
           {activeReport && (
             <PieChart
@@ -89,7 +112,7 @@ export default function PieChartReportComponent({ props }) {
               ))}
           </div>
         </>
-      }
+      )}
 
       {selected && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">

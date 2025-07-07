@@ -49,19 +49,7 @@ export default function HomePage() {
     setLoading(false);
     return { data, fileName };
   };
-
-  const fetchReportAnalysis = async () => {
-    const response =
-      (auth?.token &&
-        (await get_analysis_report_data(
-          new URLSearchParams({
-            betweenDate: '2025-06-01:2025-06-30',
-          }).toString(),
-        ))) ||
-      [];
-    return response;
-  };
-
+  
   const labelCSS = 'block mb-2.5 text-white text-[1.125em] font-bold';
   const inputCSS =
     'w-full min-w-80 p-2.5 rounded-3xl border-none text-[0.875em] font-inherit bg-[#3B3B3B] text-gray-300 shadow-[0_0_10px_rgba(0,0,0,0.1)]';
@@ -93,7 +81,7 @@ export default function HomePage() {
           />
         </span>
         
-        <ReportAnalysisComponent props={{ callbackData: fetchReportAnalysis, auth: auth }} />
+        <ReportAnalysisComponent props={{ auth: auth }} />
       </div>
 
       <footer className="text-sm text-gray-500">
