@@ -1,27 +1,16 @@
-import { LineChart } from '@mui/x-charts';
-import { PieChart } from '@mui/x-charts/PieChart';
-import { useEffect, useMemo, useState } from 'react';
-import {
-  ddOptionCSS,
-  inputddCSS,
-  tableCSS,
-  tableRowCSS,
-  tdCSS,
-  theadCSS,
-} from '../../utils/cssConstantHelper';
-import {
-  getCurrentYear,
-  getFormatedDateFromString,
-} from '../../utils/functionHelper';
+import { useState } from 'react';
+import { ddOptionCSS, inputddCSS } from '../../utils/cssConstantHelper';
+import { getCurrentYear } from '../../utils/functionHelper';
 import PieChartReportComponent from './Chart/PieChartReport';
 import { get_analysis_report_data, get_expenses } from '../../utils/APIHelper';
 import LineChartReportComponent from './Chart/LineChartReport';
-import { SpinnerDotted } from 'spinners-react';
+import { monthNames } from '../../utils/constantHelper';
 
 export default function ReportAnalysisComponent({ props }) {
   const { auth } = props;
   const [parentModal, setParentModal] = useState(false);
   const [chartType, setChartType] = useState('budgetGroupData');
+  const [selectedMonthReport, setSelectedMonthReport] = useState(monthNames[0]);
 
   const fetchExpenseSummaryReport = async (expenseType) => {
     const response =
@@ -42,7 +31,7 @@ export default function ReportAnalysisComponent({ props }) {
       (auth?.token &&
         (await get_analysis_report_data(
           new URLSearchParams({
-            betweenDate: '2025-06-01:2025-06-30',
+            betweenDate: getMonthRangeFromName(selectedMonthReport),
           }).toString(),
         ))) ||
       [];
@@ -59,17 +48,43 @@ export default function ReportAnalysisComponent({ props }) {
         console.log('calling ReportChartComponent');
         return (
           <PieChartReportComponent
-            props={{ callbackData: fetchReportAnalysis }}
+            props={{
+              callbackData: fetchReportAnalysis,
+              selectedMonth: selectedMonthReport,
+            }}
           />
         );
       case 'EISummary':
         return (
           <LineChartReportComponent
-            props={{ callbackData: fetchExpenseSummaryReport }}
+            props={{
+              callbackData: fetchExpenseSummaryReport,
+              selectedMonth: selectedMonthReport,
+            }}
           />
         );
     }
   };
+
+  function getMonthRangeFromName(monthName) {
+    if (!monthName) return;
+    const year = getCurrentYear();
+    const monthIndex = monthNames.indexOf(monthName);
+    console.log(monthIndex, monthName);
+    if (monthIndex === -1) throw new Error('Invalid month name');
+
+    const month = monthIndex + 1; // Convert to 1-based month (1 = January)
+
+    const firstDay = `${year}-${String(month).padStart(2, '0')}-01`;
+
+    // Get last day of the month using Date
+    const lastDayDate = new Date(year, month, 0); // day 0 of next month = last day of this month
+    const lastDay = `${year}-${String(month).padStart(2, '0')}-${String(
+      lastDayDate.getDate(),
+    ).padStart(2, '0')}`;
+
+    return `${firstDay}:${lastDay}`;
+  }
 
   const reportDDOption = [
     { key: 'budgetGroupData', label: 'Budget - Grouped Data Chart' },
@@ -95,18 +110,37 @@ export default function ReportAnalysisComponent({ props }) {
               X
             </button>
             <h2 className="text-xl font-bold mb-4"> Select Analysis report</h2>
-            <select
-              value={chartType}
-              onChange={(e) => setChartType(e.target.value)}
-              className={`${inputddCSS}`}
-            >
-              {Object.entries(reportDDOption).map(([ddkey, { key, label }]) => (
-                <option className={`${ddOptionCSS}`} key={ddkey} value={key}>
-                  {label}
-                </option>
-              ))}
-            </select>
-            <div className='pt-4'>{renderChart()}</div>
+            <div className="flex flex-col w-min mx-auto gap-2">
+              <select
+                value={chartType}
+                onChange={(e) => setChartType(e.target.value)}
+                className={`${inputddCSS}`}
+              >
+                {Object.entries(reportDDOption).map(
+                  ([ddkey, { key, label }]) => (
+                    <option
+                      className={`${ddOptionCSS}`}
+                      key={ddkey}
+                      value={key}
+                    >
+                      {label}
+                    </option>
+                  ),
+                )}
+              </select>
+              <select
+                value={selectedMonthReport}
+                onChange={(e) => setSelectedMonthReport(e.target.value)}
+                className={`${inputddCSS}`}
+              >
+                {monthNames.map((month, idx) => (
+                  <option className={`${ddOptionCSS}`} key={idx} value={month}>
+                    {month} - {getCurrentYear()}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="pt-4">{renderChart()}</div>
           </div>
         </div>
       )}

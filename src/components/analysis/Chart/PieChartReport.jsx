@@ -15,17 +15,13 @@ import { getFormatedDateFromString } from '../../../utils/functionHelper';
 import { SpinnerDotted } from 'spinners-react';
 
 export default function PieChartReportComponent({ props }) {
-  const { callbackData } = props;
-  const [selected, setSelected] = useState(null);
-  const [activeReport, setActiveReport] = useState(null);
+  const { callbackData, selectedMonth } = props;
+  const [selected, setSelected] = useState(undefined);
+  const [activeReport, setActiveReport] = useState(undefined);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     console.log('calling fetchData in useEffect');
-    // callbackData()
-    //   .then((res) => setActiveReport(res))
-    //   .catch((err) => console.error('Failed to fetch reports', err));
-
     const fetchData = async () => {
       try {
         const res = await callbackData();
@@ -37,8 +33,9 @@ export default function PieChartReportComponent({ props }) {
       }
     };
     fetchData();
-  }, []);
+  }, [selectedMonth]);
 
+  console.log("activeReport", activeReport)
   // ✅ Group pieData by key
   const activeReportGrouped = useMemo(() => {
     return activeReport && activeReport?.reduce((acc, item) => {
@@ -103,7 +100,9 @@ export default function PieChartReportComponent({ props }) {
                             <span className="font-medium capitalize">
                               {item.name}:
                             </span>{' '}
-                            {item.groupedData.length}
+                            {`${item.groupedData.length} `}
+                            ({<span className='text-red-400 font-bold'>₹{item.totalCost}</span>} )
+                            
                           </li>
                         ))}
                     </div>
