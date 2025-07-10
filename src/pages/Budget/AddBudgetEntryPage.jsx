@@ -25,13 +25,12 @@ const LOG_PREFIX = 'AddBudgetEntryPage::';
 export default function AddBudgetEntryPage() {
   const [formData, setFormData] = useState(
     itemDetailHeaders.reduce((acc, col) => {
-      acc[col.key] = '';
+      acc[col.key] = undefined;
       return acc;
     }, {}),
   );
 
-  const { suggestion, errors, intent } = useOutletContext();
-
+  const { suggestion, errors, intent, defaultValues } = useOutletContext();
   const getBudgetEntryForId = async (existingId) => {
     let item = await get_budget_detail_entry_byId({}, existingId);
     const { id, perUnitPrice, referTransactionId, ...rest } = item;
@@ -46,9 +45,11 @@ export default function AddBudgetEntryPage() {
   const handleInputChange =
     (key) =>
     async (value, rowSummaryId = undefined) => {
-      const existingRowData = undefined && rowSummaryId && { // RANA:TODO:: need to check as it is not user friendly yet
-        ...(await getBudgetEntryForId(rowSummaryId)),
-      };
+      const existingRowData = undefined &&
+        rowSummaryId && {
+          // RANA:TODO:: need to check as it is not user friendly yet
+          ...(await getBudgetEntryForId(rowSummaryId)),
+        };
       setFormData((prev) => {
         const data = existingRowData ?? {
           ...prev,
@@ -133,7 +134,8 @@ export default function AddBudgetEntryPage() {
             disabled={lockedFields.includes(header.key)}
             placeholder={header.label}
             name={`${intent}-${header.key}`}
-            value={formData[header.key]?? ''}
+            // defaultValue={defaultValues[header.key]}
+            value={formData[header.key] ?? defaultValues[header.key]}
             onChange={(e) => handleInputChange(header.key)(e.target.value)}
             className={`${inputCSS} ${
               intent + '-' + header.key in (errors ?? {})

@@ -104,6 +104,7 @@ const itemCategoryEnum = Object.freeze({
     SALARY: "Salary",
     CC_PAY: "Credit Payment",
     MONEY_TRANSFERS_AND_WITHDRAWALS: "Money Transfers & Withdrawals",
+    SETTLED_EXPENSES: "Settled Expenses"
   });  
 
 const investmentHeaders = [

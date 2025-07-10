@@ -205,7 +205,7 @@ export default function BudgetPage() {
   );
   const [globalParam, setGlobalParam] = useState({});
   const [expandedRow, setExpandedRow] = useState(params.entryId);
-  const [page, setPage] = useState(searchParams.get('page') || 0);
+  const [page, setPage] = useState(searchParams.get('page') ?? 1);
   const [editBudgetRowId, setEditBudgetRowId] = useState(null);
   const [editTransactionItemRowId, setEditTransactionItemRowId] =
     useState(null);
@@ -433,7 +433,7 @@ export default function BudgetPage() {
   };
   const createRow = () => {
     return itemDetailHeaders.reduce((acc, col) => {
-      acc[col.key] = '';
+      acc[col.key] = undefined;
       return acc;
     }, {});
   };
@@ -496,6 +496,7 @@ export default function BudgetPage() {
       row['item'] = parentId;
       return { ...row, errors: currentErrors };
     });
+      console.log("row",updatedForms)
     setBudgetDetailEntryInputRows(updatedForms);
     const key = 'errors';
     const hasNoErrors = updatedForms.every((obj) => {
@@ -820,6 +821,11 @@ export default function BudgetPage() {
                           suggestion: {
                             description: suggestions?.description ?? [],
                           },
+                          defaultValues: {
+                            owner: filteredBudgetData
+                              .find((item) => item?.user?.firstName)
+                              .user?.firstName?.split(' ')[0],
+                          },
                         }}
                       />
                       <td className={`${tdCSS} space-x-2`}>
@@ -1140,6 +1146,13 @@ export default function BudgetPage() {
                                             category:
                                               suggestions?.entryCategory ?? [],
                                           },
+                                          defaultValues: {
+                                            owner: filteredBudgetData
+                                              .find(
+                                                (item) => item?.user?.firstName,
+                                              )
+                                              .user?.firstName?.split(' ')[0],
+                                          },
                                         }}
                                       />
                                     )}
@@ -1159,6 +1172,14 @@ export default function BudgetPage() {
                                               category:
                                                 suggestions?.entryCategory ??
                                                 [],
+                                            },
+                                            defaultValues: {
+                                              owner: filteredBudgetData
+                                                .find(
+                                                  (item) =>
+                                                    item?.user?.firstName,
+                                                )
+                                                .user?.firstName?.split(' ')[0],
                                             },
                                           }}
                                         />
@@ -1319,7 +1340,7 @@ export default function BudgetPage() {
                 }}
                 className={`px-3 py-1 rounded ${
                   page === pg
-                    ? 'bg-indigo-500 text-white'
+                    ? '!bg-indigo-500 text-white'
                     : 'bg-gray-100 hover:bg-gray-200'
                 }`}
               >

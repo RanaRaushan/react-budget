@@ -171,7 +171,7 @@ export default function ExpenseBudget() {
             }
             className={`${inputddCSS}`}
           >
-            {Object.entries(paymentTypeEnum).map(([ddKey, ddLabel]) => (
+            {Object.entries({"-":"- -", ...paymentTypeEnum}).map(([ddKey, ddLabel]) => (
               <option className={`${ddOptionCSS}`} key={ddKey} value={ddKey}>
                 {ddLabel}
               </option>

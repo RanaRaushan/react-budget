@@ -25,12 +25,12 @@ const LOG_PREFIX = 'AddBudgetPage::';
 export default function AddBudgetItemPage() {
   const [formData, setFormData] = useState(
     budgetHeaders.reduce((acc, col) => {
-      acc[col.key] = '';
+      acc[col.key] = undefined;
       return acc;
     }, {}),
   );
 
-  const { errors, intent, suggestion } = useOutletContext();
+  const { errors, intent, suggestion, defaultValues } = useOutletContext();
 
   const handleInputChange = (key) => (value) => {
     setFormData((prev) => ({
@@ -112,6 +112,7 @@ export default function AddBudgetItemPage() {
             placeholder={header.label}
             name={`${intent}-${header.key}`}
             value={formData[header.key]}
+            defaultValue={defaultValues[header.key]}
             onChange={(e) => handleInputChange(header.key)(e.target.value)}
             className={`${inputCSS} ${
               intent + '-' + header.key in (errors ?? {})
