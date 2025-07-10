@@ -29,9 +29,9 @@ export default function LineChartReportComponent({ props }) {
     fetchAndMerge();
   }, []);
 
-  console.log('activeReports', activeReports);
+  console.log('activeReports', activeReports, monthNames);
   return (
-    <div>
+    <div className='bg-neutral-800'>
       <>
         {loading ? (
           <SpinnerDotted
@@ -43,30 +43,20 @@ export default function LineChartReportComponent({ props }) {
         ) : (
           activeReports?.length && (
             <LineChart
-              //   xAxis={
-              //     monthNames.map((month, idx) => {return {curve: 'linear', 'data': monthNames}})
-              //   //   [
-              //   //   { curve: 'linear', data: [1, 5, 2, 6, 3, 9.3] },
-              //   //   { curve: 'linear', data: [6, 3, 7, 9.5, 4, 2] },
-              //   // ]
-              // }
-              xAxis={{ data: monthNames.values() }}
-              // yAxis = {{curve: 'linear', 'data': monthNames}}
-
+              xAxis={[{ data: monthNames, label: "Months" }]}
+              yAxis = {[{label: "Amount", labelStyle:{color: 'white'} }]}
               series={
-                activeReports.map((data, idx) => {
+                activeReports.map((activeReportData, idx) => {
                   return {
+                    label: activeReportData.spentType,
                     curve: 'linear',
-                    data: monthNames.map((month, idx) => [
-                      data.monthlyExpense?.monthlyAmounts[month.toUpperCase()]
+                    data: monthNames.map((month, idx) => 
+                      activeReportData.monthlyExpense?.monthlyAmounts[month.toUpperCase()]
                         ?.monthlyItemCategoryTotalAmount ?? 0,
-                    ]),
+                    ),
+                    // valueFormatter: (val) => `${val}`
                   };
                 })
-                // [
-                //   { curve: 'linear', data: [1, 5, 2, 6, 3, 9.3] },
-                //   { curve: 'linear', data: [6, 3, 7, 9.5, 4, 2] },
-                // ]
               }
               height={300}
               grid={{ vertical: true, horizontal: true }}

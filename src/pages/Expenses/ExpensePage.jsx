@@ -144,7 +144,7 @@ export default function ExpenseBudget() {
           </label>
 
           <select
-            value={params.type}
+            value={params.type??undefined}
             onChange={(e) =>
               navigate(BUDGET_EXPENSES_FE_URL.replace('{type}', e.target.value))
             }
@@ -162,7 +162,7 @@ export default function ExpenseBudget() {
           </select>
 
           <select
-            value={searchParams.get('paymentType')}
+            value={searchParams.get('paymentType')??undefined}
             onChange={(e) =>
               setSearchParams((param) => {
                 param.set('paymentType', e.target.value);

@@ -5,8 +5,8 @@ const lockedFields = ['id', 'period', 'maturityAmount', 'maturityTimeLeftInDays'
 const inputDropDownFields = ['description', 'category', 'itemName', 'itemDescription']
 const validationAddBudgetFields = ['paidDate', 'spentDate', 'itemType', 'paymentType', 'spentType', 'amount', 'paidAmount', 'description', 'owner']
 const validationUpdateBudgetFields = ['id', 'paidDate', 'spentDate', 'itemType', 'paymentType', 'spentType', 'amount', 'paidAmount', 'description', 'owner']
-const validationAddBudgetDetailEntryFields = ['itemName', 'category', 'itemQty', 'itemPrice']
-const validationUpdateBudgetDetailEntryFields = ['id', 'category', 'itemName', 'itemQty', 'itemPrice']
+const validationAddBudgetDetailEntryFields = ['itemName', 'category', 'itemQty', 'itemPrice', 'owner']
+const validationUpdateBudgetDetailEntryFields = ['id', 'category', 'itemName', 'itemQty', 'itemPrice', 'owner']
 const validationAddInvestmentFields = ['id', 'investmentType', 'description', 'interestRate', 'investmentAmount', 'investmentDate', 'maturityDate', 'compoundingFrequency']
 const validationUpdateInvestmentFields = ['investmentType', 'description', 'interestRate', 'investmentAmount', 'investmentDate', 'maturityDate', 'compoundingFrequency']
 
@@ -31,6 +31,7 @@ const budgetHeaders = [
 const itemDetailHeaders = [
     { label: "ID", key: "id" },
     { label: "Name", key: "itemName" },
+    { label: "Owner", key: "owner" },
     { label: "Category", key: "category" },
     { label: "Weight", key: "itemWeight" },
     { label: "Unit", key: "unit" },

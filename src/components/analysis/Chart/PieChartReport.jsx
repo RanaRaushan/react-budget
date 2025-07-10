@@ -151,13 +151,13 @@ export default function PieChartReportComponent({ props }) {
                 </thead>
                 <tbody>
                   {selected?.groupedData &&
-                    selected?.groupedData?.map((item, idx) => (
-                      <tr key={idx} className={tableRowCSS}>
+                    selected?.groupedData?.map((item, gdidx) => (
+                      <tr key={gdidx} className={tableRowCSS}>
                         {(selected.key == 'budgetEntry'
                           ? itemDetailHeaders
                           : budgetHeaders
-                        ).map((header, idx) => (
-                          <td className={tdCSS}>
+                        ).map((header, hidx) => (
+                          <td className={tdCSS} key={hidx}>
                             {dateFields.includes(header.key)
                               ? getFormatedDateFromString(item[header.key])
                               : header.key == 'unit'

@@ -315,28 +315,35 @@ export default function BudgetPage() {
       {},
     );
     const combinedHeaders = budgetHeaders.concat(itemDetailHeaders);
-
+    let anyFieldUpdated = false;
     for (const header of combinedHeaders) {
       const key = header.key;
-
+      console.log('key', key);
       if (dateFields.includes(key)) {
-        if (
-          getFormatedDateFromString(existingData[key]) != newFormDataWithUpdatedKey[key]
-        ) {
-          return true;
-        }
-      } else if (
-        existingData[key] &&
-        existingData[key] != newFormDataWithUpdatedKey[key]
-      ) {
-        return true;
+        console.log(
+          existingData[key],
+          getFormatedDateFromString(existingData[key]),
+          newFormDataWithUpdatedKey[key],
+          getFormatedDateFromString(existingData[key]) !=
+            newFormDataWithUpdatedKey[key],
+        );
+        anyFieldUpdated =
+          anyFieldUpdated ||
+          getFormatedDateFromString(existingData[key]) !=
+            newFormDataWithUpdatedKey[key];
+      } else {
+        anyFieldUpdated =
+          anyFieldUpdated ||
+          (existingData[key] &&
+            existingData[key] != newFormDataWithUpdatedKey[key]);
       }
     }
-    return false;
+    console.log('return ', anyFieldUpdated);
+    return anyFieldUpdated;
   };
 
   const updateBudgetRowSubmit = (e, previousValue) => {
-    e.preventDefault();
+    // e.preventDefault();
     if (isSubmitting) return;
     setIsSubmitting(true);
     let formData = new FormData(e.currentTarget.form);
@@ -397,6 +404,7 @@ export default function BudgetPage() {
     fetcher.submit(formData, {
       method: 'POST',
     });
+    resetErrorState();
     setIsSubmitting(false);
   };
 
@@ -515,6 +523,7 @@ export default function BudgetPage() {
   }, [fetcher.data]);
 
   const resetErrorState = () => {
+    console.log('calling reset');
     setErrors({});
   };
   const resetInputRowsState = () => {
@@ -540,27 +549,28 @@ export default function BudgetPage() {
   }, [globalParam]);
 
   const scrollToRefWithOffset = (ref, offset = 0) => {
-  if (!ref.current) return;
+    if (!ref.current) return;
 
-  const elementTop = ref.current.getBoundingClientRect().top + window.pageYOffset;
-  const headerOffset = offset; // height of your sticky header in px
-  const scrollPosition = elementTop - headerOffset;
+    const elementTop =
+      ref.current.getBoundingClientRect().top + window.pageYOffset;
+    const headerOffset = offset; // height of your sticky header in px
+    const scrollPosition = elementTop - headerOffset;
 
-  window.scrollTo({
-    top: scrollPosition,
-    behavior: 'smooth',
-  });
-};
+    window.scrollTo({
+      top: scrollPosition,
+      behavior: 'smooth',
+    });
+  };
 
   useEffect(() => {
     if (location.state?.scrollTo === 'addBudget') {
-      scrollToRefWithOffset(scrollTargetAddBudgetRef, 108)
+      scrollToRefWithOffset(scrollTargetAddBudgetRef, 108);
     }
     if (location.state?.scrollTo === 'addBudgetEntry' || isAddBudgetEntryPage) {
       // scrollTargetAddBudgetEntryRef.current?.scrollIntoView({
       //   behavior: 'smooth',
       // });
-      scrollToRefWithOffset(scrollTargetAddBudgetEntryRef, 108)
+      scrollToRefWithOffset(scrollTargetAddBudgetEntryRef, 108);
     }
   }, [location.state]);
 
@@ -679,14 +689,16 @@ export default function BudgetPage() {
             />
           )}
           {/* Add a checkbox */}
-          <label>
-            <input
-              type="checkbox"
-              checked={isCheckedSearch}
-              onChange={(e) => setIsCheckedSearch(e.target.checked)}
-            />
-            {dateFields.includes(searchKey) ? ' between' : ' Exact Search'}
-          </label>
+          {!enumFields.includes(searchKey) && (
+            <label>
+              <input
+                type="checkbox"
+                checked={isCheckedSearch}
+                onChange={(e) => setIsCheckedSearch(e.target.checked)}
+              />
+              {dateFields.includes(searchKey) ? ' between' : ' Exact Search'}
+            </label>
+          )}
           {/* Add button to add multiple condition */}
           <button
             className={`${buttonCSS}`}
@@ -825,11 +837,11 @@ export default function BudgetPage() {
                           </button>
                           <button
                             onClick={(e) => {
-                              resetErrorState(),
-                                navigate(
-                                  BUDGET_FE_URL + '?' + searchParams.toString(),
-                                ),
-                                e.preventDefault();
+                              e.preventDefault();
+                              resetErrorState();
+                              navigate(
+                                BUDGET_FE_URL + '?' + searchParams.toString(),
+                              );
                             }}
                             className="text-blue-600 hover:underline"
                           >

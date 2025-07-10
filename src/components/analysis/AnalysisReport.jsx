@@ -106,7 +106,7 @@ export default function ReportAnalysisComponent({ props }) {
                 </option>
               ))}
             </select>
-            <div>{renderChart()}</div>
+            <div className='pt-4'>{renderChart()}</div>
           </div>
         </div>
       )}
