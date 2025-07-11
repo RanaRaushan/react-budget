@@ -23,16 +23,15 @@ import QuickDateInputComponent from '../../components/customInput/QuickDateInput
 const LOG_PREFIX = 'AddBudgetPage::';
 
 export default function AddBudgetItemPage() {
+  const { errors, intent, suggestion, defaultValues } = useOutletContext();
   const [formData, setFormData] = useState(
     budgetHeaders.reduce((acc, col) => {
-      acc[col.key] = undefined;
+      acc[col.key] = defaultValues[col.key];
       return acc;
     }, {}),
   );
 
-  const { errors, intent, suggestion, defaultValues } = useOutletContext();
-
-  const handleInputChange = (key) => (value) => {
+  const handleInputChange = (key) => async (value) => {
     setFormData((prev) => ({
       ...prev,
       [key]: value,
@@ -112,7 +111,6 @@ export default function AddBudgetItemPage() {
             placeholder={header.label}
             name={`${intent}-${header.key}`}
             value={formData[header.key]}
-            defaultValue={defaultValues[header.key]}
             onChange={(e) => handleInputChange(header.key)(e.target.value)}
             className={`${inputCSS} ${
               intent + '-' + header.key in (errors ?? {})

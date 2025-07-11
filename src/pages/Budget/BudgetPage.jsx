@@ -428,12 +428,21 @@ export default function BudgetPage() {
   const handleAddBudgetEntry = (e) => {
     if (bulkDetailEntryAddCheck) {
       e.preventDefault();
-      setBudgetDetailEntryInputRows((prev) => [...prev, ...[createRow()]]);
+      setBudgetDetailEntryInputRows((prev) => [
+        ...prev,
+        ...[
+          createRow({
+            owner: filteredBudgetData
+              .find((item) => item?.user?.firstName)
+              .user?.firstName?.split(' ')[0],
+          }),
+        ],
+      ]);
     }
   };
-  const createRow = () => {
+  const createRow = (defaultValues) => {
     return itemDetailHeaders.reduce((acc, col) => {
-      acc[col.key] = undefined;
+      acc[col.key] = defaultValues[header.key];
       return acc;
     }, {});
   };
@@ -496,7 +505,7 @@ export default function BudgetPage() {
       row['item'] = parentId;
       return { ...row, errors: currentErrors };
     });
-      console.log("row",updatedForms)
+    console.log('row', updatedForms);
     setBudgetDetailEntryInputRows(updatedForms);
     const key = 'errors';
     const hasNoErrors = updatedForms.every((obj) => {
@@ -1145,13 +1154,6 @@ export default function BudgetPage() {
                                               suggestions?.itemEntryName ?? [],
                                             category:
                                               suggestions?.entryCategory ?? [],
-                                          },
-                                          defaultValues: {
-                                            owner: filteredBudgetData
-                                              .find(
-                                                (item) => item?.user?.firstName,
-                                              )
-                                              .user?.firstName?.split(' ')[0],
                                           },
                                         }}
                                       />

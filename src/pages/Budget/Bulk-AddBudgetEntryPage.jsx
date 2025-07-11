@@ -21,7 +21,7 @@ import InputDropdownComponent from '../../components/customInput/InputDropdown';
 const LOG_PREFIX = 'BulkddBudgetEntryPage::';
 
 export default function BulkddBudgetEntryPage({ props }) {
-  const { intent, inputRows, onChange, onRemove, suggestion, defaultValues } = props;
+  const { intent, inputRows, onChange, onRemove, suggestion } = props;
   return inputRows?.map((row, rowIndex) => {
     return (
       row && (
@@ -113,7 +113,7 @@ export default function BulkddBudgetEntryPage({ props }) {
                     disabled={lockedFields.includes(header.key)}
                     placeholder={header.label}
                     name={`${intent}[${rowIndex}]-${header.key}`}
-                    value={row[header.key] ?? defaultValues[header.key]}
+                    value={row[header.key]}
                     onChange={(e) =>
                       onChange(rowIndex, header.key, e.target.value)
                     }
