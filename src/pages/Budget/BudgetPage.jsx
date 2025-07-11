@@ -320,13 +320,6 @@ export default function BudgetPage() {
       const key = header.key;
       console.log('key', key);
       if (dateFields.includes(key)) {
-        console.log(
-          existingData[key],
-          getFormatedDateFromString(existingData[key]),
-          newFormDataWithUpdatedKey[key],
-          getFormatedDateFromString(existingData[key]) !=
-            newFormDataWithUpdatedKey[key],
-        );
         anyFieldUpdated =
           anyFieldUpdated ||
           getFormatedDateFromString(existingData[key]) !=

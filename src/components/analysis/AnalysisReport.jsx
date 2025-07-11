@@ -11,6 +11,7 @@ export default function ReportAnalysisComponent({ props }) {
   const [parentModal, setParentModal] = useState(false);
   const [chartType, setChartType] = useState('budgetGroupData');
   const [selectedMonthReport, setSelectedMonthReport] = useState(getCurrentYearMonthName());
+  const [selectedOwner, setSelectedOwner] = useState('Rana');
 
   const fetchExpenseSummaryReport = async (expenseType) => {
     const response =
@@ -45,12 +46,12 @@ export default function ReportAnalysisComponent({ props }) {
   const renderChart = () => {
     switch (chartType) {
       case 'budgetGroupData':
-        console.log('calling ReportChartComponent');
         return (
           <PieChartReportComponent
             props={{
               callbackData: fetchReportAnalysis,
               selectedMonth: selectedMonthReport,
+              selectedOwner: selectedOwner,
             }}
           />
         );
@@ -60,6 +61,7 @@ export default function ReportAnalysisComponent({ props }) {
             props={{
               callbackData: fetchExpenseSummaryReport,
               selectedMonth: selectedMonthReport,
+              selectedOwner: selectedOwner,
             }}
           />
         );
@@ -70,7 +72,6 @@ export default function ReportAnalysisComponent({ props }) {
     if (!monthName) return;
     const year = getCurrentYear();
     const monthIndex = monthNames.indexOf(monthName);
-    console.log(monthIndex, monthName);
     if (monthIndex === -1) throw new Error('Invalid month name');
 
     const month = monthIndex + 1; // Convert to 1-based month (1 = January)
@@ -90,6 +91,7 @@ export default function ReportAnalysisComponent({ props }) {
     { key: 'budgetGroupData', label: 'Budget - Grouped Data Chart' },
     { key: 'EISummary', label: 'Expense-Income Summary' },
   ];
+  const ownerList = ['All','Rana', 'Home', 'Raksha','Other']
   return (
     <div>
       <button
@@ -136,6 +138,17 @@ export default function ReportAnalysisComponent({ props }) {
                 {monthNames.map((month, idx) => (
                   <option className={`${ddOptionCSS}`} key={idx} value={month}>
                     {month} - {getCurrentYear()}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={selectedOwner}
+                onChange={(e) => setSelectedOwner(e.target.value)}
+                className={`${inputddCSS}`}
+              >
+                {ownerList.map((owner, idx) => (
+                  <option className={`${ddOptionCSS}`} key={idx} value={owner}>
+                    {owner}
                   </option>
                 ))}
               </select>
