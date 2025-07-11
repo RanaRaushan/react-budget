@@ -49,8 +49,12 @@ function filterMapObject(originalMapObj, ...extraKeys) {
   return cleaned;
 }
 
-function getCurrentYear(startFrom = 2023) {
+function getCurrentYear() {
   return new Date().getFullYear();
+}
+
+function getCurrentYearMonthName() {
+  return new Date().toLocaleString('default', { month: 'long' });
 }
 
 function getYearOption(startFrom = 2023) {
@@ -82,6 +86,7 @@ export {
   isEffectivelyEmptyObject,
   filterMapObject,
   getCurrentYear,
+  getCurrentYearMonthName,
   getYearOption,
   getFormatedDateFromString,
   getFormatedDate,

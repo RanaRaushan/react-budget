@@ -35,6 +35,23 @@ export default function PieChartReportComponent({ props }) {
     fetchData();
   }, [selectedMonth]);
 
+      // 🔑 Add escape key listener
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') {
+        setSelected(null);
+      }
+    };
+
+    if (selected) {
+      window.addEventListener('keydown', handleEsc);
+    }
+
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+    };
+  }, [selected]); // run effect when modal opens/closes
+
   console.log("activeReport", activeReport)
   // ✅ Group pieData by key
   const activeReportGrouped = useMemo(() => {

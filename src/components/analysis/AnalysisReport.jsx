@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ddOptionCSS, inputddCSS } from '../../utils/cssConstantHelper';
-import { getCurrentYear } from '../../utils/functionHelper';
+import { getCurrentYear, getCurrentYearMonthName } from '../../utils/functionHelper';
 import PieChartReportComponent from './Chart/PieChartReport';
 import { get_analysis_report_data, get_expenses } from '../../utils/APIHelper';
 import LineChartReportComponent from './Chart/LineChartReport';
@@ -10,7 +10,7 @@ export default function ReportAnalysisComponent({ props }) {
   const { auth } = props;
   const [parentModal, setParentModal] = useState(false);
   const [chartType, setChartType] = useState('budgetGroupData');
-  const [selectedMonthReport, setSelectedMonthReport] = useState(monthNames[0]);
+  const [selectedMonthReport, setSelectedMonthReport] = useState(getCurrentYearMonthName());
 
   const fetchExpenseSummaryReport = async (expenseType) => {
     const response =

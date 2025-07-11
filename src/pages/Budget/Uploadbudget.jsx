@@ -4,19 +4,23 @@ import {
   buttonCSS,
   ddOptionCSS,
   inputCSS,
+  tableCSS,
   theadCSS,
 } from '../../utils/cssConstantHelper';
 import { useFetcher } from 'react-router-dom';
 import SamplePreviewTableComponent from '../../components/exporting/SamplePreviewTable';
 import * as XLSX from 'xlsx';
 import { useAuth } from '../../hooks/AuthProvider';
+import { budgetHeaders } from '../../utils/constantHelper';
 
 export async function action({ request }) {
   const formData = await request.formData();
   if (!formData || formData.get('file') === 'null' || !formData.get('file')) {
     return { error: 'Please select a file first.' };
   }
-  const res = formData.get('forUserId') && await upload_budget(formData, formData.get('type'));
+  const res =
+    formData.get('forUserId') &&
+    (await upload_budget(formData, formData.get('type')));
   return { error: res?.error, message: res?.message };
 }
 
@@ -169,26 +173,22 @@ export default function Uploadbudget() {
           </div>
         </div>
 
-        <div className=" border border-gray-200 rounded-md p-4 mb-4">
+        <div className="w-full relative border border-gray-200 rounded-md p-4 mb-4">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-semibold">{`Sample Format ${
               uploadType && `(for ${uploadType})`
             }`}</h3>
-            {/* <a
-            href="/sample/products.xlsx" // replace with your actual sample file path
-            download
-            className="text-indigo-600 text-sm hover:underline"
-          >
-            Download Sample
-          </a> */}
           </div>
+          <div className=''>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm border">
+            <table className={tableCSS}>
               <thead className={`${theadCSS}`}>
                 <tr>
-                  <th className="px-2 py-1 border text-left">Name</th>
-                  <th className="px-2 py-1 border text-left">Price</th>
-                  <th className="px-2 py-1 border text-left">Stock</th>
+                  {budgetHeaders.map((header, idx) => (
+                    <th key={header.key} className="px-2 py-1 border">
+                      {header.label}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
@@ -210,12 +210,13 @@ export default function Uploadbudget() {
               </tbody>
             </table>
           </div>
+          </div>
         </div>
         {message && (
           <p className={`mt-4 text-center text-red-500 text-l`}>{message}</p>
         )}
         {!message && fileData.length > 0 && (
-          <div>
+          <div className="w-full relative">
             <h3 className="text-sm font-medium mb-2">
               Sample Preview Uploaded data:
             </h3>

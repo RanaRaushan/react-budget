@@ -180,7 +180,7 @@ export default function ExpenseBudget() {
             <div className='relative'>
           <InputDropdownComponent
             props={{
-              suggestion: suggestions['description'],
+              suggestion: suggestions?.['description'],
               placeholder: 'Description',
               name: `description`,
               value: input,
