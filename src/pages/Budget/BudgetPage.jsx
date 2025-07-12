@@ -303,7 +303,7 @@ export default function BudgetPage() {
     setGlobalParam(newParams);
   };
 
-  const checkIfAnyFormDataUpdated = (existingData, newFormData) => {
+  const checkIfAnyFormDataUpdated = (intent, existingData, newFormData) => {
     const newFormDataWithUpdatedKey = Object.entries(newFormData).reduce(
       (acc, [key, value]) => {
         const newKey = key.split('-')[1];
@@ -314,21 +314,23 @@ export default function BudgetPage() {
       },
       {},
     );
-    const combinedHeaders = budgetHeaders.concat(itemDetailHeaders);
+    const headers = intent === updateItemIntent ?  budgetHeaders : itemDetailHeaders;
     let anyFieldUpdated = false;
-    for (const header of combinedHeaders) {
+    for (const header of headers) {
       const key = header.key;
       console.log('key', key);
+      if (anyFieldUpdated === true) return true;
       if (dateFields.includes(key)) {
         anyFieldUpdated =
           anyFieldUpdated ||
-          getFormatedDateFromString(existingData[key]) !=
+          getFormatedDateFromString(existingData[key]) !==
             newFormDataWithUpdatedKey[key];
+      console.log('anyFieldUpdated', anyFieldUpdated);
       } else {
         anyFieldUpdated =
           anyFieldUpdated ||
-          (existingData[key] &&
-            existingData[key] != newFormDataWithUpdatedKey[key]);
+          (String(existingData[key]) !== newFormDataWithUpdatedKey[key]);
+      console.log('anyFieldUpdated1', anyFieldUpdated, existingData[key], newFormDataWithUpdatedKey[key]);
       }
     }
     console.log('return ', anyFieldUpdated);
@@ -348,7 +350,7 @@ export default function BudgetPage() {
 
     console.log('smae', previousValue, Object.fromEntries(formData));
     if (
-      checkIfAnyFormDataUpdated(previousValue, Object.fromEntries(formData))
+      checkIfAnyFormDataUpdated(updateItemIntent, previousValue, Object.fromEntries(formData))
     ) {
       fetcher.submit(formData, {
         method: 'POST',
@@ -372,7 +374,7 @@ export default function BudgetPage() {
     formData.append('intent', updateItemDetailIntent);
     formData.append(`parentItemId`, parentId);
     if (
-      checkIfAnyFormDataUpdated(previousValue, Object.fromEntries(formData))
+      checkIfAnyFormDataUpdated(updateItemDetailIntent, previousValue, Object.fromEntries(formData))
     ) {
       fetcher.submit(formData, {
         method: 'POST',
@@ -435,7 +437,7 @@ export default function BudgetPage() {
   };
   const createRow = (defaultValues) => {
     return itemDetailHeaders.reduce((acc, col) => {
-      acc[col.key] = defaultValues[header.key];
+      acc[col.key] = defaultValues[col.key];
       return acc;
     }, {});
   };

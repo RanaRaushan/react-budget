@@ -11,7 +11,11 @@ import { useFetcher } from 'react-router-dom';
 import SamplePreviewTableComponent from '../../components/exporting/SamplePreviewTable';
 import * as XLSX from 'xlsx';
 import { useAuth } from '../../hooks/AuthProvider';
-import { budgetHeaders } from '../../utils/constantHelper';
+import {
+  budgetHeaders,
+  investmentHeaders,
+  itemDetailHeaders,
+} from '../../utils/constantHelper';
 
 export async function action({ request }) {
   const formData = await request.formData();
@@ -109,7 +113,22 @@ export default function Uploadbudget() {
   const uploadTypeOption = [
     { key: 'budget', label: 'Budget Transaction' },
     { key: 'budgetEntry', label: 'Budget Item Entry' },
+    { key: 'investment', label: 'Investment' },
   ];
+
+  const sampleHeaders =
+    uploadType === 'budget'
+      ? budgetHeaders
+      : uploadType === 'budgetEntry'
+      ? itemDetailHeaders
+      : investmentHeaders;
+
+  const sampleData = Array.from({ length: 3 }, (_, index) =>
+    sampleHeaders.reduce((row, { key, label }) => {
+      row[key] = `Sample ${label}-${index}`;
+      return row;
+    }, {}),
+  );
 
   return (
     <div className="flex flex-col items-center justify-center bg-indigo-600 p-6 rounded-xl shadow border border-gray-200">
@@ -151,7 +170,7 @@ export default function Uploadbudget() {
               ))}
             </select>
 
-            <div className="flex gap-3 pt-4">
+            <div className="flex gap-3 pt-4 pb-4">
               <button
                 onClick={handleSubmit}
                 disabled={loading}
@@ -164,62 +183,82 @@ export default function Uploadbudget() {
                   setFileName('');
                   setFileData([]);
                   setUploadType('');
+                  setMessage('');
                 }}
                 className="px-4 py-2 rounded"
               >
                 Reset
               </button>
+              {message && (
+                <p className={`mt-4 text-center text-red-500 text-l`}>
+                  {message}
+                </p>
+              )}
             </div>
           </div>
         </div>
 
-        <div className="w-full relative border border-gray-200 rounded-md p-4 mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-semibold">{`Sample Format ${
-              uploadType && `(for ${uploadType})`
-            }`}</h3>
+        {!(fileData.length > 0) && uploadType && (
+          <div className="w-full relative border border-gray-200 rounded-md p-4 mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-semibold">{`Sample Format ${
+                uploadType && `(for ${uploadType})`
+              }`}</h3>
+            </div>
+            <div className="">
+              <div className="overflow-x-auto">
+                <table className={tableCSS}>
+                  <thead className={`${theadCSS}`}>
+                    <tr>
+                      {sampleHeaders.map((header, idx) => (
+                        <th key={header.key} className="px-2 py-1 border">
+                          {header.label}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sampleData.map((row, idx) => (
+                      <tr key={idx}>
+                        {sampleHeaders.map(({ key }) => (
+                          <td key={key} className="border px-4 py-2">
+                            {row[key]}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                    {/* // <tr>
+                    //   {Array(3)
+                    //     .fill(null)
+                    //     .map(() =>
+                    //       sampleHeaders.reduce((row, { key, label }) => {
+                    //         row[key] = `Sample ${label}`;
+                    //         return row;
+                    //       }, {}),
+                    //     )}
+                    //   <td className="px-2 py-1 border">Apple</td>
+                    //   <td className="px-2 py-1 border">1.2</td>
+                    //   <td className="px-2 py-1 border">100</td>
+                    // </tr>
+                    // <tr>
+                    //   <td className="px-2 py-1 border">Banana</td>
+                    //   <td className="px-2 py-1 border">0.5</td>
+                    //   <td className="px-2 py-1 border">50</td>
+                    // </tr>
+                    // <tr>
+                    //   <td className="px-2 py-1 border">Carrot</td>
+                    //   <td className="px-2 py-1 border">0.8</td>
+                    //   <td className="px-2 py-1 border">200</td>
+                    // </tr> */}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
-          <div className=''>
-          <div className="overflow-x-auto">
-            <table className={tableCSS}>
-              <thead className={`${theadCSS}`}>
-                <tr>
-                  {budgetHeaders.map((header, idx) => (
-                    <th key={header.key} className="px-2 py-1 border">
-                      {header.label}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="px-2 py-1 border">Apple</td>
-                  <td className="px-2 py-1 border">1.2</td>
-                  <td className="px-2 py-1 border">100</td>
-                </tr>
-                <tr>
-                  <td className="px-2 py-1 border">Banana</td>
-                  <td className="px-2 py-1 border">0.5</td>
-                  <td className="px-2 py-1 border">50</td>
-                </tr>
-                <tr>
-                  <td className="px-2 py-1 border">Carrot</td>
-                  <td className="px-2 py-1 border">0.8</td>
-                  <td className="px-2 py-1 border">200</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          </div>
-        </div>
-        {message && (
-          <p className={`mt-4 text-center text-red-500 text-l`}>{message}</p>
         )}
         {!message && fileData.length > 0 && (
           <div className="w-full relative">
-            <h3 className="text-sm font-medium mb-2">
-              Sample Preview Uploaded data:
-            </h3>
+            <h3 className="text-sm font-medium mb-2">Preview Uploaded data:</h3>
             <SamplePreviewTableComponent data={fileData} />
           </div>
         )}
